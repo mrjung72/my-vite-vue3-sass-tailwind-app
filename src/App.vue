@@ -7,7 +7,7 @@ import TheHeader from "@/components/TheHeader.vue";
 <template>
 	<TheHeader/>
 
-	<main class="py-8">
+	<main class="py-4 px-4">
 		<router-view />
 	</main>
 
