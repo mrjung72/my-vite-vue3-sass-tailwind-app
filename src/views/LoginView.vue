@@ -19,6 +19,6 @@ const authStore = useAuthStore()
 
 function login() {
   authStore.login(email.value, password.value)
-  router.push('/users')
+  router.push('/members')
 }
 </script>

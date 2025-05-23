@@ -1,4 +1,5 @@
 import HomeView from '@/views/HomeView.vue';
+import MembersView from '@/views/MembersView.vue';
 
 export default [
 	{
@@ -34,9 +35,9 @@ export default [
 		meta: { title: '회원가입' },
 	},
 	{ 
-		path: '/users', 
-		name: 'users',
-		component: () => import('@/views/UserListView.vue'),
-		meta: { title: '회원목록' },
+		path: '/members', 
+		name: 'members',
+  		component: MembersView,
+		meta: { title: '회원목록', requiresAuth: true },
 	}
 ];

@@ -1,18 +1,27 @@
 import { defineStore } from 'pinia'
 
+// src/stores/auth.js
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
-    users: [] // 가입한 사용자 목록 저장용
+    member: JSON.parse(localStorage.getItem('member')) || null,
+    members: []
   }),
   actions: {
     login(email, password) {
-      const found = this.users.find(u => u.email === email && u.password === password)
-      if (found) this.user = found
-      else alert('사용자를 찾을 수 없습니다.')
+      const found = this.members.find(u => u.email === email && u.password === password)
+      if (found) {
+        this.user = found
+        localStorage.setItem('member', JSON.stringify(found))
+      } else {
+        alert('사용자를 찾을 수 없습니다.')
+      }
+    },
+    logout() {
+      this.user = null
+      localStorage.removeItem('member')
     },
     register(user) {
-      this.users.push({ ...user, id: Date.now() })
+      this.members.push({ ...member, id: Date.now() })
     }
   }
 })
