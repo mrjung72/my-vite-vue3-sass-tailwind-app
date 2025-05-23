@@ -4,7 +4,7 @@ import ThemeControllerMini from "@/components/ThemeControllerMini.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
 
 const router = useRouter();
-const title = 'Template Preview';
+const title = '사하라 홈';
 </script>
 
 <template>
@@ -19,9 +19,7 @@ const title = 'Template Preview';
 				<ul
 					tabindex="0"
 					class="menu menu-lg dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-					<li><a>Homepage</a></li>
-					<li><a>Portfolio</a></li>
-					<li><a>About</a></li>
+					<li><a href="/users">회원목록</a></li>
 				</ul>
 			</div>
 		</div>
@@ -30,16 +28,16 @@ const title = 'Template Preview';
 		</div>
 		<div class="inline-flex flex-none gap-x-2">
 			<router-link
-				:to="{ name: 'home' }"
+				:to="{ name: 'login' }"
 				class="btn btn-ghost"
-				:class="{ 'btn-active': router.currentRoute.value.name === 'home' }"
-			>Home</router-link>
+				:class="{ 'btn-active': router.currentRoute.value.name === 'login' }"
+			>로그인</router-link>
 
 			<router-link
-				:to="{ name: 'componentsPreview' }"
+				:to="{ name: 'register' }"	
 				class="btn btn-ghost"
-				:class="{ 'btn-active': router.currentRoute.value.name === 'componentsPreview' }"
-			>Components Preview</router-link>
+				:class="{ 'btn-active': router.currentRoute.value.name === 'register' }"
+			>회원가입</router-link>
 
 			<ThemeControllerMini class="mx-2"/>
 
