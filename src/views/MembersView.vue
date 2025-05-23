@@ -4,7 +4,7 @@
     <div class="grid gap-2">
       <div
         v-for="member in members"
-        :key="user.id"
+        :key="member.id"
         class="p-4 bg-base-100 shadow rounded"
       >
         {{ member.name }} ({{ member.email }})

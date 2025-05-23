@@ -10,17 +10,17 @@ export const useAuthStore = defineStore('auth', {
     login(email, password) {
       const found = this.members.find(u => u.email === email && u.password === password)
       if (found) {
-        this.user = found
+        this.member = found
         localStorage.setItem('member', JSON.stringify(found))
       } else {
         alert('사용자를 찾을 수 없습니다.')
       }
     },
     logout() {
-      this.user = null
+      this.member = null
       localStorage.removeItem('member')
     },
-    register(user) {
+    register(member) {
       this.members.push({ ...member, id: Date.now() })
     }
   }
