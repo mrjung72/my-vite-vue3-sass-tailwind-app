@@ -1,8 +1,17 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto grid gap-1 md:grid-cols-2">
+  <div class="p-1 max-w-4xl mx-auto grid gap-1 md:grid-cols-2">
     <!-- 회원 목록 -->
     <div>
       <h2 class="text-xl font-semibold mb-1">회원 목록</h2>
+
+      <!-- 🔍 검색창 -->
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="이름 또는 이메일로 검색"
+        class="input input-sm input-bordered w-full mb-2"
+      />
+      
       <div class="grid gap-1 mb-2">
         <div
           v-for="member in paginatedMembers"
@@ -87,16 +96,31 @@ const members = ref([
   { id: 17, name: '양만춘', email: 'yang22@example.com', joined: '2006-03-15', isAdmin: false }
 ])
 
+
+// 검색어 입력 상태
+const searchQuery = ref('')
+
+// 필터링된 회원 목록
+const filteredMembers = computed(() =>
+  members.value.filter(member =>
+    member.name.includes(searchQuery.value) ||
+    member.email.includes(searchQuery.value)
+  )
+)
+
+// 페이지네이션된 결과 (기존 members → filteredMembers 사용)
+const paginatedMembers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredMembers.value.slice(start, start + pageSize)
+})
+
+// 전체 페이지 수 (filtered 기준)
+const totalPages = computed(() => Math.ceil(filteredMembers.value.length / pageSize))
+
 // 페이지네이션 관련
 const currentPage = ref(1)
 const pageSize = 10
 
-const totalPages = computed(() => Math.ceil(members.value.length / pageSize))
-
-const paginatedMembers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return members.value.slice(start, start + pageSize)
-})
 
 // 선택 및 편집 관련
 const selected = ref(null)
