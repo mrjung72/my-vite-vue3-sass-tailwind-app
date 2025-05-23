@@ -73,8 +73,9 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const members = ref([
   { id: 1, name: '홍길동', email: 'hong@example.com', joined: '2024-01-01' , isAdmin: true},
@@ -99,6 +100,9 @@ const members = ref([
 
 // 검색어 입력 상태
 const searchQuery = ref('')
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
 
 // 필터링된 회원 목록
 const filteredMembers = computed(() =>
