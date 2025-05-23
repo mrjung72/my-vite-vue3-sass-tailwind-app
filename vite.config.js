@@ -16,4 +16,9 @@ export default defineConfig(({mode}) => ({
 			'@': fileURLToPath(new URL('./src', import.meta.url))
 		}
 	},
+	server: {
+		proxy: {
+		'/api': 'http://localhost:4000' // Spring 또는 Node 서버 주소
+		}
+	}	
 }))

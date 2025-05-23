@@ -60,7 +60,7 @@
       <div v-else>
         <p><strong>이름:</strong> {{ selected.name }}</p>
         <p><strong>이메일:</strong> {{ selected.email }}</p>
-        <p><strong>가입일:</strong> {{ selected.joined || '2024-01-01' }}</p>
+        <p><strong>가입일:</strong> {{ selected.joined }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p> 
 
         <div class="flex gap-2 mt-4">
@@ -75,96 +75,104 @@
 
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import axios from 'axios'
 
-const members = ref([
-  { id: 1, name: '홍길동', email: 'hong@example.com', joined: '2024-01-01' , isAdmin: true},
-  { id: 2, name: '김철수', email: 'kim12@example.com', joined: '2021-03-15' , isAdmin: false},
-  { id: 3, name: '김영희', email: 'kim78@example.com', joined: '2022-03-15' , isAdmin: false},
-  { id: 4, name: '이순신', email: 'lee45@example.com', joined: '2023-03-15' , isAdmin: false},
-  { id: 5, name: '강감찬', email: 'kang89@example.com', joined: '2014-03-15' , isAdmin: false},
-  { id: 6, name: '신사임당', email: 'shin66@example.com', joined: '2004-03-15' , isAdmin: false},
-  { id: 7, name: '세종대왕', email: 'sejong31@example.com', joined: '2012-01-15' , isAdmin: false},
-  { id: 8, name: '이성계', email: 'lee77@example.com', joined: '2011-03-15' , isAdmin: false},
-  { id: 9, name: '왕건', email: 'king56@example.com', joined: '2016-03-15' , isAdmin: false},
-  { id: 10, name: '김구', email: 'kim91@example.com', joined: '2017-03-15' , isAdmin: false},
-  { id: 11, name: '단군', email: 'dan04@example.com', joined: '2018-03-15' , isAdmin: false},
-  { id: 12, name: '유관순', email: 'ryu82@example.com', joined: '2019-03-15' , isAdmin: false},
-  { id: 13, name: '구운몽', email: 'goo99@example.com', joined: '2009-03-15' , isAdmin: false},
-  { id: 14, name: '안중근', email: 'ahn39@example.com', joined: '2004-03-15' , isAdmin: false},
-  { id: 15, name: '윤봉길', email: 'yun54@example.com', joined: '2002-03-15' , isAdmin: false},
-  { id: 16, name: '서재필', email: 'seo64@example.com', joined: '2005-03-15' , isAdmin: false},
-  { id: 17, name: '양만춘', email: 'yang22@example.com', joined: '2006-03-15', isAdmin: false }
-])
-
-
-// 검색어 입력 상태
+const members = ref([])
+const currentPage = ref(1)
+const pageSize = 10
+const selected = ref(null)
+const isEditing = ref(false)
+const editForm = ref({ name: '', email: '', isAdmin: false })
 const searchQuery = ref('')
+
+// ✅ 서버에서 회원 목록 가져오기
+const fetchMembers = async () => {
+  try {
+    const res = await axios.get('/api/members')
+    if (res.status !== 200) {
+      throw new Error('회원 목록 로딩 실패')
+    }
+    console.log('회원 목록 로딩 성공:', res.data)
+    members.value = res.data
+  } catch (err) {
+    console.error('회원 목록 로딩 실패:', err)
+  }
+}
+
+// ✅ 컴포넌트가 마운트되면 회원 목록 요청
+onMounted(fetchMembers)
+
+// ✅ 검색 후 페이지 1로
 watch(searchQuery, () => {
   currentPage.value = 1
 })
 
-// 필터링된 회원 목록
-const filteredMembers = computed(() =>
-  members.value.filter(member =>
-    member.name.includes(searchQuery.value) ||
-    member.email.includes(searchQuery.value)
+// ✅ 검색 + 페이지네이션
+const filteredMembers = computed(() => {
+  if (!searchQuery.value) return members.value
+  return members.value.filter(m =>
+    m.name?.includes(searchQuery.value) || m.email?.includes(searchQuery.value)
   )
-)
+})
 
-// 페이지네이션된 결과 (기존 members → filteredMembers 사용)
+const totalPages = computed(() => Math.ceil(filteredMembers.value.length / pageSize))
+
 const paginatedMembers = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return filteredMembers.value.slice(start, start + pageSize)
 })
 
-// 전체 페이지 수 (filtered 기준)
-const totalPages = computed(() => Math.ceil(filteredMembers.value.length / pageSize))
-
-// 페이지네이션 관련
-const currentPage = ref(1)
-const pageSize = 10
-
-
-// 선택 및 편집 관련
-const selected = ref(null)
-const isEditing = ref(false)
-const editForm = ref({ name: '', email: '', isAdmin: false })
 function selectMember(member) {
-  selected.value = member
+  selected.value = { ...member }
   isEditing.value = false
 }
 
 function startEdit() {
   isEditing.value = true
-  editForm.value = { name: selected.value.name, email: selected.value.email , isAdmin: selected.value.isAdmin}
+  editForm.value = {
+    name: selected.value.name,
+    email: selected.value.email,
+    isAdmin: selected.value.isAdmin
+  }
 }
 
 function cancelEdit() {
   isEditing.value = false
 }
 
-function saveEdit() {
+async function saveEdit() {
   if (!editForm.value.name || !editForm.value.email) {
     alert('이름과 이메일을 모두 입력해주세요.')
     return
   }
 
-  selected.value.name = editForm.value.name
-  selected.value.email = editForm.value.email
-  selected.value.isAdmin = editForm.value.isAdmin
-  isEditing.value = false
+  try {
+    await axios.put(`/api/members/${selected.value.id}`, editForm.value)
+    await fetchMembers()
+    selected.value = { ...selected.value, ...editForm.value }
+    isEditing.value = false
+  } catch (err) {
+    alert('수정 실패')
+    console.error(err)
+  }
 }
 
-function deleteMember() {
-  if (confirm('정말 삭제하시겠습니까?')) {
-    members.value = members.value.filter(m => m.id !== selected.value.id)
-    selected.value = null
+async function deleteMember() {
+  if (!confirm('정말 삭제하시겠습니까?')) return
 
-    // 삭제 후 현재 페이지가 비었으면 이전 페이지로 이동
-    if ((currentPage.value - 1) * pageSize >= members.value.length) {
+  try {
+    await axios.delete(`/api/members/${selected.value.id}`)
+    selected.value = null
+    await fetchMembers()
+
+    // 페이지 비었을 때 이동
+    if ((currentPage.value - 1) * pageSize >= filteredMembers.value.length) {
       currentPage.value = Math.max(1, currentPage.value - 1)
     }
+  } catch (err) {
+    alert('삭제 실패')
+    console.error(err)
   }
 }
 </script>
