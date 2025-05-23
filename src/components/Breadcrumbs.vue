@@ -14,16 +14,15 @@ const isHomeActive = computed(() => {
 </script>
 
 <template>
-	<div class="border-b border-b-base-200/50 pt-3 pb-2">
+	<div class="border-b border-b-base-200/50 pt-3 pb-1">
 		<div class="container-center text-left ">
-			<div class="breadcrumbs inline-flex gap-4">
-				<span class="text-base-content/70">현재 위치:</span>
+			<div class="breadcrumbs inline-flex gap-1">
 				<ul>
 					<li>
 						<router-link
 							:to="{ name: 'home' }"
-							:class="{ 'font-semibold': isHomeActive }"
-						>Home</router-link>
+							:class="{ 'font-bold': isHomeActive }"
+						>홈</router-link>
 					</li>
 					<li v-for="(breadcrumb, index) in breadcrumbs" :key="index">
 						<router-link

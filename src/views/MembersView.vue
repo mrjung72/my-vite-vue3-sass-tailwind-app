@@ -1,13 +1,13 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto grid gap-4 md:grid-cols-2">
+  <div class="p-6 max-w-4xl mx-auto grid gap-1 md:grid-cols-2">
     <!-- 회원 목록 -->
     <div>
-      <h2 class="text-xl font-semibold mb-4">회원 목록</h2>
+      <h2 class="text-xl font-semibold mb-1">회원 목록</h2>
       <div class="grid gap-1 mb-2">
         <div
           v-for="member in paginatedMembers"
           :key="member.id"
-          class="p-2 bg-base-100 shadow-sm rounded text-sm cursor-pointer hover:bg-base-200"
+          class="p-1 bg-base-100 shadow-sm rounded text-sm cursor-pointer hover:bg-base-200"
           :class="{ 'bg-primary text-primary-content': selected?.id === member.id }"
           @click="selectMember(member)"
         >
