@@ -17,7 +17,7 @@ const isHomeActive = computed(() => {
 	<div class="border-b border-b-base-200/50 pt-3 pb-2">
 		<div class="container-center text-left ">
 			<div class="breadcrumbs inline-flex gap-4">
-				<span class="text-base-content/70">You are here:</span>
+				<span class="text-base-content/70">현재 위치:</span>
 				<ul>
 					<li>
 						<router-link

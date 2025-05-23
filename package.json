@@ -1,7 +1,7 @@
 {
-  "name": "starter-template-vite-vue3-sass-tailwind4-daisyui5",
+  "name": "sahara web",
   "version": "1.1.0",
-  "description": "Vite + Vue 3 + Sass + Tailwind 4 + DaisyUI 5 template",
+  "description": "사하라 홈페이지",
   "author": "Martin Ille <ille.martin@gmail.com>",
   "repository": {
     "type": "git",
