@@ -39,6 +39,12 @@ export default [
 		meta: { title: '회원등록' },
 	},
 	{ 
+		path: '/members/csv-register', 
+		name: 'members-csv-register',
+		component: () => import('@/views/MembersCsvUploadView.vue'),
+		meta: { title: '회원정보CVS파일 업로드', requiresAuth: true  },
+	},
+	{ 
 		path: '/members/list', 
 		name: 'members-list',
   		component: MembersView,
