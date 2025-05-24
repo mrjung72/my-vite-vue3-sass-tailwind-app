@@ -1,4 +1,4 @@
-name,email,password,isadmin
+name,email,password,isAdmin
 조지민,jjm3699@example.com,1111,1
 안채원,acw5691@demo.net,1111,1
 박채원,pcw350@example.com,1111,1
