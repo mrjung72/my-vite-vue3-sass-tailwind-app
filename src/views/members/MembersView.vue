@@ -50,7 +50,7 @@
         <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
         <button class="btn btn-xs" :disabled="currentPage === totalPages" @click="currentPage++">다음</button>
       </div>
-      <div v-if="auth.isLoggedIn && auth.user.isadmin > 0" class="flex gap-2 mt-4">
+      <div v-if="auth.isLoggedIn && auth.user.isAdmin > 0" class="flex gap-2 mt-4">
         <button class="btn btn-sm btn-primary" @click="showRegisterModal = true">회원 등록</button>
       </div>
     </div>
@@ -86,7 +86,7 @@
         <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p> 
 
-        <div v-if="auth.isLoggedIn && auth.user.isadmin > 0" class="flex gap-2 mt-4">
+        <div v-if="auth.isLoggedIn && auth.user.isAdmin > 0" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>
           <button class="btn btn-sm btn-error" @click="deleteMember">삭제</button>
           <button class="btn btn-sm btn-outline" @click="selected = null">닫기</button>
