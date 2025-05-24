@@ -6,15 +6,10 @@
     <dialog class="modal" :open="showRegisterModal">
       <div class="modal-box">
         <h3 class="font-bold text-lg mb-4">회원 등록</h3>
-        <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
         <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
-
-        <input
-          v-model="newMember.userid"
-          class="input input-sm input-bordered w-full mb-2"
-          placeholder="사용자 ID (이메일에서 자동 추출)"
-          :readonly="true" />
-
+        <input v-model="newMember.userid" class="input input-sm input-bordered w-full mb-2"
+          placeholder="사용자 ID (이메일에서 자동 추출)" :readonly="true" />
+        <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
         <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
         <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
           <span class="label-text">관리자 여부</span>
