@@ -1,5 +1,5 @@
 import HomeView from '@/views/HomeView.vue';
-import MembersView from '@/views/MembersView.vue';
+import MembersView from '@/views/members/MembersView.vue';
 import { useAuthStore } from '../stores/auth'
 import pinia from '../stores/pinia'
 
@@ -35,13 +35,13 @@ export default [
 	{ 
 		path: '/members/register', 
 		name: 'members-register',
-		component: () => import('@/views/RegisterMemberView.vue'),
+		component: () => import('@/views/members/RegisterMemberView.vue'),
 		meta: { title: '회원등록', requiresAuth: true },
 	},
 	{ 
 		path: '/members/csv-register', 
 		name: 'members-csv-register',
-		component: () => import('@/views/MembersCsvUploadView.vue'),
+		component: () => import('@/views/members/MembersCsvUploadView.vue'),
 		meta: { title: '회원정보CVS파일 업로드', requiresAuth: true  },
 	},
 	{ 
