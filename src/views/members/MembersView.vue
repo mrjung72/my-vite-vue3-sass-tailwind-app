@@ -106,7 +106,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from "@/stores/auth";
-const auth = useAuthStore()
+const auth = useAuthStore() // Pinia 스토어에서 인증 상태 가져오기
 
 const members = ref([])
 const currentPage = ref(1)
@@ -178,15 +178,24 @@ async function saveEdit() {
   }
 
   try {
-    await axios.put(`/api/members/${selected.value.id}`, editForm.value)
+    const memberToUpdate = {
+      name: editForm.value.name,
+      email: editForm.value.email,
+      // ** isAdmin 값은 관리자만 변경 가능하게 필터링 **
+      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? editForm.value.isAdmin : selected.value.isAdmin
+    };
+
+    await axios.put(`/api/members/${selected.value.id}`, memberToUpdate)
     await fetchMembers()
-    selected.value = { ...selected.value, ...editForm.value }
+    selected.value = { ...selected.value, ...memberToUpdate } // 업데이트된 값으로 selected 반영
     isEditing.value = false
+    alert('회원 정보가 수정되었습니다.')
   } catch (err) {
     const errorMessage = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
     alert(`수정 실패: ${errorMessage}`);
-    console.error(err);  }
+    console.error(err);
   }
+}
 
 async function deleteMember() {
   if (!confirm('정말 삭제하시겠습니까?')) return
@@ -212,7 +221,7 @@ const newMember = ref({
   name: '',
   email: '',
   password: '',
-  isAdmin: false,
+  isAdmin: false, // 초기값 설정
 })
 
 const registerMember = async () => {
@@ -222,7 +231,15 @@ const registerMember = async () => {
   }
 
   try {
-    await axios.post('/api/members', newMember.value)
+    const memberToRegister = {
+      name: newMember.value.name,
+      email: newMember.value.email,
+      password: newMember.value.password,
+      // ** isAdmin 값은 관리자만 설정 가능하게 필터링 **
+      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false
+    };
+
+    await axios.post('/api/members', memberToRegister)
     await fetchMembers()
     showRegisterModal.value = false
     newMember.value = { name: '', email: '', password: '', isAdmin: false }
