@@ -10,11 +10,11 @@ const router = createRouter({
 });
 
 
-// src/router/index.js
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
-  if (to.meta.requiresAuth && !auth.member) {
-    next('/login')
+  
+  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+    next({ name: 'login' })
   } else {
     next()
   }

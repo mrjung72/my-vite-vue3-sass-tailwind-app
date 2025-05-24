@@ -2,9 +2,16 @@
 import { useRouter } from "vue-router";
 import ThemeControllerMini from "@/components/ThemeControllerMini.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
+import { useAuthStore } from "@/stores/auth";
 
+const auth = useAuthStore()
 const router = useRouter();
 const title = '사하라 홈';
+
+const handleLogout = () => {
+  auth.logout()
+  router.push({ name: 'home' })
+}
 </script>
 
 <template>
@@ -26,8 +33,22 @@ const title = '사하라 홈';
 		<div class="flex-1 w-auto">
 			<router-link :to="{ name: 'home' }" class="text-xl">{{ title }}</router-link>
 		</div>
+
+
 		<div class="inline-flex flex-none gap-x-2">
+
+			<p v-if="auth.isLoggedIn && auth.user">
+				👤 {{ auth.user?.name }} ({{ auth.user?.email }})
+			</p>
+			<button
+				v-if="auth.isLoggedIn"
+				class="btn btn-sm btn-outline"
+				@click="handleLogout"
+			>
+				로그아웃
+			</button>
 			<router-link
+				v-if="!auth.isLoggedIn"
 				:to="{ name: 'login' }"
 				class="btn btn-ghost"
 				:class="{ 'btn-active': router.currentRoute.value.name === 'login' }"
