@@ -50,7 +50,9 @@
         <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
         <button class="btn btn-xs" :disabled="currentPage === totalPages" @click="currentPage++">다음</button>
       </div>
-      <button class="btn btn-sm btn-primary" @click="showRegisterModal = true">회원 등록</button>
+      <div v-if="auth.isLoggedIn && auth.user.isadmin > 0" class="flex gap-2 mt-4">
+        <button class="btn btn-sm btn-primary" @click="showRegisterModal = true">회원 등록</button>
+      </div>
     </div>
 
 
@@ -84,10 +86,13 @@
         <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p> 
 
-        <div class="flex gap-2 mt-4">
+        <div v-if="auth.isLoggedIn && auth.user.isadmin > 0" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>
           <button class="btn btn-sm btn-error" @click="deleteMember">삭제</button>
-          <button class="btn btn-sm btn-ghost" @click="selected = null">닫기</button>
+          <button class="btn btn-sm btn-outline" @click="selected = null">닫기</button>
+        </div>
+        <div v-else class="flex gap-2 mt-4">
+          <button class="btn btn-sm btn-outline" @click="selected = null">닫기</button>
         </div>
       </div>
     </div>
@@ -98,6 +103,8 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from "@/stores/auth";
+const auth = useAuthStore()
 
 const members = ref([])
 const currentPage = ref(1)
@@ -174,10 +181,10 @@ async function saveEdit() {
     selected.value = { ...selected.value, ...editForm.value }
     isEditing.value = false
   } catch (err) {
-    alert('수정 실패')
-    console.error(err)
+    const errorMessage = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
+    alert(`수정 실패: ${errorMessage}`);
+    console.error(err);  }
   }
-}
 
 async function deleteMember() {
   if (!confirm('정말 삭제하시겠습니까?')) return

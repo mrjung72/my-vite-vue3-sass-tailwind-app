@@ -15,6 +15,10 @@ router.beforeEach((to, from, next) => {
   
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     next({ name: 'login' })
+  }
+  else if (to.meta.requiresAuth && auth.user.isadmin < 1) {
+    alert('관리자만 접근할 수 있습니다.')    
+    next({ name: 'home' })
   } else {
     next()
   }

@@ -36,7 +36,7 @@ export default [
 		path: '/members/register', 
 		name: 'members-register',
 		component: () => import('@/views/RegisterMemberView.vue'),
-		meta: { title: '회원등록' },
+		meta: { title: '회원등록', requiresAuth: true },
 	},
 	{ 
 		path: '/members/csv-register', 
@@ -48,6 +48,6 @@ export default [
 		path: '/members/list', 
 		name: 'members-list',
   		component: MembersView,
-		meta: { title: '회원목록', requiresAuth: true },
+		meta: { title: '회원목록' },
 	}
 ];
