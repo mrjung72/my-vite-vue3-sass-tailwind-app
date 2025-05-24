@@ -29,14 +29,14 @@ export default [
 		meta: { title: '로그인' },
 	},
 	{ 
-		path: '/register', 
-		name: 'register',
-		component: () => import('@/views/RegisterView.vue'),
-		meta: { title: '회원가입' },
+		path: '/members/register', 
+		name: 'members-register',
+		component: () => import('@/views/RegisterMemberView.vue'),
+		meta: { title: '회원등록' },
 	},
 	{ 
-		path: '/members', 
-		name: 'members',
+		path: '/members/list', 
+		name: 'members-list',
   		component: MembersView,
 		meta: { title: '회원목록', requiresAuth: true },
 	}
