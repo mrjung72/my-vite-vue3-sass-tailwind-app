@@ -70,8 +70,9 @@
           <input v-model="editForm.email" class="input input-sm input-bordered w-full mt-1" />
         </label>
         <label class="block">
-          <input type="checkbox" v-model="editForm.isAdmin" class="checkbox checkbox-sm mr-2" />
-          관리자 여부
+        <input type="checkbox" v-model="editForm.isAdmin"
+                class="checkbox checkbox-sm mr-2"
+                :disabled="!(auth.isLoggedIn && auth.user.isAdmin > 0)" /> 관리자 여부
         </label>
 
         <div class="flex gap-2 mt-4">
