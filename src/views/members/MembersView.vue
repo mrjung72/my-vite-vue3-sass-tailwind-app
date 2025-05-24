@@ -3,27 +3,32 @@
     <div>
       <h2 class="text-xl font-semibold mb-1">회원 목록</h2>
 
-      <dialog class="modal" :open="showRegisterModal">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg mb-4">회원 등록</h3>
-          <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
-          <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
-          <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
+    <dialog class="modal" :open="showRegisterModal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">회원 등록</h3>
+        <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
+        <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
 
-          <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
-            <span class="label-text">관리자 여부</span>
-            <input type="checkbox" class="toggle" v-model="newMember.isAdmin" />
-          </label>
-          <div v-else class="text-sm text-neutral-500 mb-2">
-            회원 등록 시 관리자 권한은 부여할 수 없습니다.
-          </div>
+        <input
+          v-model="newMember.userid"
+          class="input input-sm input-bordered w-full mb-2"
+          placeholder="사용자 ID (이메일에서 자동 추출)"
+          :readonly="true" />
 
-          <div class="modal-action">
-            <button class="btn btn-sm btn-secondary" @click="registerMember">등록</button>
-            <button class="btn btn-sm" @click="showRegisterModal = false">닫기</button>
-          </div>
+        <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
+        <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
+          <span class="label-text">관리자 여부</span>
+          <input type="checkbox" class="toggle" v-model="newMember.isAdmin" />
+        </label>
+        <div v-else class="text-sm text-neutral-500 mb-2">
+          회원 등록 시 관리자 권한은 부여할 수 없습니다.
         </div>
-      </dialog>
+        <div class="modal-action">
+          <button class="btn btn-sm btn-secondary" @click="registerMember">등록</button>
+          <button class="btn btn-sm" @click="showRegisterModal = false">닫기</button>
+        </div>
+      </div>
+    </dialog>
 
 
       <input
@@ -63,14 +68,18 @@
 
       <div v-if="isEditing" class="space-y-2">
         <label class="block">
-          이름:
-          <input v-model="editForm.name" class="input input-sm input-bordered w-full mt-1" />
+          사용자ID:
+          <input v-model="editForm.userid" class="input input-sm input-bordered w-full mb-2" :readonly="true" />
         </label>
         <label class="block">
           이메일:
-          <input v-model="editForm.email" class="input input-sm input-bordered w-full mt-1" />
+          <input v-model="editForm.email" class="input input-sm input-bordered w-full mt-1" :readonly="true" />
         </label>
         <label class="block">
+          이름:
+          <input v-model="editForm.name" class="input input-sm input-bordered w-full mt-1" />
+        </label>
+          <label class="block">
           <input type="checkbox" v-model="editForm.isAdmin"
                  class="checkbox checkbox-sm mr-2"
                  :disabled="!(auth.isLoggedIn && auth.user.isAdmin)" /> 관리자 여부
@@ -83,8 +92,9 @@
       </div>
 
       <div v-else>
-        <p><strong>이름:</strong> {{ selected.name }}</p>
+        <p><strong>사용자ID:</strong> {{ selected.userid }}</p>
         <p><strong>이메일:</strong> {{ selected.email }}</p>
+        <p><strong>이름:</strong> {{ selected.name }}</p>
         <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p>
 
@@ -98,7 +108,7 @@
         </div>
       </div>
     </div>
-  </div>
+    </div>
 </template>
 
 
@@ -113,7 +123,7 @@ const currentPage = ref(1)
 const pageSize = 10
 const selected = ref(null)
 const isEditing = ref(false)
-const editForm = ref({ name: '', email: '', isAdmin: false })
+const editForm = ref({ name: '', email: '', isAdmin: false, userid: '' })
 const searchQuery = ref('')
 
 // ✅ 서버에서 회원 목록 가져오기
@@ -163,9 +173,11 @@ function startEdit() {
   editForm.value = {
     name: selected.value.name,
     email: selected.value.email,
-    isAdmin: selected.value.isAdmin
+    isAdmin: selected.value.isAdmin,
+    userid: selected.value.userid || (selected.value.email ? selected.value.email.split('@')[0] : '')
   }
 }
+
 
 function cancelEdit() {
   isEditing.value = false
@@ -181,13 +193,13 @@ async function saveEdit() {
     const memberToUpdate = {
       name: editForm.value.name,
       email: editForm.value.email,
-      // ** isAdmin 값은 관리자만 변경 가능하게 필터링 **
-      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? editForm.value.isAdmin : selected.value.isAdmin
+      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? editForm.value.isAdmin : selected.value.isAdmin,
+      userid: editForm.value.userid
     };
 
     await axios.put(`/api/members/${selected.value.id}`, memberToUpdate)
     await fetchMembers()
-    selected.value = { ...selected.value, ...memberToUpdate } // 업데이트된 값으로 selected 반영
+    selected.value = { ...selected.value, ...memberToUpdate }
     isEditing.value = false
     alert('회원 정보가 수정되었습니다.')
   } catch (err) {
@@ -221,12 +233,24 @@ const newMember = ref({
   name: '',
   email: '',
   password: '',
-  isAdmin: false, // 초기값 설정
+  isAdmin: false,
+  // 🌟 userId 필드 추가 🌟
+  userid: ''
 })
 
+// 🌟 이메일 입력 시 userid 자동 추출 로직 추가 🌟
+watch(() => newMember.value.email, (newEmail) => {
+  if (newEmail && newEmail.includes('@')) {
+    newMember.value.userid = newEmail.split('@')[0];
+  } else {
+    newMember.value.userid = ''; // @가 없거나 이메일이 비어있으면 userid 초기화
+  }
+});
+
+
 const registerMember = async () => {
-  if (!newMember.value.name || !newMember.value.email || !newMember.value.password) {
-    alert('모든 정보를 입력해주세요.')
+  if (!newMember.value.name || !newMember.value.email || !newMember.value.password || !newMember.value.userid) {
+    alert('이름, 이메일, 비밀번호, 사용자 ID를 모두 입력해주세요.') // userid 유효성 검사 추가
     return
   }
 
@@ -235,18 +259,19 @@ const registerMember = async () => {
       name: newMember.value.name,
       email: newMember.value.email,
       password: newMember.value.password,
-      // ** isAdmin 값은 관리자만 설정 가능하게 필터링 **
-      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false
+      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false,
+      userid: newMember.value.userid
     };
 
     await axios.post('/api/members', memberToRegister)
     await fetchMembers()
     showRegisterModal.value = false
-    newMember.value = { name: '', email: '', password: '', isAdmin: false }
+    newMember.value = { name: '', email: '', password: '', isAdmin: false, userid: '' } 
     alert('회원이 등록되었습니다.')
   } catch (err) {
-    alert('회원 등록 실패')
-    console.error(err)
+    const errorMessage = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
+    alert(`회원 등록 실패: ${errorMessage}`);
+    console.error(err);
   }
 }
 
