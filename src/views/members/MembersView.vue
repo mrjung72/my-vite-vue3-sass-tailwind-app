@@ -36,9 +36,9 @@
       <div class="grid gap-1 mb-2">
         <div
           v-for="member in paginatedMembers"
-          :key="member.id"
+          :key="member.userid"
           class="p-1 bg-base-100 shadow-sm rounded text-sm cursor-pointer hover:bg-base-200"
-          :class="{ 'bg-primary text-primary-content': selected && selected.id === member.id }"
+          :class="{ 'bg-primary text-primary-content': selected && selected.userid === member.userid }"
           @click="selectMember(member)"
         >
           {{ member.name }} <span class="text-neutral-500">({{ member.email }})</span>
@@ -192,7 +192,7 @@ async function saveEdit() {
       userid: editForm.value.userid
     };
 
-    await axios.put(`/api/members/${selected.value.id}`, memberToUpdate)
+    await axios.put(`/api/members/${selected.value.userid}`, memberToUpdate)
     await fetchMembers()
     selected.value = { ...selected.value, ...memberToUpdate }
     isEditing.value = false
@@ -208,7 +208,7 @@ async function deleteMember() {
   if (!confirm('정말 삭제하시겠습니까?')) return
 
   try {
-    await axios.delete(`/api/members/${selected.value.id}`)
+    await axios.delete(`/api/members/${selected.value.userid}`)
     selected.value = null
     await fetchMembers()
 
