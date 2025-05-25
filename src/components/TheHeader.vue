@@ -15,7 +15,7 @@ const handleLogout = () => {
 </script>
 
 <template>
-	<div class="navbar bg-base-100 shadow-sm">
+	<div class="navbar bg-base-100 shadow-sm py-1 min-h-[48px]">
 		<div class="inline-flex gap-x-2">
 			<div class="dropdown">
 				<div tabindex="0" role="button" class="btn btn-ghost btn-circle">
