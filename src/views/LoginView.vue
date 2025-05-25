@@ -6,9 +6,7 @@
     <button class="btn btn-secondary w-80" @click="handleLogin" :disabled="auth.loading">
       {{ auth.loading ? '로그인 중...' : '로그인' }}
     </button>
-
-    <div v-if="auth.message" class="text-green-600 mt-4">{{ auth.message }}</div>
-    <div v-if="auth.error" class="text-red-600 mt-4">{{ auth.error }}</div>
+    <div v-if="message" class="text-green-600 mt-4">{{ message }}</div>
   </div>
 </template>
 
@@ -21,12 +19,13 @@ const userid = ref('')
 const password = ref('')
 const router = useRouter()
 const auth = useAuthStore()
+const message = ref('')
 
 const handleLogin = async () => {
-  const success = await auth.login(userid.value, password.value)
+  const result = await auth.login(userid.value, password.value)
+  message.value = result.message
 
-  console.log('로그인 성공 여부:', success)
-  if (success) {
+  if (result.isSuccess) {
 
     // 로그인 성공 시, 쿼리 파라미터로 redirect가 있을 경우 해당 경로로 이동
     //next({ name: 'login', query: { redirect: to.fullPath } })

@@ -128,7 +128,6 @@ const fetchMembers = async () => {
     if (res.status !== 200) {
       throw new Error('회원 목록 로딩 실패')
     }
-    console.log('회원 목록 로딩 성공:', res.data)
     members.value = res.data
   } catch (err) {
     console.error('회원 목록 로딩 실패:', err)
