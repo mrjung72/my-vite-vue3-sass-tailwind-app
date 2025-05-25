@@ -39,7 +39,7 @@ const handleLogout = () => {
 		<div class="inline-flex flex-none gap-x-2">
 
 			<p v-if="auth.isLoggedIn && auth.user">
-				👤 {{ auth.user?.name }} ({{ auth.user?.email }})
+				👤 {{ auth.user?.name }} ({{ auth.user?.userid }})
 			</p>
 			<button
 				v-if="auth.isLoggedIn"
