@@ -42,9 +42,9 @@
           rel="noopener noreferrer"
           class="text-blue-600 hover:underline"
         >
-          사용자 매뉴얼 다운로드
+          사용자정보 샘플파일
         </a>
-        후 작성해주세요.
+         다운로드 후 작성해주세요.
       </p>
       <ul class="list-disc pl-5 text-sm space-y-1">
         <li>파일 인코딩은 현재 <strong>euc-kr</strong>로 설정 되어 있습니다. 바꾸지 마세요!</li>
