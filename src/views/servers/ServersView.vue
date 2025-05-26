@@ -48,30 +48,37 @@ const goToPage = (page) => {
     <div v-if="isLoading" class="text-gray-500 mb-2">로딩 중...</div>
     <div v-if="error" class="text-red-500 mb-2">{{ error }}</div>
 
-    <table class="table table-zebra table-compact w-full bg-white shadow rounded-xl text-sm">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="px-3 py-1 text-left">IP</th>
-          <th class="px-3 py-1 text-left">이름</th>
-          <th class="px-3 py-1 text-left">용도</th>
-          <th class="px-3 py-1 text-left">환경</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="paginatedServers.length === 0 && !isLoading">
-          <td colspan="4" class="text-center text-gray-400">데이터가 없습니다</td>
-        </tr>
-        <tr v-for="s in paginatedServers" :key="s.server_ip" class="border-t hover:bg-gray-50 text-sm">
-          <td class="px-3 py-1">{{ s.server_ip }}</td>
-          <td class="px-3 py-1">{{ s.title }}</td>
-          <td class="px-3 py-1">{{ s.usage_type }}</td>
-          <td class="px-3 py-1">{{ s.env_type }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- 반응형 테이블: 가로 스크롤 허용 -->
+    <div class="overflow-x-auto rounded-xl border border-base-200">
+      <table class="table table-compact w-full text-sm">
+        <thead class="bg-base-200 text-base-content">
+          <tr>
+            <th class="px-3 py-1 whitespace-nowrap">IP</th>
+            <th class="px-3 py-1 whitespace-nowrap">이름</th>
+            <th class="px-3 py-1 whitespace-nowrap">용도</th>
+            <th class="px-3 py-1 whitespace-nowrap">환경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="paginatedServers.length === 0 && !isLoading">
+            <td colspan="4" class="text-center text-gray-400 py-4">데이터가 없습니다</td>
+          </tr>
+          <tr
+            v-for="s in paginatedServers"
+            :key="s.server_ip"
+            class="hover:bg-base-100 border-t"
+          >
+            <td class="px-3 py-1 whitespace-nowrap">{{ s.server_ip }}</td>
+            <td class="px-3 py-1">{{ s.title }}</td>
+            <td class="px-3 py-1">{{ s.usage_type }}</td>
+            <td class="px-3 py-1">{{ s.env_type }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- 페이지네이션 -->
-    <div class="flex justify-center mt-4 space-x-2">
+    <div class="flex justify-center mt-4 flex-wrap gap-2">
       <button class="btn btn-sm" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">이전</button>
       <button
         v-for="page in totalPages"
