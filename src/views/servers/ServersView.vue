@@ -49,33 +49,45 @@ const goToPage = (page) => {
     <div v-if="error" class="text-red-500 mb-2">{{ error }}</div>
 
     <!-- 반응형 테이블: 가로 스크롤 허용 -->
-    <div class="overflow-x-auto rounded-xl border border-base-200">
-      <table class="table table-compact w-full text-sm">
-        <thead class="bg-base-200 text-base-content">
-          <tr>
-            <th class="px-3 py-1 whitespace-nowrap">IP</th>
-            <th class="px-3 py-1 whitespace-nowrap">이름</th>
-            <th class="px-3 py-1 whitespace-nowrap">용도</th>
-            <th class="px-3 py-1 whitespace-nowrap">환경</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="paginatedServers.length === 0 && !isLoading">
-            <td colspan="4" class="text-center text-gray-400 py-4">데이터가 없습니다</td>
-          </tr>
-          <tr
-            v-for="s in paginatedServers"
-            :key="s.server_ip"
-            class="hover:bg-base-100 border-t"
-          >
-            <td class="px-3 py-1 whitespace-nowrap">{{ s.server_ip }}</td>
-            <td class="px-3 py-1">{{ s.title }}</td>
-            <td class="px-3 py-1">{{ s.usage_type }}</td>
-            <td class="px-3 py-1">{{ s.env_type }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<div class="overflow-x-auto rounded-xl border border-base-200">
+  <table class="table table-compact w-full text-sm">
+    <thead class="bg-base-200 text-base-content">
+      <tr>
+        <th class="px-3 py-1">IP</th>
+        <th class="px-3 py-1">이름</th>
+        <th class="px-3 py-1">용도</th>
+        <th class="px-3 py-1">환경</th>
+        <th class="px-3 py-1">법인</th>
+        <th class="px-3 py-1">공정</th>
+        <th class="px-3 py-1">서버타입</th>
+        <th class="px-3 py-1">OS버전</th>
+        <th class="px-3 py-1">역할</th>
+        <th class="px-3 py-1">상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-if="paginatedServers.length === 0 && !isLoading">
+        <td colspan="10" class="text-center text-gray-400 py-4">데이터가 없습니다</td>
+      </tr>
+      <tr v-for="s in paginatedServers" :key="s.server_ip" class="hover:bg-base-100 border-t">
+        <td class="px-3 py-1 whitespace-nowrap">{{ s.server_ip }}</td>
+        <td class="px-3 py-1">{{ s.title }}</td>
+        <td class="px-3 py-1">{{ s.usage_type }}</td>
+        <td class="px-3 py-1">{{ s.env_type }}</td>
+        <td class="px-3 py-1">{{ s.corp_id }}</td>
+        <td class="px-3 py-1">{{ s.proc_type }}</td>
+        <td class="px-3 py-1">{{ s.server_type }}</td>
+        <td class="px-3 py-1">{{ s.os_version }}</td>
+        <td class="px-3 py-1">{{ s.role_type }}</td>
+        <td class="px-3 py-1">
+          <span :class="s.status_cd === 'Y' ? 'text-green-600' : 'text-red-500'">
+            {{ s.status_cd === 'Y' ? '사용' : '미사용' }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
     <!-- 페이지네이션 -->
     <div class="flex justify-center mt-4 flex-wrap gap-2">
