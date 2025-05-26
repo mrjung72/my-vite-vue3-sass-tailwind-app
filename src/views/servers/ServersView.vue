@@ -12,9 +12,8 @@ const filter = ref({
   env_type: '',
   corp_id: '',
   proc_type: '',
-  server_type: '',
   role_type: '',
-  status_cd: '',
+  status_cd: 'Y',
 })
 
 const fetchServers = async () => {
@@ -41,7 +40,6 @@ const filteredServers = computed(() => {
       (!filter.value.env_type || s.env_type === filter.value.env_type) &&
       (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
       (!filter.value.proc_type || s.proc_type === filter.value.proc_type) &&
-      (!filter.value.server_type || s.server_type === filter.value.server_type) &&
       (!filter.value.role_type || s.role_type === filter.value.role_type) &&
       (!filter.value.status_cd || s.status_cd === filter.value.status_cd)
     )
@@ -71,49 +69,42 @@ const goToPage = page => (currentPage.value = page)
         class="input input-sm input-bordered w-full md:w-60"
       />
 
-      <select v-model="filter.usage_type" class="select select-sm select-bordered w-full">
-        <option value="">용도 선택</option>
-        <option value="DEV">DEV</option>
-        <option value="QA">QA</option>
-        <option value="PROD">PROD</option>
-      </select>
-
-      <select v-model="filter.env_type" class="select select-sm select-bordered w-full">
-        <option value="">환경 선택</option>
-        <option value="INT">INT</option>
-        <option value="STG">STG</option>
-        <option value="REAL">REAL</option>
-      </select>
-
       <select v-model="filter.corp_id" class="select select-sm select-bordered w-full">
         <option value="">법인 선택</option>
-        <option value="corp1">corp1</option>
-        <option value="corp2">corp2</option>
+        <option value="KR">한국</option>
+        <option value="US">미국</option>
+        <option value="UK">영국</option>
       </select>
 
       <select v-model="filter.proc_type" class="select select-sm select-bordered w-full">
         <option value="">공정 선택</option>
-        <option value="MOLD">MOLD</option>
-        <option value="CNC">CNC</option>
+        <option value="BOXING">포장</option>
+        <option value="DESIGN">디자인</option>
+        <option value="PRODUCTION">생산</option>
       </select>
 
-      <select v-model="filter.server_type" class="select select-sm select-bordered w-full">
-        <option value="">서버타입 선택</option>
-        <option value="WINDOW">WINDOW</option>
-        <option value="LINUX">LINUX</option>
-        <option value="UNIX">UNIX</option>
+      <select v-model="filter.usage_type" class="select select-sm select-bordered w-full">
+        <option value="">용도 선택</option>
+        <option value="DB">DB</option>
+        <option value="APP">APP</option>
+      </select>
+
+      <select v-model="filter.env_type" class="select select-sm select-bordered w-full">
+        <option value="">환경 선택</option>
+        <option value="PROD">운영</option>
+        <option value="QAS">실전</option>
+        <option value="DEV">개발</option>
       </select>
 
       <select v-model="filter.role_type" class="select select-sm select-bordered w-full">
         <option value="">역할 선택</option>
-        <option value="vip">VIP</option>
-        <option value="active">Active</option>
-        <option value="standby">Standby</option>
+        <option value="VIP">VIP</option>
+        <option value="Active">Active</option>
+        <option value="Standby">Standby</option>
         <option value="async">Async</option>
       </select>
 
       <select v-model="filter.status_cd" class="select select-sm select-bordered w-full">
-        <option value="">상태 선택</option>
         <option value="Y">사용</option>
         <option value="N">미사용</option>
       </select>
@@ -125,7 +116,7 @@ const goToPage = page => (currentPage.value = page)
         <thead class="bg-base-200 text-base-content">
           <tr>
             <th>IP</th><th>이름</th><th>용도</th><th>환경</th><th>법인</th>
-            <th>공정</th><th>서버타입</th><th>OS버전</th><th>역할</th><th>상태</th>
+            <th>공정</th><th>역할</th><th>상태</th>
           </tr>
         </thead>
         <tbody>
@@ -139,8 +130,6 @@ const goToPage = page => (currentPage.value = page)
             <td>{{ s.env_type }}</td>
             <td>{{ s.corp_id }}</td>
             <td>{{ s.proc_type }}</td>
-            <td>{{ s.server_type }}</td>
-            <td>{{ s.os_version }}</td>
             <td>{{ s.role_type }}</td>
             <td>
               <span :class="s.status_cd === 'Y' ? 'text-green-600' : 'text-red-500'">
