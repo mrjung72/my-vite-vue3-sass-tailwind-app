@@ -49,5 +49,17 @@ export default [
 		name: 'members-list',
   		component: MembersView,
 		meta: { title: '회원목록' },
-	}
+	},
+	{ 
+		path: '/servers/list', 
+		name: 'servers-list',
+		component: () => import('@/views/servers/ServersView.vue'),
+		meta: { title: '서버목록' },
+	},
+	{ 
+		path: '/servers/csv-register', 
+		name: 'servers-csv-register',
+		component: () => import('@/views/servers/ServersCsvUploadView.vue'),
+		meta: { title: '서버정보CVS파일 업로드', requiresAuth: true  },
+	},
 ];
