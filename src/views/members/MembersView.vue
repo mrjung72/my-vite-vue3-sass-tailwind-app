@@ -1,29 +1,28 @@
 <template>
   <div class="p-1 max-w-4xl mx-auto grid gap-1 md:grid-cols-2">
     <div>
-      <h2 class="text-xl font-semibold mb-1">회원 목록</h2>
 
-    <dialog class="modal" :open="showRegisterModal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">회원 등록</h3>
-        <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
-        <input v-model="newMember.userid" class="input input-sm input-bordered w-full mb-2"
-          placeholder="사용자 ID (이메일에서 자동 추출)" :readonly="true" />
-        <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
-        <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
-        <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
-          <span class="label-text">관리자 여부</span>
-          <input type="checkbox" class="toggle" v-model="newMember.isAdmin" />
-        </label>
-        <div v-else class="text-sm text-neutral-500 mb-2">
-          회원 등록 시 관리자 권한은 부여할 수 없습니다.
+      <dialog class="modal" :open="showRegisterModal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg mb-4">회원 등록</h3>
+          <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
+          <input v-model="newMember.userid" class="input input-sm input-bordered w-full mb-2"
+            placeholder="사용자 ID (이메일에서 자동 추출)" :readonly="true" />
+          <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
+          <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
+          <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
+            <span class="label-text">관리자 여부</span>
+            <input type="checkbox" class="toggle" v-model="newMember.isAdmin" />
+          </label>
+          <div v-else class="text-sm text-neutral-500 mb-2">
+            회원 등록 시 관리자 권한은 부여할 수 없습니다.
+          </div>
+          <div class="modal-action">
+            <button class="btn btn-sm btn-secondary" @click="registerMember">등록</button>
+            <button class="btn btn-sm" @click="showRegisterModal = false">닫기</button>
+          </div>
         </div>
-        <div class="modal-action">
-          <button class="btn btn-sm btn-secondary" @click="registerMember">등록</button>
-          <button class="btn btn-sm" @click="showRegisterModal = false">닫기</button>
-        </div>
-      </div>
-    </dialog>
+      </dialog>
 
 
       <input

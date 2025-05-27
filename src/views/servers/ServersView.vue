@@ -57,17 +57,9 @@ const goToPage = page => (currentPage.value = page)
 
 <template>
   <div class="p-4">
-    <h2 class="text-xl font-bold mb-4">서버 목록</h2>
 
     <!-- 🔍 검색 필터 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
-    <!-- IP/이름 통합 검색 -->
-      <input
-        v-model="filter.search"
-        type="text"
-        placeholder="IP 또는 이름"
-        class="input input-sm input-bordered w-full md:w-60"
-      />
 
       <select v-model="filter.corp_id" class="select select-sm select-bordered w-full">
         <option value="">법인 선택</option>
@@ -108,6 +100,14 @@ const goToPage = page => (currentPage.value = page)
         <option value="Y">사용</option>
         <option value="N">미사용</option>
       </select>
+
+    <!-- IP/이름 통합 검색 -->
+      <input
+        v-model="filter.search"
+        type="text"
+        placeholder="IP 또는 이름"
+        class="input input-sm input-bordered w-full md:w-60"
+      />
     </div>
 
     <!-- ✅ 테이블 -->

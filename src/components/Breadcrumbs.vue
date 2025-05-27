@@ -15,8 +15,8 @@ const isHomeActive = computed(() => {
 
 <template>
 	<div class="border-b border-b-base-200/50 py-1">
-		<div class="container-center text-left">
-			<div class="breadcrumbs inline-flex gap-1 text-sm leading-tight">
+		<div class="w-full text-left px-4">
+			<div class="breadcrumbs inline-flex gap-1 text-xl leading-tight">
 				<ul>
 					<li>
 						<router-link
@@ -27,7 +27,7 @@ const isHomeActive = computed(() => {
 					<li v-for="(breadcrumb, index) in breadcrumbs" :key="index">
 						<router-link
 							:to="breadcrumb.path"
-							class="font-medium"
+							class="font-bold"
 						>{{ breadcrumb.meta.title }}</router-link>
 					</li>
 				</ul>
