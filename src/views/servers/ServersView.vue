@@ -140,6 +140,10 @@ const goToPage = page => (currentPage.value = page)
         </tbody>
       </table>
     </div>
+    <!-- ✅ 건수 표시 추가 -->
+    <div class="mb-2 text-base font-medium text-gray-600">
+      총 {{ filteredServers.length.toLocaleString() }}건이 검색 되었습니다.
+    </div>
 
     <!-- 페이지네이션 -->
     <div class="flex justify-center mt-4 gap-2 flex-wrap">
