@@ -85,7 +85,7 @@ const filteredServers = computed(() => {
     return (
       (!filter.value.search ||
         s.server_ip?.includes(filter.value.search) ||
-        s.title?.includes(filter.value.search)) &&
+        s.hostname?.toLowerCase().includes(filter.value.search.toLowerCase())) &&
       (!filter.value.usage_type || s.usage_type === filter.value.usage_type) &&
       (!filter.value.env_type || s.env_type === filter.value.env_type) &&
       (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
@@ -155,7 +155,7 @@ const goToPage = page => (currentPage.value = page)
       <input
         v-model="filter.search"
         type="text"
-        placeholder="IP 또는 이름"
+        placeholder="IP 또는 호스트명 검색"
         class="input input-sm input-bordered w-full md:w-60"
       />
     </div>
