@@ -115,7 +115,7 @@ const goToPage = page => (currentPage.value = page)
       <table class="table table-compact w-full text-sm">
         <thead class="bg-base-200 text-base-content">
           <tr>
-            <th>IP</th><th>이름</th><th>용도</th><th>환경</th><th>법인</th>
+            <th>IP</th><th>포트</th><th>호스트명</th><th>용도</th><th>환경</th><th>법인</th>
             <th>공정</th><th>역할</th><th>상태</th>
           </tr>
         </thead>
@@ -123,9 +123,10 @@ const goToPage = page => (currentPage.value = page)
           <tr v-if="paginatedServers.length === 0 && !isLoading">
             <td colspan="10" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
           </tr>
-          <tr v-for="s in paginatedServers" :key="s.server_ip">
+          <tr v-for="s in paginatedServers" :key="s.server_port_id">
             <td>{{ s.server_ip }}</td>
-            <td>{{ s.title }}</td>
+            <td>{{ s.port }}</td>
+            <td>{{ s.hostname }}</td>
             <td>{{ s.usage_type }}</td>
             <td>{{ s.env_type }}</td>
             <td>{{ s.corp_id }}</td>
