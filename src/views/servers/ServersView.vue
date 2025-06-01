@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
@@ -55,6 +55,13 @@ const exportToExcel = async () => {
 const servers = ref([])
 const isLoading = ref(false)
 const error = ref(null)
+const currentPage = ref(1)
+const pageSize = 10
+const totalPages = computed(() => Math.ceil(filteredServers.value.length / pageSize))
+const paginatedServers = computed(() =>
+  filteredServers.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize)
+)
+const goToPage = page => (currentPage.value = page)
 
 const filter = ref({
   search: '',
@@ -80,6 +87,16 @@ const fetchServers = async () => {
 }
 onMounted(fetchServers)
 
+watch(
+  filter,
+  () => {
+    if (currentPage.value !== null) {
+      currentPage.value = 1
+    }
+  },
+  { deep: true }
+)
+
 const filteredServers = computed(() => {
   return servers.value.filter(s => {
     return (
@@ -96,13 +113,6 @@ const filteredServers = computed(() => {
   })
 })
 
-const currentPage = ref(1)
-const pageSize = 10
-const totalPages = computed(() => Math.ceil(filteredServers.value.length / pageSize))
-const paginatedServers = computed(() =>
-  filteredServers.value.slice((currentPage.value - 1) * pageSize, currentPage.value * pageSize)
-)
-const goToPage = page => (currentPage.value = page)
 </script>
 
 <template>
