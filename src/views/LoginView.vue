@@ -12,12 +12,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const userid = ref('')
 const password = ref('')
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const message = ref('')
 
@@ -27,9 +28,10 @@ const handleLogin = async () => {
 
   if (result.isSuccess) {
 
-    // 로그인 성공 시, 쿼리 파라미터로 redirect가 있을 경우 해당 경로로 이동
-    //next({ name: 'login', query: { redirect: to.fullPath } })
-    router.push({ name: 'home' }) // 로그인 후 홈으로 이동
+    // ⬇️ redirect가 있는 경우 해당 주소로, 없으면 홈으로
+    const redirectTo = route.query.redirect || '/'
+    router.push(redirectTo)    
+    // router.push({ name: 'home' }) // 로그인 후 홈으로 이동
   }
 }
 </script>

@@ -14,11 +14,11 @@ router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
   
   if ((to.meta.requiresAuth || to.meta.requiresLogin) && !auth.isLoggedIn) {
-    next({ name: 'login' })
+    next({ name: 'login', query: { redirect: to.fullPath },  })
   }
   else if (to.meta.requiresAuth && auth.user.isAdmin < 1) {
     alert('관리자만 접근할 수 있습니다.')    
-    next({ name: 'home' })
+    next({ name: 'home', query: { redirect: to.fullPath },  })
   } else {
     next()
   }
