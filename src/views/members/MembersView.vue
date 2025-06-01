@@ -5,9 +5,8 @@
       <dialog class="modal" :open="showRegisterModal">
         <div class="modal-box">
           <h3 class="font-bold text-lg mb-4">회원 등록</h3>
+          <input v-model="newMember.userid" class="input input-sm input-bordered w-full mb-2" placeholder="사용자 ID" />
           <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
-          <input v-model="newMember.userid" class="input input-sm input-bordered w-full mb-2"
-            placeholder="사용자 ID (이메일에서 자동 추출)" :readonly="true" />
           <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
           <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
           <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
@@ -231,15 +230,6 @@ const newMember = ref({
   userid: ''
 })
 
-// 🌟 이메일 입력 시 userid 자동 추출 로직 추가 🌟
-watch(() => newMember.value.email, (newEmail) => {
-  if (newEmail && newEmail.includes('@')) {
-    newMember.value.userid = newEmail.split('@')[0];
-  } else {
-    newMember.value.userid = ''; // @가 없거나 이메일이 비어있으면 userid 초기화
-  }
-});
-
 
 const registerMember = async () => {
   if (!newMember.value.name || !newMember.value.email || !newMember.value.password || !newMember.value.userid) {
@@ -249,11 +239,11 @@ const registerMember = async () => {
 
   try {
     const memberToRegister = {
+      userid: newMember.value.userid,
       name: newMember.value.name,
       email: newMember.value.email,
       password: newMember.value.password,
-      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false,
-      userid: newMember.value.userid
+      isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false
     };
 
     await axios.post('/api/members', memberToRegister)
