@@ -51,7 +51,7 @@ const goTo = (route) => {
         </ul>
       </li>
     </ul>
-    <ul v-if="auth.user.isAdmin == 1" class="menu">
+    <ul v-if="auth.user && auth.user.isAdmin == 1" class="menu">
       <li v-for="group in admin_menu" :key="group.label">
         <div @click="toggleExpand(group.label)" class="cursor-pointer font-bold">
           {{ group.label }}
