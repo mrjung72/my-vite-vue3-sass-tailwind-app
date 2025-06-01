@@ -2,9 +2,9 @@
   <div class="flex flex-col items-center mt-10">
     <h2 class="text-2xl font-bold mb-4">회원가입</h2>
 
-    <input v-model="name" class="input input-bordered mb-2 w-80" placeholder="Name" />
     <input v-model="userid" class="input input-bordered mb-2 w-80" placeholder="UserId" />
     <input v-model="email" class="input input-bordered mb-2 w-80" placeholder="Email" />
+    <input v-model="name" class="input input-bordered mb-2 w-80" placeholder="Name" />
     <input v-model="password" class="input input-bordered mb-4 w-80" type="password" placeholder="Password" />
 
     <button class="btn btn-secondary w-80" @click="register" :disabled="loading">
@@ -43,7 +43,7 @@ const register = async () => {
       isAdmin: isAdmin.value,
     })
 
-    message.value = `회원가입 성공! 사용자 ID: ${res.data.id}`
+    message.value = `회원가입 성공! 사용자 ID: ${res.data.userid}`
     name.value = ''
     userid.value = ''
     email.value = ''
