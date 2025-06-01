@@ -56,6 +56,12 @@ const handleLogout = () => {
 				class="btn btn-ghost"
 				:class="{ 'btn-active': router.currentRoute.value.name === 'login' }"
 			>로그인</router-link>
+			<router-link
+				v-if="!auth.isLoggedIn"
+				:to="{ name: 'members-register' }"
+				class="btn btn-ghost"
+				:class="{ 'btn-active': router.currentRoute.value.name === 'members-register' }"
+			>회원가입</router-link>
 
 			<ThemeControllerMini class="mx-2"/>
 

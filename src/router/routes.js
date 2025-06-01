@@ -36,7 +36,7 @@ export default [
 		path: '/members/register', 
 		name: 'members-register',
 		component: () => import('@/views/members/RegisterMemberView.vue'),
-		meta: { title: '회원등록', requiresAuth: true },
+		meta: { title: '회원가입' },
 	},
 	{ 
 		path: '/members/csv-register', 
