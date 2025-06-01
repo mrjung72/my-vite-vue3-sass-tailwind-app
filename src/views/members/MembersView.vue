@@ -118,6 +118,7 @@ const selected = ref(null)
 const isEditing = ref(false)
 const editForm = ref({ name: '', email: '', isAdmin: false, userid: '' })
 const searchQuery = ref('')
+const token = localStorage.getItem('token') 
 
 // ✅ 서버에서 회원 목록 가져오기
 const fetchMembers = async () => {
@@ -246,7 +247,11 @@ const registerMember = async () => {
       isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false
     };
 
-    await axios.post('/api/members', memberToRegister)
+    await axios.post('/api/members', memberToRegister, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     await fetchMembers()
     showRegisterModal.value = false
     newMember.value = { name: '', email: '', password: '', isAdmin: false, userid: '' } 
