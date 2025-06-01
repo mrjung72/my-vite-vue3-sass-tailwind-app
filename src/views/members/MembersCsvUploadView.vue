@@ -61,6 +61,7 @@ import axios from 'axios'
 const file = ref(null)
 const message = ref('')
 const error = ref('')
+const token = localStorage.getItem('token') 
 
 const handleFileUpload = (e) => {
   const uploaded = e.target.files[0]
@@ -83,6 +84,7 @@ const submitFile = async () => {
     const res = await axios.post('/api/upload/members', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
       },
     })
     message.value = res.data.message || '업로드 성공'
