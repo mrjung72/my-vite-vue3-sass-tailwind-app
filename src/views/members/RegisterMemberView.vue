@@ -43,15 +43,14 @@ const register = async () => {
       isAdmin: isAdmin.value,
     })
 
-    message.value = `회원가입 성공! 사용자 ID: ${res.data.userid}`
+    message.value = `회원가입 성공! (사용자 ID: ${res.data.userid})`
     name.value = ''
     userid.value = ''
     email.value = ''
     password.value = ''
     isAdmin.value = false
   } catch (err) {
-    console.error('회원가입 실패:', err)
-    error.value = err.response?.data?.message || '회원가입 실패'
+    error.value = err.response?.data
   } finally {
     loading.value = false
   }
