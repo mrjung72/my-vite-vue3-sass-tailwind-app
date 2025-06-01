@@ -48,13 +48,13 @@ export default [
 		path: '/members/list', 
 		name: 'members-list',
   		component: MembersView,
-		meta: { title: '회원목록' },
+		meta: { title: '회원목록', requiresLogin: true  },
 	},
 	{ 
 		path: '/servers/list', 
 		name: 'servers-list',
 		component: () => import('@/views/servers/ServersView.vue'),
-		meta: { title: '서버목록' },
+		meta: { title: '서버목록', requiresLogin: true  },
 	},
 	{ 
 		path: '/servers/csv-register', 

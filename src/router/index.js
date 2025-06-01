@@ -13,7 +13,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
   
-  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+  if ((to.meta.requiresAuth || to.meta.requiresLogin) && !auth.isLoggedIn) {
     next({ name: 'login' })
   }
   else if (to.meta.requiresAuth && auth.user.isAdmin < 1) {
