@@ -1,5 +1,7 @@
 import HomeView from '@/views/HomeView.vue';
 import MembersView from '@/views/members/MembersView.vue';
+import MyInfoView from '@/views/MyInfoView.vue';
+import MyInfoEditView from '@/views/MyInfoEditView.vue';
 import { useAuthStore } from '../stores/auth'
 import pinia from '../stores/pinia'
 
@@ -49,6 +51,18 @@ export default [
 		name: 'members-list',
   		component: MembersView,
 		meta: { title: '회원목록', requiresLogin: true  },
+	},
+	{ 
+		path: '/myinfoview', 
+		name: 'my-info-view',
+  		component: MyInfoView,
+		meta: { title: '내정보조회', requiresLogin: true  },
+	},
+	{ 
+		path: '/myinfoedit',
+		name: 'my-info-edit', 
+  		component: MyInfoEditView,
+		meta: { title: '내정보수정', requiresLogin: true  },
 	},
 	{ 
 		path: '/servers/list', 

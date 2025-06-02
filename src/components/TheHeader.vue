@@ -41,7 +41,7 @@ const handleLogout = () => {
 		<div class="inline-flex flex-none gap-x-2">
 
 			<p v-if="auth.isLoggedIn && auth.user">
-				👤 {{ auth.user?.name }} ({{ auth.user?.userid }})
+				<a href="/myinfoview">👤 {{ auth.user?.name }} ({{ auth.user?.userid }})</a>
 			</p>
 			<button
 				v-if="auth.isLoggedIn"
