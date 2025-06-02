@@ -65,6 +65,8 @@ const validateUserId = () => {
 
   if (!userid.value) {
     useridError.value = 'ID를 입력하세요.'
+  } else if (userid.value.toLowerCase().startsWith('adminDDD')) {
+    useridError.value = 'admin 으로 시작하는 ID는 사용할 수 없습니다.'
   } else if (userid.value.includes(' ')) {
     userid.value = userid.value.trim() // 공백 제거
   } else if (!/^[a-zA-Z0-9]+$/.test(userid.value)) {
@@ -73,6 +75,7 @@ const validateUserId = () => {
     useridError.value = '5자 이상 20자 이하로 입력하세요.'
   } else {
     useridError.value = ''
+    userid.value = userid.value.toLowerCase() // 소문자 적용
     return true
   }
 
@@ -89,6 +92,7 @@ const validateEmail = () => {
     emailError.value = '유효한 이메일 형식이 아닙니다.'
   } else {
     emailError.value = ''
+    email.value = email.value.toLowerCase() // 소문자 적용
     return true
   }
 
@@ -220,10 +224,10 @@ const register = async () => {
 
     setTimeout(() => {
       router.push({ name: 'login' })
-    }, 2000)
+    }, 3000)
 
   } catch (err) {
-    error.value = err.response?.data?.message || '회원가입 중 오류가 발생했습니다.'
+    error.value = err.response?.data || err 
   } finally {
     loading.value = false
   }
