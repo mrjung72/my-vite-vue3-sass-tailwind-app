@@ -8,7 +8,6 @@
           <input v-model="newMember.userid" class="input input-sm input-bordered w-full mb-2" placeholder="사용자 ID" />
           <input v-model="newMember.email" class="input input-sm input-bordered w-full mb-2" placeholder="이메일" />
           <input v-model="newMember.name" class="input input-sm input-bordered w-full mb-2" placeholder="이름" />
-          <input v-model="newMember.password" type="password" class="input input-sm input-bordered w-full mb-2" placeholder="비밀번호" />
           <label class="label cursor-pointer" v-if="auth.isLoggedIn && auth.user.isAdmin">
             <span class="label-text">관리자 여부</span>
             <input type="checkbox" class="toggle" v-model="newMember.isAdmin" />
@@ -234,7 +233,6 @@ const showRegisterModal = ref(false)
 const newMember = ref({
   name: '',
   email: '',
-  password: '',
   isAdmin: false,
   // 🌟 userId 필드 추가 🌟
   userid: ''
@@ -242,7 +240,7 @@ const newMember = ref({
 
 
 const registerMember = async () => {
-  if (!newMember.value.name || !newMember.value.email || !newMember.value.password || !newMember.value.userid) {
+  if (!newMember.value.name || !newMember.value.email || !newMember.value.userid) {
     alert('이름, 이메일, 비밀번호, 사용자 ID를 모두 입력해주세요.') // userid 유효성 검사 추가
     return
   }
@@ -252,7 +250,6 @@ const registerMember = async () => {
       userid: newMember.value.userid,
       name: newMember.value.name,
       email: newMember.value.email,
-      password: newMember.value.password,
       isAdmin: (auth.isLoggedIn && auth.user.isAdmin) ? newMember.value.isAdmin : false
     };
 
@@ -263,7 +260,7 @@ const registerMember = async () => {
     })
     await fetchMembers()
     showRegisterModal.value = false
-    newMember.value = { name: '', email: '', password: '', isAdmin: false, userid: '' } 
+    newMember.value = { name: '', email: '', isAdmin: false, userid: '' } 
     alert('회원이 등록되었습니다.')
   } catch (err) {
     const errorMessage = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
