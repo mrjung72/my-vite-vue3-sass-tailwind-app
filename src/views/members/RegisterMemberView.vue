@@ -4,19 +4,24 @@
 
     회원ID :
     <input v-model="userid" class="input input-bordered w-80" placeholder="UserId" />
-    <div class="text-red-600 text-sm mb-2" v-if="useridError">{{ useridError }}</div>
-
-    이메일 :
+    <div v-if="userid && useridAvailable" class="text-green-600 text-sm mb-2">사용 가능한 아이디입니다.</div>
+    <div v-else-if="!useridAvailable" class="text-red-600 text-sm mb-2" >{{ useridError }}</div>
+    
+    이메일:
     <input v-model="email" class="input input-bordered w-80" placeholder="Email" />
-    <div class="text-red-600 text-sm mb-2" v-if="emailError">{{ emailError }}</div>
+    <div v-if="email && emailAvailable" class="text-green-600 text-sm mb-2">사용 가능한 이메일입니다.</div>
+    <div v-else-if="!emailAvailable" class="text-red-600 text-sm mb-2">{{ emailError }}</div>
 
     이름 :
     <input v-model="name" class="input input-bordered w-80" placeholder="Name" />
     <div class="text-red-600 text-sm mb-2" v-if="nameError">{{ nameError }}</div>
 
     비밀번호 :
-    <input v-model="password" type="password" class="input input-bordered w-80" placeholder="Password" />
-    <div class="text-red-600 text-sm mb-4" v-if="passwordError">{{ passwordError }}</div>
+    <input v-model="password" class="input input-bordered mb-2 w-80" type="password" placeholder="Password" />
+    <div v-if="passwordError" class="text-red-600 text-sm mb-2">{{ passwordError }}</div>
+    비밀번호 확인 :
+    <input v-model="passwordConfirm" class="input input-bordered w-80" type="password" placeholder="Confirm Password" />
+    <div v-if="passwordConfirmError" class="text-red-600 text-sm mb-2">{{ passwordConfirmError }}</div>
 
     <button class="btn btn-secondary w-80" @click="register" :disabled="loading || !isFormValid">
       {{ loading ? '가입 중...' : '가입하기' }}
@@ -32,12 +37,14 @@
 import { ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import debounce from 'lodash/debounce'
 
 const router = useRouter()
 const name = ref('')
 const userid = ref('')
 const email = ref('')
 const password = ref('')
+const passwordConfirm = ref('')
 
 const loading = ref(false)
 const message = ref('')
@@ -49,23 +56,31 @@ const useridError = ref('')
 const emailError = ref('')
 const nameError = ref('')
 const passwordError = ref('')
+const passwordConfirmError = ref('')
+const useridAvailable = ref(false)
+const emailAvailable = ref(false) 
 
 // 유효성 체크 함수
 const validateUserId = () => {
+
   if (!userid.value) {
     useridError.value = 'ID를 입력하세요.'
   } else if (userid.value.includes(' ')) {
     userid.value = userid.value.trim() // 공백 제거
   } else if (!/^[a-zA-Z0-9]+$/.test(userid.value)) {
     useridError.value = '영문자와 숫자만 사용하세요.'
-  } else if (userid.value.length < 2 || userid.value.length > 20) {
-    useridError.value = '2자 이상 20자 이하로 입력하세요.'
+  } else if (userid.value.length < 5 || userid.value.length > 20) {
+    useridError.value = '5자 이상 20자 이하로 입력하세요.'
   } else {
     useridError.value = ''
+    return true
   }
+
+  return false
 }
 
 const validateEmail = () => {
+
   if (!email.value) {
     emailError.value = '이메일을 입력하세요.'
   } else if (email.value.includes(' ')) {
@@ -74,7 +89,10 @@ const validateEmail = () => {
     emailError.value = '유효한 이메일 형식이 아닙니다.'
   } else {
     emailError.value = ''
+    return true
   }
+
+  return false
 }
 
 const validateName = () => {
@@ -90,6 +108,7 @@ const validateName = () => {
 }
 
 const validatePassword = () => {
+  
   if (!password.value) {
     passwordError.value = '비밀번호를 입력하세요.'
   } else if (password.value.includes(' ')) {
@@ -101,22 +120,85 @@ const validatePassword = () => {
   }
 }
 
+const validatePasswordConfirm = () => {
+
+  if (!passwordConfirm.value) {
+    passwordConfirmError.value = '비밀번호를 입력하세요.'
+  } else if (passwordConfirm.value.includes(' ')) {
+    passwordConfirm.value = passwordConfirm.value.trim() // 공백 제거
+  } else if (password.value !== passwordConfirm.value) {
+    passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'  
+  } else {
+    passwordConfirmError.value = ''
+  }
+}
+
+// 중복 검사 (디바운스 처리: 500ms 후 실행)
+const checkUserIdDuplicate = debounce(async () => {
+  if (!validateUserId()) return
+
+
+
+  try {
+    const res = await axios.get('/api/members/check-id', {
+      params: { userid: userid.value },
+    })
+    useridError.value = '중복 체크 중 ....'
+    useridAvailable.value = true
+  } catch (err) {
+    useridError.value = '이미 사용 중인 아이디입니다.'
+    useridAvailable.value = false
+  }
+}, 500)
+
+
+const checkEmailDuplicate = debounce(async () => {
+  if (!validateEmail()) return
+
+  try {
+    await axios.get('/api/members/check-email', {
+      params: { email: email.value },
+    })
+    emailError.value = '중복 체크 중 ....'
+    emailAvailable.value = true
+  } catch (err) {
+    emailError.value = '이미 등록된 이메일입니다.'
+    emailAvailable.value = false
+  }
+}, 500)
+
+const validEmail = computed(() =>
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value)
+)
+
+
+watch(userid, () => {
+  useridAvailable.value = false
+  checkUserIdDuplicate()
+})
+
+watch(email, () => {
+  emailAvailable.value = false
+  checkEmailDuplicate()
+})
+
+
 // 실시간 감시
-watch(userid, validateUserId)
-watch(email, validateEmail)
 watch(name, validateName)
 watch(password, validatePassword)
+watch(passwordConfirm, validatePasswordConfirm)
 
-// 전체 폼 유효성
 const isFormValid = computed(() =>
-  !useridError.value &&
-  !emailError.value &&
-  !nameError.value &&
-  !passwordError.value &&
   userid.value &&
+  useridAvailable.value &&
   email.value &&
+  emailAvailable.value &&
   name.value &&
-  password.value
+  !nameError.value &&
+  password.value &&
+  !passwordError.value &&
+  passwordConfirm.value &&
+  !passwordConfirmError.value 
 )
 
 const register = async () => {
