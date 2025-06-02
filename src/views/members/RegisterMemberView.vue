@@ -12,6 +12,7 @@
     </button>
 
     <div v-if="message" class="text-green-600 mt-4">{{ message }}</div>
+    <div v-if="message2" class="text-green-600 mt-4">{{ message2 }}</div>
     <div v-if="error" class="text-red-600 mt-4">{{ error }}</div>
   </div>
 </template>
@@ -19,14 +20,16 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const name = ref('')
 const userid = ref('')
 const email = ref('')
 const password = ref('')
-const isAdmin = ref(false)
 
 const message = ref('')
+const message2 = ref('')
 const error = ref('')
 const loading = ref(false)
 
@@ -35,20 +38,20 @@ const register = async () => {
   error.value = ''
   loading.value = true
   try {
-    const res = await axios.post('/api/members', {
+    const res = await axios.post('/api/me', {
       name: name.value,
       userid: userid.value,
       email: email.value,
       password: password.value,
-      isAdmin: isAdmin.value,
     })
-
     message.value = `회원가입 성공! (사용자 ID: ${res.data.userid})`
-    name.value = ''
-    userid.value = ''
-    email.value = ''
-    password.value = ''
-    isAdmin.value = false
+    message2.value = `잠시 후 로그인 페이지로 이동합니다.`
+    
+    setTimeout(() => {
+      router.push({ name: 'login' }) // 로그인 후 홈으로 이동
+    }, 1000)
+
+
   } catch (err) {
     error.value = err.response?.data
   } finally {

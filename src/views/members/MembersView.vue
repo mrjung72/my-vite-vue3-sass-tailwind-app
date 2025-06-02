@@ -27,7 +27,7 @@
       <input
         v-model="searchQuery"
         type="text"
-        placeholder="이름 또는 이메일로 검색"
+        placeholder="아이디 / 이름 또는 이메일로 검색"
         class="input input-sm input-bordered w-full mb-2"
       />
 
@@ -88,6 +88,7 @@
         <p><strong>사용자ID:</strong> {{ selected.userid }}</p>
         <p><strong>이메일:</strong> {{ selected.email }}</p>
         <p><strong>이름:</strong> {{ selected.name }}</p>
+        <p><strong>상태:</strong> {{ selected.status_cd }}</p>
         <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p>
 
@@ -145,7 +146,7 @@ watch(searchQuery, () => {
 const filteredMembers = computed(() => {
   if (!searchQuery.value) return members.value
   return members.value.filter(m =>
-    m.name?.includes(searchQuery.value) || m.email?.includes(searchQuery.value)
+    m.userid?.includes(searchQuery.value) || m.name?.includes(searchQuery.value) || m.email?.includes(searchQuery.value)
   )
 })
 
@@ -190,7 +191,11 @@ async function saveEdit() {
       userid: editForm.value.userid
     };
 
-    await axios.put(`/api/members/${selected.value.userid}`, memberToUpdate)
+    await axios.put(`/api/members/${selected.value.userid}`, memberToUpdate, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     await fetchMembers()
     selected.value = { ...selected.value, ...memberToUpdate }
     isEditing.value = false
@@ -206,7 +211,11 @@ async function deleteMember() {
   if (!confirm('정말 삭제하시겠습니까?')) return
 
   try {
-    await axios.delete(`/api/members/${selected.value.userid}`)
+    await axios.delete(`/api/members/${selected.value.userid}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     selected.value = null
     await fetchMembers()
 
