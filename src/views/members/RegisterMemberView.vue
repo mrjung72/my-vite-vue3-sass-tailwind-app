@@ -6,7 +6,7 @@
     <input v-model="userid" class="input input-bordered w-80" placeholder="UserId" />
     <div v-if="userid && useridAvailable" class="text-green-600 text-sm mb-2">사용 가능한 아이디입니다.</div>
     <div v-else-if="!useridAvailable" class="text-red-600 text-sm mb-2" >{{ useridError }}</div>
-    
+
     이메일:
     <input v-model="email" class="input input-bordered w-80" placeholder="Email" />
     <div v-if="email && emailAvailable" class="text-green-600 text-sm mb-2">사용 가능한 이메일입니다.</div>
@@ -59,6 +59,7 @@ const passwordError = ref('')
 const passwordConfirmError = ref('')
 const useridAvailable = ref(false)
 const emailAvailable = ref(false) 
+const passwordAvailable =  ref(false)
 
 // 유효성 체크 함수
 const validateUserId = () => {
@@ -119,8 +120,12 @@ const validatePassword = () => {
     password.value = password.value.trim() // 공백 제거
   } else if (password.value.length < 4 || password.value.length > 8) {
     passwordError.value = '4자 이상 8자 이하로 입력하세요.'
+  } else if (passwordConfirm.value && password.value !== passwordConfirm.value) {
+    passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'  
   } else {
     passwordError.value = ''
+    passwordConfirmError.value = ''
+    passwordAvailable.value = true
   }
 }
 
@@ -133,7 +138,9 @@ const validatePasswordConfirm = () => {
   } else if (password.value !== passwordConfirm.value) {
     passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'  
   } else {
+    passwordError.value = ''
     passwordConfirmError.value = ''
+    passwordAvailable.value = true
   }
 }
 
@@ -186,11 +193,14 @@ watch(email, () => {
   checkEmailDuplicate()
 })
 
+watch(passwordConfirm, () => {
+  passwordAvailable.value = false
+  validatePasswordConfirm()
+})
 
 // 실시간 감시
 watch(name, validateName)
 watch(password, validatePassword)
-watch(passwordConfirm, validatePasswordConfirm)
 
 const isFormValid = computed(() =>
   userid.value &&
@@ -200,9 +210,8 @@ const isFormValid = computed(() =>
   name.value &&
   !nameError.value &&
   password.value &&
-  !passwordError.value &&
   passwordConfirm.value &&
-  !passwordConfirmError.value 
+  passwordAvailable.value 
 )
 
 const register = async () => {
