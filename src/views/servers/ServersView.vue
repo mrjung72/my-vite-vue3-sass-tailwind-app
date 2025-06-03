@@ -64,6 +64,10 @@ const exportToExcel = async () => {
   }
 }
 
+// 선택된 서버 리스트
+const selectedServers = ref([])
+
+
 const codeGroups = {
   cd_corp_ids: 'CORP_IDS',
   cd_proc_ids: 'PROC_IDS',
@@ -115,11 +119,61 @@ const fetchCodeOptions = async () => {
   }
 }
 
+
+
+
+// 전체 선택 여부 계산
+const allSelected = computed(() =>
+  paginatedServers.value.length > 0 &&
+  paginatedServers.value.every(s => selectedServers.value.includes(s))
+)
+
+// 전체 선택/해제
+const toggleAll = () => {
+  if (allSelected.value) {
+    selectedServers.value = []
+  } else {
+    selectedServers.value = [...paginatedServers.value]
+  }
+}
+
+
 const telnetStatuses = ref({})
+
+const checkSelectedTelnet = async () => {
+  for (const s of selectedServers.value) {
+    const key = `${s.server_ip}:${s.port}`
+    telnetStatuses.value[key] = 'checking'
+
+    console.log(key);
+  }
+
+  try {
+    const payload = selectedServers.value.map(s => ({
+      ip: s.server_ip,
+      port: s.port
+    }))
+
+
+    console.log(payload)
+
+
+    const res = await axios.post('/api/server-check/telnet-bulk', payload)
+    console.log(res)
+
+    // 결과 매핑
+    for (const { ip, port, status } of res.data) {
+      telnetStatuses.value[`${ip}:${port}`] = status
+    }
+  } catch (e) {
+    console.error('Telnet 일괄 확인 실패', e)
+  }
+}
+
 const checkTelnet = async (ip, port) => {
   telnetStatuses.value[`${ip}:${port}`] = 'checking'
   try {
-    const res = await axios.post('/api/server-check/single', { ip, port })
+    const res = await axios.post('/api/server-check/telnet-single', { ip, port })
     telnetStatuses.value[`${ip}:${port}`] = res.data.status
   } catch (err) {
     telnetStatuses.value[`${ip}:${port}`] = 'error'
@@ -181,6 +235,7 @@ watch(
 )
 
 const filteredServers = computed(() => {
+  if (!Array.isArray(servers.value)) return []
   return servers.value.filter(s => {
     return (
       (!filter.value.search ||
@@ -254,10 +309,13 @@ const filteredServers = computed(() => {
       />
     </div>
 
-    <div class="flex justify-end mb-2">
+    <div class="flex justify-end mb-2 gap-2">
+      <button class="btn btn-sm btn-outline btn-primary" @click="checkSelectedTelnet" :disabled="selectedServers && selectedServers.length === 0">
+        선택한 서버 Telnet 확인
+      </button>
       <button class="btn btn-sm btn-outline btn-success" @click="exportToExcel" :disabled="isExporting">
         {{ isExporting ? '다운로드 중...' : '📥 엑셀 다운로드' }}
-      </button>      
+      </button>
     </div>
 
     <!-- ✅ 테이블 -->
@@ -265,6 +323,7 @@ const filteredServers = computed(() => {
       <table class="table table-compact w-full text-sm">
         <thead class="bg-base-200 text-base-content">
           <tr>
+            <th><input type="checkbox" @change="toggleAll" :checked="allSelected" /></th>
             <th>IP</th><th>포트</th><th>호스트명</th><th>용도</th><th>환경</th><th>법인</th>
             <th>공정</th><th>역할</th><th>상태</th><th>Telnet요청</th>
           </tr>
@@ -274,6 +333,9 @@ const filteredServers = computed(() => {
             <td colspan="10" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
+            <td>
+              <input type="checkbox" v-model="selectedServers" :value="s" />
+            </td>            
             <td>{{ s.server_ip }}</td>
             <td>{{ s.port }}</td>
             <td>{{ s.hostname }}</td>
