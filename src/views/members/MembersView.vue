@@ -93,6 +93,7 @@
 
         <div v-if="!selected.isAdmin && auth.isLoggedIn && auth.user.isAdmin" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>
+          <button class="btn btn-sm btn-outline" @click="initPassword">비밀번호 초기화</button>
           <button v-if="selected.status_cd === 'A'" class="btn btn-sm btn-error" @click="aproveMember">승인</button>
           <button class="btn btn-sm btn-error" @click="deleteMember">삭제</button>
           <button class="btn btn-sm btn-outline" @click="selected = null">닫기</button>
@@ -216,8 +217,6 @@ async function saveEdit() {
 async function aproveMember() {
   if (!confirm('승인 처리하시겠습니까?')) return
 
-  let current_member = selected.value
-
   try {
     const res = await axios.get('/api/members/approval', {
       headers: {
@@ -229,6 +228,25 @@ async function aproveMember() {
     selected.value.status_cd = 'Y'
   } catch (err) {
     alert('승인 실패')
+    console.error(err)
+  }
+}
+
+
+async function initPassword() {
+  if (!confirm('패스워드 초기화 하시겠습니까?')) return
+
+  try {
+    const res = await axios.get('/api/members/init-password', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: { userid: selected.value.userid },
+    })
+    console.log(res.data)
+    alert(`패스워드를 초기화(${res.data?.message}) 하였습니다.`)
+  } catch (err) {
+    alert('작업 실패')
     console.error(err)
   }
 }
