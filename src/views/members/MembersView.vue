@@ -87,12 +87,13 @@
         <p><strong>사용자ID:</strong> {{ selected.userid }}</p>
         <p><strong>이메일:</strong> {{ selected.email }}</p>
         <p><strong>이름:</strong> {{ selected.name }}</p>
-        <p><strong>상태:</strong> {{ selected.status_cd }}</p>
+        <p><strong>상태:</strong> {{ statusCode[selected.status_cd] }}</p>
         <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p>
 
-        <div v-if="auth.isLoggedIn && auth.user.isAdmin" class="flex gap-2 mt-4">
+        <div v-if="!selected.isAdmin && auth.isLoggedIn && auth.user.isAdmin" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>
+          <button v-if="selected.status_cd === 'A'" class="btn btn-sm btn-error" @click="aproveMember">승인</button>
           <button class="btn btn-sm btn-error" @click="deleteMember">삭제</button>
           <button class="btn btn-sm btn-outline" @click="selected = null">닫기</button>
         </div>
@@ -119,6 +120,8 @@ const isEditing = ref(false)
 const editForm = ref({ name: '', email: '', isAdmin: false, userid: '' })
 const searchQuery = ref('')
 const token = localStorage.getItem('token') 
+
+const statusCode = {Y:'정상회원', A:'승인대기', N:'탈퇴회원'}
 
 // ✅ 서버에서 회원 목록 가져오기
 const fetchMembers = async () => {
@@ -209,6 +212,27 @@ async function saveEdit() {
     console.error(err);
   }
 }
+
+async function aproveMember() {
+  if (!confirm('승인 처리하시겠습니까?')) return
+
+  let current_member = selected.value
+
+  try {
+    const res = await axios.get('/api/members/approval', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: { userid: selected.value.userid },
+    })
+    await fetchMembers()
+    selected.value.status_cd = 'Y'
+  } catch (err) {
+    alert('승인 실패')
+    console.error(err)
+  }
+}
+
 
 async function deleteMember() {
   if (!confirm('정말 삭제하시겠습니까?')) return
