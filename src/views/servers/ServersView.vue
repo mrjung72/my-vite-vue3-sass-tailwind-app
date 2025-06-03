@@ -119,7 +119,7 @@ const telnetStatuses = ref({})
 const checkTelnet = async (ip, port) => {
   telnetStatuses.value[`${ip}:${port}`] = 'checking'
   try {
-    const res = await axios.post('/api/server-check/telnet', { ip, port })
+    const res = await axios.post('/api/server-check/single', { ip, port })
     telnetStatuses.value[`${ip}:${port}`] = res.data.status
   } catch (err) {
     telnetStatuses.value[`${ip}:${port}`] = 'error'
