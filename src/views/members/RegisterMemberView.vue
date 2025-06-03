@@ -2,37 +2,46 @@
   <div class="flex flex-col items-center mt-10">
     <h2 class="text-2xl font-bold mb-4">회원가입</h2>
 
-    <div>회원ID</div>
-    <input v-model="userid" class="input input-bordered w-80" placeholder="UserId" />
-    <div v-if="userid && useridAvailable" class="text-green-600 text-sm mb-2">사용 가능한 아이디입니다.</div>
-    <div v-else-if="!useridAvailable" class="text-red-600 text-sm mb-2" >{{ useridError }}</div>
+    <div class="flex flex-col w-80 items-start mb-2">
+      <label class="mb-1">회원ID</label>
+      <input v-model="userid" class="input input-bordered w-full" placeholder="UserId" />
+      <div v-if="userid && useridAvailable" class="text-green-600 text-sm mt-1">사용 가능한 아이디입니다.</div>
+      <div v-else-if="!useridAvailable" class="text-red-600 text-sm mt-1">{{ useridError }}</div>
+    </div>
 
-    <div>이메일</div>
-    <input v-model="email" class="input input-bordered w-80" placeholder="Email" />
-    <div v-if="email && emailAvailable" class="text-green-600 text-sm mb-2">사용 가능한 이메일입니다.</div>
-    <div v-else-if="!emailAvailable" class="text-red-600 text-sm mb-2">{{ emailError }}</div>
+    <div class="flex flex-col w-80 items-start mb-2">
+      <label class="mb-1">이메일</label>
+      <input v-model="email" class="input input-bordered w-full" placeholder="Email" />
+      <div v-if="email && emailAvailable" class="text-green-600 text-sm mt-1">사용 가능한 이메일입니다.</div>
+      <div v-else-if="!emailAvailable" class="text-red-600 text-sm mt-1">{{ emailError }}</div>
+    </div>
 
-    <div>이름</div>
-    <input v-model="name" class="input input-bordered w-80" placeholder="Name" />
-    <div class="text-red-600 text-sm mb-2" v-if="nameError">{{ nameError }}</div>
+    <div class="flex flex-col w-80 items-start mb-2">
+      <label class="mb-1">이름</label>
+      <input v-model="name" class="input input-bordered w-full" placeholder="Name" />
+      <div v-if="nameError" class="text-red-600 text-sm mt-1">{{ nameError }}</div>
+    </div>
 
-    <div>&nbsp;</div>
-    <div>비밀번호</div>
-    <input v-model="password" class="input input-bordered mb-2 w-80" type="password" placeholder="Password" />
-    <div v-if="passwordError" class="text-red-600 text-sm mb-2">{{ passwordError }}</div>
-    
-    <div>비밀번호 확인</div>
-    <input v-model="passwordConfirm" class="input input-bordered w-80" type="password" placeholder="Confirm Password" />
-    <div v-if="passwordConfirmError" class="text-red-600 text-sm mb-2">{{ passwordConfirmError }}</div>
+    <div class="flex flex-col w-80 items-start mb-2">
+      <label class="mb-1">비밀번호</label>
+      <input v-model="password" class="input input-bordered w-full" type="password" placeholder="Password" />
+      <div v-if="passwordError" class="text-red-600 text-sm mt-1">{{ passwordError }}</div>
+    </div>
 
-    <div>&nbsp;</div>
-    <button class="btn btn-secondary w-80" @click="register" :disabled="loading || !isFormValid">
-      {{ loading ? '가입 중...' : '가입하기' }}
-    </button>
+    <div class="flex flex-col w-80 items-start mb-2">
+      <label class="mb-1">비밀번호 확인</label>
+      <input v-model="passwordConfirm" class="input input-bordered w-full" type="password" placeholder="Confirm Password" />
+      <div v-if="passwordConfirmError" class="text-red-600 text-sm mt-1">{{ passwordConfirmError }}</div>
+    </div>
 
+    <div class="mt-4">
+      <button class="btn btn-secondary w-80" @click="register" :disabled="loading || !isFormValid">
+        {{ loading ? '가입 중...' : '가입하기' }}
+      </button>
+    </div>
 
     <div v-if="message" class="text-green-600 mt-4">{{ message }}</div>
-    <div v-if="message2" class="text-green-600 mt-4">{{ message2 }}</div>
+    <div v-if="message2" class="text-green-600 mt-2">{{ message2 }}</div>
     <div v-if="error" class="text-red-600 mt-4">{{ error }}</div>
   </div>
 </template>
