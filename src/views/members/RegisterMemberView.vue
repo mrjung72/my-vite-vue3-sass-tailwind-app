@@ -2,30 +2,34 @@
   <div class="flex flex-col items-center mt-10">
     <h2 class="text-2xl font-bold mb-4">회원가입</h2>
 
-    회원ID :
+    <div>회원ID</div>
     <input v-model="userid" class="input input-bordered w-80" placeholder="UserId" />
     <div v-if="userid && useridAvailable" class="text-green-600 text-sm mb-2">사용 가능한 아이디입니다.</div>
     <div v-else-if="!useridAvailable" class="text-red-600 text-sm mb-2" >{{ useridError }}</div>
 
-    이메일:
+    <div>이메일</div>
     <input v-model="email" class="input input-bordered w-80" placeholder="Email" />
     <div v-if="email && emailAvailable" class="text-green-600 text-sm mb-2">사용 가능한 이메일입니다.</div>
     <div v-else-if="!emailAvailable" class="text-red-600 text-sm mb-2">{{ emailError }}</div>
 
-    이름 :
+    <div>이름</div>
     <input v-model="name" class="input input-bordered w-80" placeholder="Name" />
     <div class="text-red-600 text-sm mb-2" v-if="nameError">{{ nameError }}</div>
 
-    비밀번호 :
+    <div>&nbsp;</div>
+    <div>비밀번호</div>
     <input v-model="password" class="input input-bordered mb-2 w-80" type="password" placeholder="Password" />
     <div v-if="passwordError" class="text-red-600 text-sm mb-2">{{ passwordError }}</div>
-    비밀번호 확인 :
+    
+    <div>비밀번호 확인</div>
     <input v-model="passwordConfirm" class="input input-bordered w-80" type="password" placeholder="Confirm Password" />
     <div v-if="passwordConfirmError" class="text-red-600 text-sm mb-2">{{ passwordConfirmError }}</div>
 
+    <div>&nbsp;</div>
     <button class="btn btn-secondary w-80" @click="register" :disabled="loading || !isFormValid">
       {{ loading ? '가입 중...' : '가입하기' }}
     </button>
+
 
     <div v-if="message" class="text-green-600 mt-4">{{ message }}</div>
     <div v-if="message2" class="text-green-600 mt-4">{{ message2 }}</div>
@@ -112,49 +116,38 @@ const validateName = () => {
   }
 }
 
-const validatePassword = () => {
-  
-  if (!password.value) {
-    passwordError.value = '비밀번호를 입력하세요.'
-  } else if (password.value.includes(' ')) {
-    password.value = password.value.trim() // 공백 제거
-  } else if (password.value.length < 4 || password.value.length > 8) {
-    passwordError.value = '4자 이상 8자 이하로 입력하세요.'
-  } else if (passwordConfirm.value && password.value !== passwordConfirm.value) {
-    passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'  
+const validatePasswords = () => {
+  if (!password.value || password.value.length < 4 || password.value.length > 8) {
+    passwordError.value = '비밀번호는 4~8자 사이로 입력하세요.'
+    passwordAvailable.value = false
+    return
   } else {
     passwordError.value = ''
+  }
+
+  if (!passwordConfirm.value || passwordConfirm.value !== password.value) {
+    passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'
+    passwordAvailable.value = false
+  } else {
     passwordConfirmError.value = ''
     passwordAvailable.value = true
   }
 }
 
-const validatePasswordConfirm = () => {
+watch([password, passwordConfirm], validatePasswords)
 
-  if (!passwordConfirm.value) {
-    passwordConfirmError.value = '비밀번호를 입력하세요.'
-  } else if (passwordConfirm.value.includes(' ')) {
-    passwordConfirm.value = passwordConfirm.value.trim() // 공백 제거
-  } else if (password.value !== passwordConfirm.value) {
-    passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'  
-  } else {
-    passwordError.value = ''
-    passwordConfirmError.value = ''
-    passwordAvailable.value = true
-  }
-}
 
 // 중복 검사 (디바운스 처리: 500ms 후 실행)
 const checkUserIdDuplicate = debounce(async () => {
   if (!validateUserId()) return
 
 
-
+  useridError.value = '중복 체크 중 ....'
   try {
     const res = await axios.get('/api/members/check-id', {
       params: { userid: userid.value },
     })
-    useridError.value = '중복 체크 중 ....'
+    useridError.value = ''
     useridAvailable.value = true
   } catch (err) {
     useridError.value = '이미 사용 중인 아이디입니다.'
@@ -166,11 +159,11 @@ const checkUserIdDuplicate = debounce(async () => {
 const checkEmailDuplicate = debounce(async () => {
   if (!validateEmail()) return
 
+  emailError.value = '중복 체크 중 ....'
   try {
     await axios.get('/api/members/check-email', {
       params: { email: email.value },
     })
-    emailError.value = '중복 체크 중 ....'
     emailAvailable.value = true
   } catch (err) {
     emailError.value = '이미 등록된 이메일입니다.'
@@ -193,14 +186,9 @@ watch(email, () => {
   checkEmailDuplicate()
 })
 
-watch(passwordConfirm, () => {
-  passwordAvailable.value = false
-  validatePasswordConfirm()
-})
-
 // 실시간 감시
 watch(name, validateName)
-watch(password, validatePassword)
+
 
 const isFormValid = computed(() =>
   userid.value &&
