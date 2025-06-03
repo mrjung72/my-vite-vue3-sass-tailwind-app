@@ -1,11 +1,32 @@
 <template>
   <div class="flex flex-col items-center mt-10">
     <h2 class="text-2xl font-bold mb-4">로그인</h2>
-    <input v-model="userid" class="input input-bordered mb-2" placeholder="UserId" />
-    <input v-model="password" class="input input-bordered mb-4" type="password" placeholder="Password" />
+
+    <div class="flex flex-col w-80 items-start mb-2">
+      <label class="mb-1">아이디</label>
+      <input
+        v-model="userid"
+        class="input input-bordered w-full"
+        placeholder="UserId"
+        @keyup.enter="handleLogin"
+      />
+    </div>
+
+    <div class="flex flex-col w-80 items-start mb-4">
+      <label class="mb-1">비밀번호</label>
+      <input
+        v-model="password"
+        class="input input-bordered w-full"
+        type="password"
+        placeholder="Password"
+        @keyup.enter="handleLogin"
+      />
+    </div>
+
     <button class="btn btn-secondary w-80" @click="handleLogin" :disabled="auth.loading">
       {{ auth.loading ? '로그인 중...' : '로그인' }}
     </button>
+
     <div v-if="message" class="text-green-600 mt-4">{{ message }}</div>
   </div>
 </template>

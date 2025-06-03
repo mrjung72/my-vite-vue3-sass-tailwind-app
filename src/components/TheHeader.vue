@@ -10,7 +10,7 @@ const title = '사하라 홈';
 
 const handleLogout = () => {
   auth.logout()
-  router.push({ name: 'home' })
+  router.push({ name: 'login' })
 }
 </script>
 
