@@ -96,11 +96,18 @@ const fetchCodeOptions = async () => {
     for (const key in codeGroups) {
       const groupCode = codeGroups[key]
       const res = await axios.get(`/api/code/${groupCode}`)
-      codeOptions.value[key] = res.data
-      codeNames.value[key] = res.data.reduce((acc, { code, label }) => {
-        acc[code] = label;
-        return acc;
-      }, {});     
+
+      if (Array.isArray(res.data)) {
+        codeOptions.value[key] = res.data
+        codeNames.value[key] = res.data.reduce((acc, { code, label }) => {
+          acc[code] = label
+          return acc
+        }, {})
+      } else {
+        console.warn(`공통코드 그룹 ${groupCode} 응답 형식이 잘못되었습니다.`, res.data)
+        codeOptions.value[key] = []
+        codeNames.value[key] = {}
+      }
       
     }
   } catch (err) {
@@ -108,6 +115,16 @@ const fetchCodeOptions = async () => {
   }
 }
 
+const telnetStatuses = ref({})
+const checkTelnet = async (ip, port) => {
+  telnetStatuses.value[`${ip}:${port}`] = 'checking'
+  try {
+    const res = await axios.post('/api/check-telnet', { ip, port })
+    telnetStatuses.value[`${ip}:${port}`] = res.data.status
+  } catch (err) {
+    telnetStatuses.value[`${ip}:${port}`] = 'error'
+  }
+}
 
 const servers = ref([])
 const isLoading = ref(false)
@@ -249,7 +266,7 @@ const filteredServers = computed(() => {
         <thead class="bg-base-200 text-base-content">
           <tr>
             <th>IP</th><th>포트</th><th>호스트명</th><th>용도</th><th>환경</th><th>법인</th>
-            <th>공정</th><th>역할</th><th>상태</th>
+            <th>공정</th><th>역할</th><th>상태</th><th>Telnet요청</th>
           </tr>
         </thead>
         <tbody>
@@ -266,6 +283,20 @@ const filteredServers = computed(() => {
             <td>{{ codeNames.cd_proc_ids[s.proc_id] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
             <td>{{ codeNames.cd_stat_yn[s.status_cd] }}</td>
+            <td>
+              <button
+                class="btn btn-xs btn-outline"
+                @click="checkTelnet(s.server_ip, s.port)"
+              >
+                확인
+              </button>
+              <span class="ml-2 text-sm">
+                <template v-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'success'">🟢 연결됨</template>
+                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'timeout'">⏳ 타임아웃</template>
+                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'error'">🔴 실패</template>
+                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'checking'">🔄 확인 중</template>
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
