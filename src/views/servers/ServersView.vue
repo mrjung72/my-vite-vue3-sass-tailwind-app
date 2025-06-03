@@ -70,23 +70,38 @@ const codeGroups = {
   cd_usage_type: 'SERVER_USAGE_TYPE',
   cd_env_type: 'SERVER_ENV_TYPE',
   cd_role_type: 'SERVER_ROLE_TYPE',
+  cd_stat_yn: 'USE_YN'
 }
 
 const codeOptions = ref({
-  cd_corp_ids: [{code:'KR',label:'한국'}, {code:'US',label:'미국'}, {code:'UK',label:'영국'}],
-  cd_proc_ids: [{code:'BOXING', label:'포장'}, {code:'DESIGN', label:'설계'}, {code:'PRODUCTION', label:'생산'}, {code:'MOLDING', label:'금형'}, {code:'PAINTING', label:'도색'}],
-  cd_usage_type: [{code:'DB',label:'DB'}, {code:'APP',label:'APP'}],
-  cd_env_type: [{code:'PROD',label:'운영'}, {code:'QAS',label:'실전'}, {code:'DEV',label:'개발'}],
-  cd_role_type: [{code:'VIP', label:'VIP'},{code:'Active', label:'Active'},{code:'Standby', label:'Standby'},{code:'async', label:'Async'}],
-  cd_stat_yn: [{code:'Y',label:'사용'}, {code:'N',label:'미사용'}]
+  cd_corp_ids: [],
+  cd_proc_ids: [],
+  cd_usage_type: [],
+  cd_env_type: [],
+  cd_role_type: [],
+  cd_stat_yn: []
+})
+
+const codeNames = ref({
+  cd_corp_ids: [],
+  cd_proc_ids: [],
+  cd_usage_type: [],
+  cd_env_type: [],
+  cd_role_type: [],
+  cd_stat_yn: []
 })
 
 const fetchCodeOptions = async () => {
   try {
     for (const key in codeGroups) {
       const groupCode = codeGroups[key]
-      const res = await axios.get(`/api/common-codes/${groupCode}`)
+      const res = await axios.get(`/api/code/${groupCode}`)
       codeOptions.value[key] = res.data
+      codeNames.value[key] = res.data.reduce((acc, { code, label }) => {
+        acc[code] = label;
+        return acc;
+      }, {});     
+      
     }
   } catch (err) {
     console.error('공통코드 로딩 오류', err)
@@ -133,7 +148,7 @@ const fetchServers = async () => {
 }
 
 onMounted(() => {
-  // fetchCodeOptions()
+  fetchCodeOptions()
   fetchServers()
 })
 
@@ -245,16 +260,12 @@ const filteredServers = computed(() => {
             <td>{{ s.server_ip }}</td>
             <td>{{ s.port }}</td>
             <td>{{ s.hostname }}</td>
-            <td>{{ s.usage_type }}</td>
-            <td>{{ s.env_type }}</td>
-            <td>{{ s.corp_id }}</td>
-            <td>{{ s.proc_id }}</td>
-            <td>{{ s.role_type }}</td>
-            <td>
-              <span :class="s.status_cd === 'Y' ? 'text-green-600' : 'text-red-500'">
-                {{ s.status_cd === 'Y' ? '사용' : '미사용' }}
-              </span>
-            </td>
+            <td>{{ codeNames.cd_usage_type[s.usage_type] }}</td>
+            <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
+            <td>{{ codeNames.cd_corp_ids[s.corp_id] }}</td>
+            <td>{{ codeNames.cd_proc_ids[s.proc_id] }}</td>
+            <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
+            <td>{{ codeNames.cd_stat_yn[s.status_cd] }}</td>
           </tr>
         </tbody>
       </table>
