@@ -120,8 +120,6 @@ const fetchCodeOptions = async () => {
 }
 
 
-
-
 // 전체 선택 여부 계산
 const allSelected = computed(() =>
   paginatedServers.value.length > 0 &&
@@ -138,37 +136,34 @@ const toggleAll = () => {
 }
 
 
-const telnetStatuses = ref({})
+const checkedResults = ref({}) // key: server_ip
 
-const checkSelectedTelnet = async () => {
-  for (const s of selectedServers.value) {
-    const key = `${s.server_ip}:${s.port}`
-    telnetStatuses.value[key] = 'checking'
+async function checkSelectedServerStatus() {
 
-    console.log(key);
-  }
+  const checks = selectedServers.value.map(async (server) => {
 
-  try {
-    const payload = selectedServers.value.map(s => ({
-      ip: s.server_ip,
-      port: s.port
-    }))
+    try {
 
+      const key = `${server.server_ip}:${server.port}`
+      checkedResults.value[key] = {data:{status:'checking'}}
 
-    console.log(payload)
+      const { data } = await axios.post(`/api/server-check/telnet-single`, {
+        ip: server.server_ip,
+        port: server.port,
+      })
+      checkedResults.value[key] = {data}
 
-
-    const res = await axios.post('/api/server-check/telnet-bulk', payload)
-    console.log(res)
-
-    // 결과 매핑
-    for (const { ip, port, status } of res.data) {
-      telnetStatuses.value[`${ip}:${port}`] = status
+    } catch (error) {
+      checkedResults.value[key] = {
+        error: error.message,
+      }
     }
-  } catch (e) {
-    console.error('Telnet 일괄 확인 실패', e)
-  }
+  })
+  await Promise.all(checks)
 }
+
+
+const telnetStatuses = ref({})
 
 const checkTelnet = async (ip, port) => {
   telnetStatuses.value[`${ip}:${port}`] = 'checking'
@@ -310,7 +305,7 @@ const filteredServers = computed(() => {
     </div>
 
     <div class="flex justify-end mb-2 gap-2">
-      <button class="btn btn-sm btn-outline btn-primary" @click="checkSelectedTelnet" :disabled="selectedServers && selectedServers.length === 0">
+      <button class="btn btn-sm btn-outline btn-primary" @click="checkSelectedServerStatus" :disabled="selectedServers && selectedServers.length === 0">
         선택한 서버 Telnet 확인
       </button>
       <button class="btn btn-sm btn-outline btn-success" @click="exportToExcel" :disabled="isExporting">
@@ -325,7 +320,7 @@ const filteredServers = computed(() => {
           <tr>
             <th><input type="checkbox" @change="toggleAll" :checked="allSelected" /></th>
             <th>IP</th><th>포트</th><th>호스트명</th><th>용도</th><th>환경</th><th>법인</th>
-            <th>공정</th><th>역할</th><th>상태</th><th>Telnet요청</th>
+            <th>공정</th><th>역할</th><th>상태</th><th>Telnet 요청결과</th><th>Multi Telnet 요청결과</th>
           </tr>
         </thead>
         <tbody>
@@ -350,14 +345,20 @@ const filteredServers = computed(() => {
                 class="btn btn-xs btn-outline"
                 @click="checkTelnet(s.server_ip, s.port)"
               >
-                확인
+                Check
               </button>
               <span class="ml-2 text-sm">
-                <template v-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'success'">🟢 연결됨</template>
+                <template v-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'success'">✅ OK</template>
                 <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'timeout'">⏳ 타임아웃</template>
-                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'error'">🔴 실패</template>
-                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'checking'">🔄 확인 중</template>
+                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'error'">❌ FAIL</template>
+                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'checking'">⌛ Checking...</template>
               </span>
+            </td>
+            <td>
+              <span v-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'success'">✅ OK</span>
+              <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'timeout'">⏳ 타임아웃</span>
+              <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'error'">❌ FAIL</span>
+              <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`]">⌛ Checking...</span>
             </td>
           </tr>
         </tbody>
