@@ -123,7 +123,11 @@ const token = localStorage.getItem('token')
 // ✅ 서버에서 회원 목록 가져오기
 const fetchMembers = async () => {
   try {
-    const res = await axios.get('/api/members')
+    const res = await axios.get('/api/members', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     if (res.status !== 200) {
       throw new Error('회원 목록 로딩 실패')
     }

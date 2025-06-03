@@ -5,6 +5,7 @@ import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 
 const isExporting = ref(false)
+const token = localStorage.getItem('token') 
 
 const exportToExcel = async () => {
 
@@ -118,7 +119,11 @@ const fetchServers = async () => {
   isLoading.value = true
   error.value = null
   try {
-    const res = await axios.get('/api/servers')
+    const res = await axios.get('/api/servers', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     servers.value = res.data
   } catch (err) {
     error.value = '서버 목록을 불러오는 중 오류가 발생했습니다.'
