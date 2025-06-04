@@ -246,6 +246,24 @@ const filteredServers = computed(() => {
   })
 })
 
+const limitedPages = computed(() => {
+  const pages = []
+  const maxVisible = 10
+  let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2))
+  let end = start + maxVisible - 1
+
+  if (end > totalPages.value) {
+    end = totalPages.value
+    start = Math.max(1, end - maxVisible + 1)
+  }
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+
+  return pages
+})
+
 </script>
 
 <template>
@@ -373,7 +391,7 @@ const filteredServers = computed(() => {
     <div class="flex justify-center mt-4 gap-2 flex-wrap">
       <button class="btn btn-sm" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">이전</button>
       <button
-        v-for="page in totalPages"
+        v-for="page in limitedPages"
         :key="page"
         class="btn btn-sm"
         :class="{ 'btn-primary': page === currentPage, 'btn-outline': page !== currentPage }"
