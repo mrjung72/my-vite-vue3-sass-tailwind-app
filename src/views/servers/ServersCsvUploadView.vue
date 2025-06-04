@@ -57,11 +57,16 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from "@/stores/auth";
+
+const router = useRouter()
 
 const file = ref(null)
 const message = ref('')
 const error = ref('')
 const token = localStorage.getItem('token') 
+const auth = useAuthStore()
 
 const handleFileUpload = (e) => {
   const uploaded = e.target.files[0]
@@ -90,8 +95,19 @@ const submitFile = async () => {
     message.value = res.data.message || '업로드 성공'
     error.value = ''
   } catch (err) {
+    console.log('err.response.status:',err.response.status);
+    
     error.value = err.response?.data?.message || '업로드 중 오류 발생'
     message.value = ''
+
+    if(err.response.status === 443) {
+
+      error.value += ' 로그인 화면으로 이동합니다.' 
+      auth.logout()
+      setTimeout(() => {
+        router.push({ name: 'login' })
+      }, 2000)
+    }
   }
 }
 </script>
