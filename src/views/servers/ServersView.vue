@@ -383,7 +383,7 @@ const limitedPages = computed(() => {
       </table>
     </div>
     <!-- ✅ 건수 표시 추가 -->
-    <div class="mb-2 text-base font-medium text-gray-600">
+    <div class="mb-2 text-base font-bold text-gray-600">
       총 {{ filteredServers.length.toLocaleString() }}건이 검색 되었습니다.
     </div>
 
