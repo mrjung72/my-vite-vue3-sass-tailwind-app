@@ -322,13 +322,30 @@ const limitedPages = computed(() => {
       />
     </div>
 
-    <div class="flex justify-end mb-2 gap-2">
-      <button class="btn btn-sm btn-outline btn-primary" @click="checkSelectedServerStatus" :disabled="selectedServers && selectedServers.length === 0">
-        선택한 서버 Telnet 확인
-      </button>
-      <button class="btn btn-sm btn-outline btn-success" @click="exportToExcel" :disabled="isExporting">
-        {{ isExporting ? '다운로드 중...' : '📥 엑셀 다운로드' }}
-      </button>
+
+    <div class="mb-2 flex items-center justify-between">
+      <!-- 왼쪽: 검색 결과 -->
+      <div class="text-base text-gray-600 font-bold">
+        [총 {{ filteredServers.length.toLocaleString() }}건]
+      </div>
+
+      <!-- 오른쪽: 버튼 그룹 -->
+      <div class="flex gap-2">
+        <button
+          class="btn btn-sm btn-outline btn-primary"
+          @click="checkSelectedServerStatus"
+          :disabled="selectedServers && selectedServers.length === 0"
+        >
+          선택한 서버 Telnet 확인
+        </button>
+        <button
+          class="btn btn-sm btn-outline btn-success"
+          @click="exportToExcel"
+          :disabled="isExporting"
+        >
+          {{ isExporting ? '다운로드 중...' : '📥 엑셀 다운로드' }}
+        </button>
+      </div>
     </div>
 
     <!-- ✅ 테이블 -->
@@ -381,10 +398,6 @@ const limitedPages = computed(() => {
           </tr>
         </tbody>
       </table>
-    </div>
-    <!-- ✅ 건수 표시 추가 -->
-    <div class="mb-2 text-base font-bold text-gray-600">
-      총 {{ filteredServers.length.toLocaleString() }}건이 검색 되었습니다.
     </div>
 
 <!-- 페이지네이션 -->
