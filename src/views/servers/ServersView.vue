@@ -11,6 +11,33 @@ const router = useRouter()
 const isExporting = ref(false)
 const token = localStorage.getItem('token') 
 
+const exportToCSV = () => {
+  const header = [
+    'IP', '포트', '호스트명', '용도', '환경', '법인', '공정', '역할', '상태'
+  ]
+
+  const rows = filteredServers.value.map(s => [
+    s.server_ip,
+    s.port,
+    s.hostname,
+    codeNames.value.cd_usage_type[s.usage_type] || s.usage_type,
+    codeNames.value.cd_env_type[s.env_type] || s.env_type,
+    codeNames.value.cd_corp_ids[s.corp_id] || s.corp_id,
+    codeNames.value.cd_proc_ids[s.proc_id] || s.proc_id,
+    codeNames.value.cd_role_type[s.role_type] || s.role_type,
+    codeNames.value.cd_stat_yn[s.status_cd] || s.status_cd,
+  ])
+
+  const csvContent =
+    [header, ...rows]
+      .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  saveAs(blob, `서버목록_${new Date().toISOString().slice(0, 10)}.csv`)
+}
+
+
 const exportToExcel = async () => {
 
   isExporting.value = true
@@ -357,6 +384,12 @@ const limitedPages = computed(() => {
           :disabled="isExporting"
         >
           {{ isExporting ? '다운로드 중...' : '📥 엑셀 다운로드' }}
+        </button>
+        <button
+          class="btn btn-sm btn-outline btn-info"
+          @click="exportToCSV"
+        >
+          📄 CSV 다운로드
         </button>
       </div>
     </div>
