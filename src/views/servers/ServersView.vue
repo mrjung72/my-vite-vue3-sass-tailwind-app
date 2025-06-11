@@ -206,8 +206,18 @@ const fetchServers = async () => {
       },
     })
     servers.value = res.data
+
   } catch (err) {
-    error.value = '서버 목록을 불러오는 중 오류가 발생했습니다.'
+
+    error.value = `서버 목록을 불러오는 중 오류가 발생했습니다. ${err.message}`
+    console.error(err)
+    if (err.status && err.status === 443) {
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2000)      
+      return
+    }
+    
   } finally {
     isLoading.value = false
   }
