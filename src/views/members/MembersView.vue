@@ -111,7 +111,10 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from "@/stores/auth";
+import { useRouter } from 'vue-router'
+
 const auth = useAuthStore() // Pinia 스토어에서 인증 상태 가져오기
+const router = useRouter()  
 
 const members = ref([])
 const currentPage = ref(1)
@@ -126,6 +129,7 @@ const statusCode = {Y:'정상회원', A:'승인대기', N:'탈퇴회원'}
 
 // ✅ 서버에서 회원 목록 가져오기
 const fetchMembers = async () => {
+
   try {
     const res = await axios.get('/api/members', {
       headers: {
@@ -137,7 +141,12 @@ const fetchMembers = async () => {
     }
     members.value = res.data
   } catch (err) {
-    console.error('회원 목록 로딩 실패:', err)
+    console.error('회원 목록 로딩 실패:', err)  
+    if (err.status && err.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
   }
 }
 

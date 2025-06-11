@@ -3,7 +3,11 @@ import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
+import { useAuthStore } from "@/stores/auth";
 
+const auth = useAuthStore()
+import { useRouter } from 'vue-router'
+const router = useRouter()  
 const isExporting = ref(false)
 const token = localStorage.getItem('token') 
 
@@ -212,12 +216,11 @@ const fetchServers = async () => {
     error.value = `서버 목록을 불러오는 중 오류가 발생했습니다. ${err.message}`
     console.error(err)
     if (err.status && err.status === 443) {
-      setTimeout(() => {
-        window.location.href = '/login'
-      }, 2000)      
+      auth.logout()
+      router.push({ name: 'login' })
       return
     }
-    
+
   } finally {
     isLoading.value = false
   }
