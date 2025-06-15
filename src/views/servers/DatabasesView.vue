@@ -13,16 +13,16 @@ const token = localStorage.getItem('token')
 
 const exportToCSV = () => {
   const header = [
-    'IP', '포트', '호스트명', '용도', '환경', '법인', '공정', '역할', '상태'
+    'DB명', 'IP', '포트', '법인', '공정', '환경', '역할'
   ]
 
   const rows = filteredServers.value.map(s => [
+    s.db_instance_name,
     s.server_ip,
     s.port,
-    s.db_instance_name,
-    codeNames.value.cd_env_type[s.env_type] || s.env_type,
     codeNames.value.cd_corp_ids[s.corp_id] || s.corp_id,
     codeNames.value.cd_proc_ids[s.proc_id] || s.proc_id,
+    codeNames.value.cd_env_type[s.env_type] || s.env_type,
     codeNames.value.cd_role_type[s.role_type] || s.role_type,
   ])
 
@@ -32,7 +32,7 @@ const exportToCSV = () => {
       .join('\n')
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-  saveAs(blob, `서버목록_${new Date().toISOString().slice(0, 10)}.csv`)
+  saveAs(blob, `DB목록_${new Date().toISOString().slice(0, 10)}.csv`)
 }
 
 
@@ -46,14 +46,14 @@ const exportToExcel = async () => {
     const worksheet = workbook.addWorksheet('DB목록')
 
     worksheet.columns = [
-      { header: '호스트명', key: 'db_instance_name', width: 20 },
+      { header: 'DB명', key: 'db_instance_name', width: 20 },
       { header: 'IP', key: 'server_ip', width: 15 },
       { header: '포트', key: 'port', width: 8 },
-      { header: '환경', key: 'env_type', width: 10 },
       { header: '법인', key: 'corp_id', width: 10 },
       { header: '공정', key: 'proc_id', width: 12 },
+      { header: '상세공정', key: 'proc_detail', width: 12 },
+      { header: '환경', key: 'env_type', width: 10 },
       { header: '역할', key: 'role_type', width: 12 },
-      { header: '상태', key: 'status', width: 10 },
     ]
 
     // 헤더 행 글꼴 스타일
@@ -71,6 +71,7 @@ const exportToExcel = async () => {
         env_type: s.env_type,
         corp_id: s.corp_id,
         proc_id: s.proc_id,
+        proc_detail: s.proc_detail,
         role_type: s.role_type,
       })
       // 각 데이터 행 글꼴 스타일 적용 (선택사항)
@@ -82,7 +83,7 @@ const exportToExcel = async () => {
 
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    saveAs(blob, `서버목록_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    saveAs(blob, `DB목록_${new Date().toISOString().slice(0, 10)}.xlsx`)
     isExporting.value = false   
 
   } catch (error) {
