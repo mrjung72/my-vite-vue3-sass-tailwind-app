@@ -275,6 +275,7 @@ const filteredServers = computed(() => {
     return (
       (!filter.value.search ||
         s.server_ip?.includes(filter.value.search) ||
+        s.proc_detail?.includes(filter.value.search) ||
         s.hostname?.toLowerCase().includes(filter.value.search.toLowerCase())) &&
       (!filter.value.usage_type || s.usage_type === filter.value.usage_type) &&
       (!filter.value.env_type || s.env_type === filter.value.env_type) &&
@@ -357,7 +358,7 @@ const limitedPages = computed(() => {
       <input
         v-model="filter.search"
         type="text"
-        placeholder="IP 또는 호스트명 검색"
+        placeholder="IP 또는 호스트명 또는 세부공정 검색"
         class="input input-sm input-bordered w-full md:w-60"
       />
     </div>
@@ -377,7 +378,8 @@ const limitedPages = computed(() => {
           filter.corp_id = ''
           filter.proc_id = ''
           filter.role_type = ''
-          filter.status_cd = ''
+          filter.status_cd = 'Y'
+          filter.search = ''
         }">
           필터 초기화
         </button>
@@ -410,8 +412,18 @@ const limitedPages = computed(() => {
         <thead class="bg-base-200 text-base-content">
           <tr>
             <th><input type="checkbox" @change="toggleAll" :checked="allSelected" /></th>
-            <th>IP</th><th>포트</th><th>호스트명</th><th>용도</th><th>환경</th><th>법인</th>
-            <th>공정</th><th>역할</th><th>상태</th><th>Telnet 요청결과</th><th>Multi Telnet 요청결과</th>
+            <th>법인</th>
+            <th>공정</th>
+            <th>세부공정</th>
+            <th>IP</th>
+            <th>포트</th>
+            <th>호스트명</th>
+            <th>용도</th>
+            <th>환경</th>
+            <th>역할</th>
+            <th>상태</th>
+            <th>Telnet 요청결과</th>
+            <th>Multi Telnet 요청결과</th>
           </tr>
         </thead>
         <tbody>
@@ -422,13 +434,14 @@ const limitedPages = computed(() => {
             <td>
               <input type="checkbox" v-model="selectedServers" :value="s" />
             </td>            
+            <td>{{ codeNames.cd_corp_ids[s.corp_id] }}</td>
+            <td>{{ codeNames.cd_proc_ids[s.proc_id] }}</td>
+            <td>{{ s.proc_detail }}</td>
             <td>{{ s.server_ip }}</td>
             <td>{{ s.port }}</td>
             <td>{{ s.hostname }}</td>
             <td>{{ codeNames.cd_usage_type[s.usage_type] }}</td>
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
-            <td>{{ codeNames.cd_corp_ids[s.corp_id] }}</td>
-            <td>{{ codeNames.cd_proc_ids[s.proc_id] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
             <td>{{ codeNames.cd_stat_yn[s.status_cd] }}</td>
             <td>
