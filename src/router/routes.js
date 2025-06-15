@@ -71,6 +71,12 @@ export default [
 		meta: { title: '서버목록', requiresLogin: true  },
 	},
 	{ 
+		path: '/servers/dblist', 
+		name: 'servers-dblist',
+		component: () => import('@/views/servers/DatabasesView.vue'),
+		meta: { title: 'DB목록', requiresLogin: true  },
+	},
+	{ 
 		path: '/servers/csv-register', 
 		name: 'servers-csv-register',
 		component: () => import('@/views/servers/ServersCsvUploadView.vue'),

@@ -12,6 +12,7 @@ const menu = ref([
     label: '서버 관리',
     children: [
       { label: '서버 목록', route: '/servers/list' },
+      { label: 'DB 목록', route: '/servers/dblist' },
     ],
   },
 ])
