@@ -371,6 +371,16 @@ const limitedPages = computed(() => {
 
       <!-- 오른쪽: 버튼 그룹 -->
       <div class="flex gap-2">
+        <button class="btn btn-sm btn-outline" @click="() => {
+          filter.usage_type = ''
+          filter.env_type = ''
+          filter.corp_id = ''
+          filter.proc_id = ''
+          filter.role_type = ''
+          filter.status_cd = ''
+        }">
+          필터 초기화
+        </button>
         <button
           class="btn btn-sm btn-outline btn-primary"
           @click="checkSelectedServerStatus"
