@@ -410,8 +410,8 @@ const limitedPages = computed(() => {
               <input type="checkbox" v-model="selectedServers" :value="s" />
             </td>            
             <td>{{ s.db_instance_name }}</td>
-            <td>{{ codeNames.cd_corp_ids[s.corp_id] }}</td>
-            <td>{{ codeNames.cd_proc_ids[s.proc_id] }}</td>
+            <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
+            <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
             <td>{{ s.proc_detail }}</td>
             <td>{{ s.server_ip }}</td>
             <td>{{ s.port }}</td>
