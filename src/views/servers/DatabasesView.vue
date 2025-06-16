@@ -97,7 +97,7 @@ const selectedServers = ref([])
 
 const codeGroups = {
   cd_corp_ids: 'CORP_IDS',
-  cd_proc_ids: 'PROC_IDS',
+  cd_proc_ids: 'PROC_GR',
   cd_usage_type: 'SERVER_USAGE_TYPE',
   cd_env_type: 'SERVER_ENV_TYPE',
   cd_role_type: 'SERVER_ROLE_TYPE',
