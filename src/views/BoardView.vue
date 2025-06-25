@@ -10,7 +10,7 @@
     <div v-if="isLoading" class="text-center text-gray-400">불러오는 중...</div>
     <div v-else-if="paginatedPosts.length === 0" class="text-center text-gray-400">게시글이 없습니다.</div>
     <div v-else>
-      <div v-for="(post, idx) in paginatedPosts" :key="post.board_id || idx" class="board-row flex items-center border-b last:border-b-0 px-2 py-1 hover:bg-base-200 cursor-pointer min-h-0">
+      <div v-for="(post, idx) in paginatedPosts" :key="post.board_id || idx" class="board-row flex items-center border-b last:border-b-0 px-2 py-1 hover:bg-base-200 cursor-pointer min-h-0" @click="goDetail(post.board_id)">
         <div class="w-12 text-xs text-gray-400">{{ post.board_id }}</div>
         <div class="flex-1 truncate text-sm font-medium">{{ post.title }}</div>
         <div class="w-32 text-xs text-gray-500 text-right">{{ post.userid }}</div>
@@ -34,12 +34,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const posts = ref([])
 const isLoading = ref(false)
 const error = ref('')
 const currentPage = ref(1)
 const pageSize = 10
+const router = useRouter()
 
 const fetchPosts = async () => {
   isLoading.value = true
@@ -80,6 +82,10 @@ const limitedPages = computed(() => {
 function goToPage(page) {
   if (page < 1 || page > totalPages.value) return
   currentPage.value = page
+}
+
+function goDetail(boardId) {
+  router.push(`/board/${boardId}`)
 }
 </script>
 
