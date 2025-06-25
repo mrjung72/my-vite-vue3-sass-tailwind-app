@@ -31,7 +31,7 @@ const exportToCSV = () => {
       .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
       .join('\n')
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=euc-kr;' })
   saveAs(blob, `DB목록_${new Date().toISOString().slice(0, 10)}.csv`)
 }
 
