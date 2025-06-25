@@ -24,10 +24,10 @@
     <div v-else class="space-y-4">
       <div v-for="(post, idx) in posts" :key="post.id || idx" class="bg-base-100 p-4 rounded shadow">
         <div class="font-bold text-lg mb-1">{{ post.title }}</div>
-        <div class="text-sm text-gray-500 mb-2">작성자: {{ post.author }} | {{ post.date }}</div>
+        <div class="text-sm text-gray-500 mb-2">작성자: {{ post.userid }} | {{ post.date }}</div>
         <div class="text-base mb-2">{{ post.content }}</div>
-        <div v-if="post.fileUrl">
-          <a :href="post.fileUrl" target="_blank" class="link text-blue-600">첨부파일 다운로드</a>
+        <div v-if="post.filepath">
+          <a :href="post.filepath" target="_blank" class="link text-blue-600">첨부파일 다운로드</a>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ async function addPost() {
   error.value = ''
   try {
     const formData = new FormData()
-    formData.append('author', auth.user?.name || auth.user?.userid || '익명')
+    formData.append('userid', auth.user?.name || auth.user?.userid || '익명')
     formData.append('title', newPost.value.title)
     formData.append('content', newPost.value.content)
     if (file.value) {
@@ -97,6 +97,15 @@ async function addPost() {
     await fetchPosts()
   } catch (err) {
     error.value = err.response?.data?.message || '글 등록에 실패했습니다.'
+
+    if(err.response.status === 443) {
+
+      error.value += ' 로그인 화면으로 이동합니다.' 
+      auth.logout()
+      setTimeout(() => {
+        router.push({ name: 'login' })
+      }, 2000)
+    }
   } finally {
     loading.value = false
   }
