@@ -8,7 +8,7 @@
       <div class="text-base mb-4 whitespace-pre-line">{{ post.content }}</div>
       <div v-if="post.filepath" class="mb-4">
         <a :href="`/api/board/download/${post.board_id}`" target="_blank" class="link text-blue-600">
-          {{ post.originalname || '첨부파일 다운로드' }}
+          {{ post.origin_filename || '첨부파일 다운로드' }}
         </a>
       </div>
       <div class="flex gap-2 justify-end">

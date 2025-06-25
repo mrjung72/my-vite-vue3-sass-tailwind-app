@@ -12,7 +12,7 @@
         <input type="file" @change="handleFileUpload" class="file-input file-input-bordered w-full" />
         <div v-if="form.filepath" class="mt-2">
           <a :href="`/api/board/download/${form.board_id}`" target="_blank" class="link text-blue-600">
-            {{ form.originalname || '첨부파일 다운로드' }}
+            {{ form.origin_filename || '첨부파일 다운로드' }}
           </a>
         </div>
       </div>
@@ -37,7 +37,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const token = localStorage.getItem('token')
 
-const form = ref({ title: '', content: '', board_id: '', filepath: '', originalname: '' })
+const form = ref({ title: '', content: '', board_id: '', filepath: '', origin_filename: '' })
 const file = ref(null)
 const loading = ref(false)
 const message = ref('')
