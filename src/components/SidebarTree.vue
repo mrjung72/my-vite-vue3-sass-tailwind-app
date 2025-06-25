@@ -9,15 +9,10 @@ const router = useRouter()
 
 const menu = ref([
   {
-    label: '서버 관리',
+    label: '사용자 메뉴',
     children: [
       { label: '서버 목록', route: '/servers/list' },
       { label: 'DB 목록', route: '/servers/dblist' },
-    ],
-  },
-  {
-    label: '기타',
-    children: [
       { label: '게시판', route: '/board' },
     ],
   },
