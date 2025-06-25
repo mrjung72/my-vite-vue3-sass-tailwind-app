@@ -9,15 +9,17 @@
     <!-- 게시글 목록 -->
     <div v-if="isLoading" class="text-center text-gray-400">불러오는 중...</div>
     <div v-else-if="paginatedPosts.length === 0" class="text-center text-gray-400">게시글이 없습니다.</div>
-    <div v-else class="space-y-4">
-      <div v-for="(post, idx) in paginatedPosts" :key="post.board_id || idx" class="bg-base-100 p-4 rounded shadow">
-        <div class="font-bold text-lg mb-1">{{ post.board_id }}. {{ post.title }}</div>
-        <div class="text-sm text-gray-500 mb-2">by {{ post.userid }} | {{ post.createdAt || post.date }}</div>
+    <div v-else>
+      <div v-for="(post, idx) in paginatedPosts" :key="post.board_id || idx" class="board-row flex items-center border-b last:border-b-0 px-2 py-1 hover:bg-base-200 cursor-pointer min-h-0">
+        <div class="w-12 text-xs text-gray-400">{{ post.board_id }}</div>
+        <div class="flex-1 truncate text-sm font-medium">{{ post.title }}</div>
+        <div class="w-32 text-xs text-gray-500 text-right">{{ post.userid }}</div>
+        <div class="w-32 text-xs text-gray-400 text-right">{{ post.createdAt || post.date }}</div>
       </div>
     </div>
 
     <!-- 페이지네이션 -->
-    <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
+    <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-4">
       <button class="btn btn-xs" :disabled="currentPage === 1" @click="goToPage(1)">처음</button>
       <button class="btn btn-xs" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">이전</button>
       <span v-for="page in limitedPages" :key="page">
@@ -82,4 +84,11 @@ function goToPage(page) {
 </script>
 
 <style scoped lang="scss">
+.board-row {
+  min-height: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
 </style> 
