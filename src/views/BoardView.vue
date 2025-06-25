@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-2xl mx-auto p-6">
-    <h2 class="text-2xl font-bold mb-6">게시판</h2>
 
     <!-- 글쓰기 버튼 -->
     <div class="mb-6 text-right">
@@ -12,14 +11,8 @@
     <div v-else-if="posts.length === 0" class="text-center text-gray-400">게시글이 없습니다.</div>
     <div v-else class="space-y-4">
       <div v-for="(post, idx) in posts" :key="post.board_id || idx" class="bg-base-100 p-4 rounded shadow">
-        <div class="font-bold text-lg mb-1">{{ post.title }}</div>
-        <div class="text-sm text-gray-500 mb-2">작성자: {{ post.userid }} | {{ post.created_at || post.date }}</div>
-        <div class="text-base mb-2">{{ post.content }}</div>
-        <div v-if="post.filepath">
-          <a :href="`/api/board/download/${post.board_id}`" target="_blank" class="link text-blue-600">
-            {{ post.originalname || '첨부파일 다운로드' }}
-          </a>
-        </div>
+        <div class="font-bold text-lg mb-1">{{ post.board_id }}. {{ post.title }}</div>
+        <div class="text-sm text-gray-500 mb-2">by {{ post.userid }} | {{ post.createdAt || post.date }}</div>
       </div>
     </div>
   </div>
