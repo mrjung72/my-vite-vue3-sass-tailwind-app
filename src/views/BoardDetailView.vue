@@ -6,7 +6,7 @@
       <h2 class="text-2xl font-bold mb-2">{{ post.title }}</h2>
       <div class="text-sm text-gray-500 mb-4">작성자: {{ post.userid }} | {{ post.createdAt || post.date }}</div>
       <div class="text-base mb-4 whitespace-pre-line">{{ post.content }}</div>
-      <div v-if="post.filepath" class="mb-4">
+      <div v-if="post.filename" class="mb-4">
         <a :href="`/api/board/download/${post.board_id}`" target="_blank" class="link text-blue-600">
           {{ post.origin_filename || '첨부파일 다운로드' }}
         </a>

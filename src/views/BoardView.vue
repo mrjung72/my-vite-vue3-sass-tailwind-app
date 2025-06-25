@@ -14,7 +14,7 @@
         <div class="w-12 text-xs text-gray-400">{{ post.board_id }}</div>
         <div class="flex-1 truncate text-sm font-medium flex items-center gap-1">
           {{ post.title }}
-          <a v-if="post.filepath" :href="`/api/board/download/${post.board_id}`" @click.stop @mousedown.stop target="_blank" title="첨부파일 다운로드">
+          <a v-if="post.filename" :href="`/api/board/download/${post.board_id}`" @click.stop @mousedown.stop target="_blank" title="첨부파일 다운로드">
             <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l7.07-7.07a4 4 0 00-5.657-5.657l-7.07 7.07a6 6 0 108.485 8.485l6.364-6.364"/></svg>
           </a>
         </div>
