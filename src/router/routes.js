@@ -88,4 +88,22 @@ export default [
 		component: () => import('@/views/BoardView.vue'),
 		meta: { title: '게시판', requiresLogin: true   },
 	},
+	{
+		path: '/board/write',
+		name: 'board-write',
+		component: () => import('@/views/BoardWriteView.vue'),
+		meta: { title: '게시글 작성' },
+	},
+	{
+		path: '/board/:id',
+		name: 'board-detail',
+		component: () => import('@/views/BoardDetailView.vue'),
+		meta: { title: '게시글 상세' },
+	},
+	{
+		path: '/board/edit/:id',
+		name: 'board-edit',
+		component: () => import('@/views/BoardEditView.vue'),
+		meta: { title: '게시글 수정' },
+	},
 ];
