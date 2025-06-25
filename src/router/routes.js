@@ -82,4 +82,10 @@ export default [
 		component: () => import('@/views/servers/ServersCsvUploadView.vue'),
 		meta: { title: '서버정보CVS파일 업로드', requiresAuth: true  },
 	},
+	{ 
+		path: '/board',
+		name: 'board',
+		component: () => import('@/views/BoardView.vue'),
+		meta: { title: '게시판', requiresLogin: true   },
+	},
 ];

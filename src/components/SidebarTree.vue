@@ -15,6 +15,12 @@ const menu = ref([
       { label: 'DB 목록', route: '/servers/dblist' },
     ],
   },
+  {
+    label: '기타',
+    children: [
+      { label: '게시판', route: '/board' },
+    ],
+  },
 ])
 
 const admin_menu = ref([
