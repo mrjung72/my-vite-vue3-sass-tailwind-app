@@ -91,7 +91,7 @@
         <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
         <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p>
 
-        <div v-if="!selected.isAdmin && auth.isLoggedIn && auth.user.isAdmin" class="flex gap-2 mt-4">
+        <div v-if="selected && !selected.isAdmin && auth.isLoggedIn && (auth.user.userid === selected.userid || auth.user.isAdmin)" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>
           <button class="btn btn-sm btn-outline" @click="initPassword">비밀번호 초기화</button>
           <button v-if="selected.status_cd === 'A'" class="btn btn-sm btn-error" @click="aproveMember">승인</button>

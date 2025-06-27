@@ -13,8 +13,8 @@
       </div>
       <div class="flex gap-2 justify-end">
         <router-link to="/board" class="btn btn-outline">목록</router-link>
-        <button v-if="isMine" class="btn btn-primary" @click="goEdit">수정</button>
-        <button v-if="isMine" class="btn btn-error" @click="deletePost">삭제</button>
+        <button v-if="auth.user && (auth.user.userid === post.userid || auth.user.isAdmin)" class="btn btn-primary" @click="goEdit">수정</button>
+        <button v-if="auth.user && (auth.user.userid === post.userid || auth.user.isAdmin)" class="btn btn-error" @click="deletePost">삭제</button>
       </div>
     </div>
   </div>
@@ -49,8 +49,6 @@ const fetchPost = async () => {
 }
 
 onMounted(fetchPost)
-
-const isMine = computed(() => auth.user && post.value && auth.user.userid === post.value.userid)
 
 function goEdit() {
   router.push(`/board/edit/${post.value.board_id}`)
