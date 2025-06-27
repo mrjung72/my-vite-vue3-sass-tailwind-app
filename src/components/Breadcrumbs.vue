@@ -5,7 +5,7 @@ import { computed } from "vue";
 const route = useRoute();
 
 const breadcrumbs = computed(() => {
-	return route.matched.filter(record => record.name.toLowerCase() !== 'home') // Filter out the home route
+	return route.matched.filter(record => record.name && record.name.toLowerCase() !== 'home') // Filter out the home route
 });
 
 const isHomeActive = computed(() => {

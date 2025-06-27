@@ -92,18 +92,24 @@ export default [
 		path: '/board/write',
 		name: 'board-write',
 		component: () => import('@/views/BoardWriteView.vue'),
-		meta: { title: '게시글 작성' },
+		meta: { title: '게시글 작성', requiresLogin: true },
 	},
 	{
 		path: '/board/:id',
 		name: 'board-detail',
 		component: () => import('@/views/BoardDetailView.vue'),
-		meta: { title: '게시글 상세' },
+		meta: { title: '게시글 상세', requiresLogin: true },
 	},
 	{
 		path: '/board/edit/:id',
 		name: 'board-edit',
 		component: () => import('@/views/BoardEditView.vue'),
-		meta: { title: '게시글 수정' },
+		meta: { title: '게시글 수정', requiresLogin: true },
+	},
+	{
+		path: '/extract-tables',
+		name: 'extract-tables',
+		component: () => import('@/views/ExtractTableNamesView.vue'),
+		meta: { title: '테이블명 추출기' },
 	},
 ];

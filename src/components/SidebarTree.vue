@@ -14,6 +14,7 @@ const menu = ref([
       { label: '서버 목록', route: '/servers/list' },
       { label: 'DB 목록', route: '/servers/dblist' },
       { label: '게시판', route: '/board' },
+      { label: '테이블명 추출기', route: '/extract-tables' },
     ],
   },
 ])
