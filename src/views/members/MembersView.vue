@@ -217,6 +217,11 @@ async function saveEdit() {
     isEditing.value = false
     alert('회원 정보가 수정되었습니다.')
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     const errorMessage = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
     alert(`수정 실패: ${errorMessage}`);
     console.error(err);
@@ -236,6 +241,11 @@ async function aproveMember() {
     await fetchMembers()
     selected.value.status_cd = 'Y'
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     alert('승인 실패')
     console.error(err)
   }
@@ -255,6 +265,11 @@ async function initPassword() {
     console.log(res.data)
     alert(`패스워드를 초기화(${res.data?.message}) 하였습니다.`)
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     alert('작업 실패')
     console.error(err)
   }
@@ -278,6 +293,11 @@ async function deleteMember() {
       currentPage.value = Math.max(1, currentPage.value - 1)
     }
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     alert('삭제 실패')
     console.error(err)
   }
@@ -318,6 +338,11 @@ const registerMember = async () => {
     newMember.value = { name: '', email: '', isAdmin: false, userid: '' } 
     alert('회원이 등록되었습니다.')
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     const errorMessage = err.response?.data?.message || '알 수 없는 오류가 발생했습니다.';
     alert(`회원 등록 실패: ${errorMessage}`);
     console.error(err);

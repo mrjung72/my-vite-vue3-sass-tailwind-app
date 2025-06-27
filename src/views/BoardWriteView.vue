@@ -62,6 +62,11 @@ async function addPost() {
     message.value = res.data.message || '글이 등록되었습니다.'
     setTimeout(() => router.push('/board'), 1000)
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     error.value = err.response?.data?.message || '글 등록에 실패했습니다.'
   } finally {
     loading.value = false

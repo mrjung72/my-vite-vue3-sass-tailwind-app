@@ -40,6 +40,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const posts = ref([])
 const isLoading = ref(false)
@@ -47,6 +48,7 @@ const error = ref('')
 const currentPage = ref(1)
 const pageSize = 10
 const router = useRouter()
+const auth = useAuthStore()
 
 const fetchPosts = async () => {
   isLoading.value = true
@@ -55,6 +57,11 @@ const fetchPosts = async () => {
     const res = await axios.get('/api/board')
     posts.value = res.data
   } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
     error.value = err.response?.data?.message || '게시글을 불러오는 데 실패했습니다.'
   } finally {
     isLoading.value = false
@@ -91,6 +98,22 @@ function goToPage(page) {
 
 function goDetail(boardId) {
   router.push(`/board/${boardId}`)
+}
+
+async function deletePost(post) {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  try {
+    await axios.delete(`/api/board/${post.board_id}`)
+    await fetchPosts()
+    alert('삭제되었습니다.')
+  } catch (err) {
+    if (err.response?.status === 443) {
+      auth.logout()
+      router.push({ name: 'login' })
+      return
+    }
+    alert('삭제 실패: ' + (err.response?.data?.message || err.message))
+  }
 }
 </script>
 
