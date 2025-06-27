@@ -101,12 +101,7 @@ const submitFile = async () => {
     message.value = ''
 
     if(err.response.status === 443) {
-
       error.value += ' 로그인 화면으로 이동합니다.' 
-      auth.logout()
-      setTimeout(() => {
-        router.push({ name: 'login' })
-      }, 2000)
     }
   }
 }

@@ -48,11 +48,6 @@ const fetchPost = async () => {
     const res = await axios.get(`/api/board/${route.params.id}`)
     form.value = { ...res.data }
   } catch (err) {
-    if (err.response?.status === 443) {
-      auth.logout()
-      router.push({ name: 'login' })
-      return
-    }
     error.value = err.response?.data?.message || '게시글을 불러오는 데 실패했습니다.'
   }
 }
@@ -84,11 +79,6 @@ async function editPost() {
     message.value = res.data.message || '수정되었습니다.'
     setTimeout(() => router.push(`/board/${form.value.board_id}`), 1000)
   } catch (err) {
-    if (err.response?.status === 443) {
-      auth.logout()
-      router.push({ name: 'login' })
-      return
-    }
     error.value = err.response?.data?.message || '수정에 실패했습니다.'
   } finally {
     loading.value = false

@@ -57,11 +57,6 @@ const fetchPosts = async () => {
     const res = await axios.get('/api/board')
     posts.value = res.data
   } catch (err) {
-    if (err.response?.status === 443) {
-      auth.logout()
-      router.push({ name: 'login' })
-      return
-    }
     error.value = err.response?.data?.message || '게시글을 불러오는 데 실패했습니다.'
   } finally {
     isLoading.value = false
@@ -107,11 +102,6 @@ async function deletePost(post) {
     await fetchPosts()
     alert('삭제되었습니다.')
   } catch (err) {
-    if (err.response?.status === 443) {
-      auth.logout()
-      router.push({ name: 'login' })
-      return
-    }
     alert('삭제 실패: ' + (err.response?.data?.message || err.message))
   }
 }

@@ -233,15 +233,8 @@ const fetchServers = async () => {
     servers.value = res.data
 
   } catch (err) {
-
     error.value = `서버 목록을 불러오는 중 오류가 발생했습니다. ${err.message}`
     console.error(err)
-    if (err.status && err.status === 443) {
-      auth.logout()
-      router.push({ name: 'login' })
-      return
-    }
-
   } finally {
     isLoading.value = false
   }
