@@ -18,14 +18,18 @@ const input = ref('')
 
 const tableNames = computed(() => {
   if (!input.value) return []
-  // FROM, JOIN, UPDATE, INTO 등 뒤에 나오는 테이블명 추출 (백틱/쌍따옴표/대괄호 포함)
-  const regex = /\b(?:FROM|JOIN|UPDATE|INTO|TABLE)\s+([`"\[]?[\w.]+[`"\]]?)/gi
+  // FROM, JOIN, UPDATE, INTO 등 뒤에 나오는 테이블명과 alias 추출
+  // 예: FROM users u, JOIN orders o
+  const regex = /\b(?:FROM|JOIN|UPDATE|INTO|TABLE)\s+([`"\[]?[\w.]+[`"\]]?)(?:\s+(?:AS\s+)?([\w]+))?/gi
   const found = []
   let match
   while ((match = regex.exec(input.value)) !== null) {
     // 괄호/따옴표 제거
     let name = match[1].replace(/^[`"\[]|[`"\]]$/g, '')
-    if (name && !found.includes(name)) found.push(name)
+    let alias = match[2] || ''
+    let label = name
+    if (alias) label += ` ${alias}`
+    if (name && !found.includes(label)) found.push(label)
   }
   return found
 })
