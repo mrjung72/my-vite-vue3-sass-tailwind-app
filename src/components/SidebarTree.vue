@@ -15,6 +15,7 @@ const menu = ref([
       { label: 'DB 목록', route: '/servers/dblist', requiresLogin: true },
       { label: '게시판', route: '/board', requiresLogin: true },
       { label: '테이블명 추출기', route: '/extract-tables' },
+      { label: '@단어 추출기', route: '/extract-atwords' },
     ],
   },
 ])

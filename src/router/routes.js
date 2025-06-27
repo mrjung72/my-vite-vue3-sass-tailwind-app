@@ -112,4 +112,10 @@ export default [
 		component: () => import('@/views/ExtractTableNamesView.vue'),
 		meta: { title: '테이블명 추출기' },
 	},
+	{
+		path: '/extract-atwords',
+		name: 'extract-atwords',
+		component: () => import('@/views/ExtractAtWordsView.vue'),
+		meta: { title: '@단어 추출기' },
+	},
 ];
