@@ -11,9 +11,9 @@ const menu = ref([
   {
     label: '사용자 메뉴',
     children: [
-      { label: '서버 목록', route: '/servers/list' },
-      { label: 'DB 목록', route: '/servers/dblist' },
-      { label: '게시판', route: '/board' },
+      { label: '서버 목록', route: '/servers/list', requiresLogin: true },
+      { label: 'DB 목록', route: '/servers/dblist', requiresLogin: true },
+      { label: '게시판', route: '/board', requiresLogin: true },
       { label: '테이블명 추출기', route: '/extract-tables' },
     ],
   },
@@ -49,7 +49,7 @@ const goTo = (route) => {
         </div>
         <ul v-show="expanded[group.label]" class="pl-4">
           <li v-for="item in group.children" :key="item.label">
-            <a @click="goTo(item.route)">{{ item.label }}</a>
+            <a v-if="(auth.isLoggedIn && item.requiresLogin) || !item.requiresLogin" @click="goTo(item.route)">{{ item.label }}</a>
           </li>
         </ul>
       </li>
