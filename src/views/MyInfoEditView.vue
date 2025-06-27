@@ -75,6 +75,6 @@ const save = async () => {
 }
 
 const cancel = () => {
-  router.push('/my-info')
+  router.push('/myinfoview')
 }
 </script>
