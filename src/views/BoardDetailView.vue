@@ -11,6 +11,8 @@
           {{ post.origin_filename || '첨부파일 다운로드' }}
         </a>
       </div>
+      <BoardReplies :boardId="post.board_id" />
+      <div>&nbsp;</div>
       <div class="flex gap-2 justify-end">
         <router-link to="/board" class="btn btn-outline">목록</router-link>
         <button v-if="auth.user && (auth.user.userid === post.userid || auth.user.isAdmin)" class="btn btn-primary" @click="goEdit">수정</button>
@@ -25,6 +27,7 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import BoardReplies from '@/components/BoardReplies.vue'
 
 const route = useRoute()
 const router = useRouter()
