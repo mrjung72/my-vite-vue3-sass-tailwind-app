@@ -132,14 +132,38 @@ const validateName = () => {
   }
 }
 
+function isSequential(str) {
+  if (!str) return false
+  let asc = true, desc = true
+  for (let i = 0; i < str.length - 1; i++) {
+    if (str.charCodeAt(i) + 1 !== str.charCodeAt(i + 1)) asc = false
+    if (str.charCodeAt(i) - 1 !== str.charCodeAt(i + 1)) desc = false
+  }
+  return asc || desc
+}
+
+function isSameChar(str) {
+  // 3개 이상 연속된 동일 문자/숫자
+  return /([a-zA-Z0-9])\1{2,}/.test(str)
+}
+
 const validatePasswords = () => {
   if (!password.value || password.value.length < 4 || password.value.length > 8) {
     passwordError.value = '비밀번호는 4~8자 사이로 입력하세요.'
     passwordAvailable.value = false
     return
-  } else {
-    passwordError.value = ''
   }
+  if (isSameChar(password.value)) {
+    passwordError.value = '동일한 문자/숫자를 3개 이상 연속 사용할 수 없습니다.'
+    passwordAvailable.value = false
+    return
+  }
+  if (isSequential(password.value)) {
+    passwordError.value = '연속된 문자/숫자는 사용할 수 없습니다.'
+    passwordAvailable.value = false
+    return
+  }
+  passwordError.value = ''
 
   if (!passwordConfirm.value || passwordConfirm.value !== password.value) {
     passwordConfirmError.value = '비밀번호가 일치하지 않습니다.'
