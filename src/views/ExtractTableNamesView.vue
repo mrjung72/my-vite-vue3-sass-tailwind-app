@@ -6,15 +6,22 @@
     </div>
     <div class="md:col-span-2">
       <label class="block font-bold mb-2">추출된 테이블명</label>
-      <textarea class="textarea textarea-bordered w-full h-120 bg-base-200" readonly :value="tableNames.join('\n')"></textarea>
+      <div v-if="isProcessing" class="textarea textarea-bordered w-full h-120 bg-base-200 flex items-center justify-center">
+        <div class="flex items-center gap-2 text-gray-400">
+          <span class="loading loading-spinner loading-sm"></span>
+          처리 중...
+        </div>
+      </div>
+      <textarea v-else class="textarea textarea-bordered w-full h-120 bg-base-200" readonly :value="tableNames.join('\n')"></textarea>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const input = ref('')
+const isProcessing = ref(false)
 
 const tableNames = computed(() => {
   if (!input.value) return []
@@ -32,6 +39,15 @@ const tableNames = computed(() => {
     if (name && !found.includes(label)) found.push(label)
   }
   return found
+})
+
+// 입력 시 처리 상태 관리
+watch(input, () => {
+  isProcessing.value = true
+  // 처리 시뮬레이션을 위한 짧은 지연
+  setTimeout(() => {
+    isProcessing.value = false
+  }, 200)
 })
 </script>
 

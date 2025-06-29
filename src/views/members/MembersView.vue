@@ -30,8 +30,20 @@
         class="input input-sm input-bordered w-full mb-2"
       />
 
+      <div class="text-sm text-gray-600 mb-2">
+        <span v-if="isLoading">🔍 검색 중...</span>
+        <span v-else>총 {{ filteredMembers.length }}명</span>
+      </div>
+
       <div class="grid gap-1 mb-2">
+        <div v-if="isLoading" class="p-4 text-center text-gray-400">
+          <div class="flex items-center justify-center gap-2">
+            <span class="loading loading-spinner loading-sm"></span>
+            검색 중...
+          </div>
+        </div>
         <div
+          v-else
           v-for="member in paginatedMembers"
           :key="member.userid"
           class="p-1 bg-base-100 shadow-sm rounded text-sm cursor-pointer hover:bg-base-200"
@@ -123,6 +135,7 @@ const selected = ref(null)
 const isEditing = ref(false)
 const editForm = ref({ name: '', email: '', isAdmin: false, userid: '' })
 const searchQuery = ref('')
+const isLoading = ref(false)
 const token = localStorage.getItem('token') 
 
 const statusCode = {Y:'정상회원', A:'승인대기', N:'탈퇴회원'}
@@ -156,6 +169,11 @@ onMounted(fetchMembers)
 // ✅ 검색 후 페이지 1로
 watch(searchQuery, () => {
   currentPage.value = 1
+  isLoading.value = true
+  // 검색 처리를 위한 짧은 지연
+  setTimeout(() => {
+    isLoading.value = false
+  }, 300)
 })
 
 // ✅ 검색 + 페이지네이션

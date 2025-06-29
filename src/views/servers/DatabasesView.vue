@@ -354,7 +354,8 @@ const limitedPages = computed(() => {
     <div class="mb-2 flex items-center justify-between">
       <!-- 왼쪽: 검색 결과 -->
       <div class="text-base text-gray-600 font-bold">
-        [총 {{ filteredServers.length.toLocaleString() }}건]
+        <span v-if="isLoading">🔍 검색 중...</span>
+        <span v-else>[총 {{ filteredServers.length.toLocaleString() }}건]</span>
       </div>
 
       <!-- 오른쪽: 버튼 그룹 -->
@@ -412,7 +413,15 @@ const limitedPages = computed(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-if="paginatedServers.length === 0 && !isLoading">
+          <tr v-if="isLoading">
+            <td colspan="12" class="text-center text-gray-400 py-4">
+              <div class="flex items-center justify-center gap-2">
+                <span class="loading loading-spinner loading-sm"></span>
+                검색 중...
+              </div>
+            </td>
+          </tr>
+          <tr v-else-if="paginatedServers.length === 0">
             <td colspan="12" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
