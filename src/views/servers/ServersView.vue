@@ -458,7 +458,7 @@ const limitedPages = computed(() => {
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
             <td>{{ codeNames.cd_stat_yn[s.status_cd] }}</td>
-            <td v-if="auth.user?.isAdmin">
+            <td>
               <button
                 class="btn btn-xs btn-outline"
                 @click="checkTelnet(s.server_ip, s.port)"
@@ -472,7 +472,6 @@ const limitedPages = computed(() => {
                 <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'checking'">⌛ Checking...</template>
               </span>
             </td>
-            <td v-else></td>
             <td v-if="auth.user?.isAdmin">
               <span v-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'success'">✅ OK</span>
               <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'timeout'">⏳ 타임아웃</span>
