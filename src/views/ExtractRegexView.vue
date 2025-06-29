@@ -1,111 +1,183 @@
 <template>
-  <div class="max-w-6xl mx-auto p-8 grid grid-cols-1 md:grid-cols-6 gap-8">
-    <div class="md:col-span-4">
-      <div class="mb-4">
-        <label class="block font-bold mb-2">정규식 패턴</label>
-        <div class="flex gap-2 mb-2">
-          <select 
-            v-model="selectedCategory" 
-            class="select select-bordered select-sm flex-1"
-            @change="onCategoryChange"
-          >
-            <option value="">직접 입력</option>
-            <option value="extract">추출 패턴</option>
-            <option value="separator">구분자 패턴</option>
-          </select>
-          <select 
-            v-if="selectedCategory === 'extract'"
-            v-model="selectedPreset" 
-            class="select select-bordered select-sm flex-1"
-            @change="applyPreset"
-          >
-            <option value="">패턴 선택</option>
-            <option value="at-words">@단어 추출</option>
-            <option value="url">URL</option>
-            <option value="domain">도메인</option>
-            <option value="ip">IP 주소</option>
-            <option value="email">이메일 주소</option>
-            <option value="phone">전화번호</option>
-            <option value="line-start">줄 시작 단어</option>
-            <option value="line-end">줄 끝 단어</option>
-          </select>
-          <select 
-            v-if="selectedCategory === 'separator'"
-            v-model="selectedPreset" 
-            class="select select-bordered select-sm flex-1"
-            @change="applyPreset"
-          >
-            <option value="">구분자 선택</option>
-            <option value="comma-separated">쉼표(,)</option>
-            <option value="semicolon-separated">세미콜론(;)</option>
-            <option value="pipe-separated">파이프(|)</option>
-            <option value="tab-separated">탭</option>
-            <option value="space-separated">공백</option>
-            <option value="newline-separated">줄바꿈</option>
-            <option value="underscore-separated">언더바(_)</option>
-            <option value="dot-separated">마침표(.)</option>
-          </select>
-          <button 
-            v-if="selectedPreset" 
-            @click="clearPreset" 
-            class="btn btn-sm btn-outline"
-          >
-            초기화
-          </button>
-        </div>
-        <input 
-          v-model="regexPattern" 
-          class="input input-bordered w-full" 
-          placeholder="정규식 패턴을 입력하세요 (예: \b\w+@\w+\.\w+\b)"
-        />
-        <div v-if="selectedPreset && presetPatterns[selectedPreset]" class="text-sm text-blue-600 mt-1">
-          💡 {{ presetPatterns[selectedPreset].description }}
-        </div>
-        <div v-if="selectedCategory === 'extract'" class="text-sm text-gray-500 mt-1">
-          <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="flags.global" class="checkbox checkbox-xs mr-1" />
-            g (전체 적용)
-          </label>
-          <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="removeDuplicates" class="checkbox checkbox-xs mr-1" />
-            중복 제거
-          </label>
-          <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="flags.ignoreCase" class="checkbox checkbox-xs mr-1" />
-            i (대소문자 무시)
-          </label>
-          <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
-            온전한 단어(공백 기준)
-          </label>
-        </div>
+  <div class="max-w-6xl mx-auto p-8">
+    <div class="mb-4">
+      <label class="block font-bold mb-2">정규식 패턴</label>
+      <div class="flex gap-2 mb-2">
+        <select 
+          v-model="selectedCategory" 
+          class="select select-bordered select-sm flex-1"
+          @change="onCategoryChange"
+        >
+          <option value="">직접 입력</option>
+          <option value="extract">추출 패턴</option>
+          <option value="separator">구분자 패턴</option>
+        </select>
+        <select 
+          v-if="selectedCategory === 'extract'"
+          v-model="selectedPreset" 
+          class="select select-bordered select-sm flex-1"
+          @change="applyPreset"
+        >
+          <option value="">패턴 선택</option>
+          <option value="at-words">@단어 추출</option>
+          <option value="url">URL</option>
+          <option value="domain">도메인</option>
+          <option value="ip">IP 주소</option>
+          <option value="email">이메일 주소</option>
+          <option value="phone">전화번호</option>
+          <option value="line-start">줄 시작 단어</option>
+          <option value="line-end">줄 끝 단어</option>
+        </select>
+        <select 
+          v-if="selectedCategory === 'separator'"
+          v-model="selectedPreset" 
+          class="select select-bordered select-sm flex-1"
+          @change="applyPreset"
+        >
+          <option value="">구분자 선택</option>
+          <option value="comma-separated">쉼표(,)</option>
+          <option value="semicolon-separated">세미콜론(;)</option>
+          <option value="pipe-separated">파이프(|)</option>
+          <option value="tab-separated">탭</option>
+          <option value="space-separated">공백</option>
+          <option value="newline-separated">줄바꿈</option>
+          <option value="underscore-separated">언더바(_)</option>
+          <option value="dot-separated">마침표(.)</option>
+        </select>
+        <button 
+          v-if="selectedPreset" 
+          @click="clearPreset" 
+          class="btn btn-sm btn-outline"
+        >
+          초기화
+        </button>
       </div>
-      
-      <label class="block font-bold mb-2">소스 입력</label>
-      <textarea 
-        v-model="input" 
-        class="textarea textarea-bordered w-full h-96" 
-        placeholder="정규식을 적용할 텍스트를 입력하세요"
-      ></textarea>
+      <input 
+        v-model="regexPattern" 
+        class="input input-bordered w-full" 
+        placeholder="정규식 패턴을 입력하세요 (예: \b\w+@\w+\.\w+\b)"
+      />
+      <div v-if="selectedPreset && presetPatterns[selectedPreset]" class="text-sm text-blue-600 mt-1">
+        💡 {{ presetPatterns[selectedPreset].description }}
+      </div>
+      <div v-if="selectedCategory === 'extract'" class="text-sm text-gray-500 mt-1">
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="flags.global" class="checkbox checkbox-xs mr-1" />
+          g (전체 적용)
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="removeDuplicates" class="checkbox checkbox-xs mr-1" />
+          중복 제거
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="flags.ignoreCase" class="checkbox checkbox-xs mr-1" />
+          i (대소문자 무시)
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
+          온전한 단어(공백 기준)
+        </label>
+      </div>
+      <div v-if="selectedCategory === 'separator'" class="text-sm text-gray-500 mt-1">
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="showLineNumbers" class="checkbox checkbox-xs mr-1" />
+          라인번호 표시
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="removeDuplicates" class="checkbox checkbox-xs mr-1" />
+          중복 제거
+        </label>
+      </div>
     </div>
     
-    <div class="md:col-span-2">
-      <label class="block font-bold mb-2">추출된 결과</label>
-      <div v-if="isProcessing" class="textarea textarea-bordered w-full h-96 bg-base-200 flex items-center justify-center">
-        <div class="flex items-center gap-2 text-gray-400">
-          <span class="loading loading-spinner loading-sm"></span>
-          처리 중...
+    <div v-if="selectedCategory === 'separator'" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <label class="block font-bold mb-2">소스 입력</label>
+        <div class="border border-base-300 rounded-lg bg-base-100 h-96 overflow-auto">
+          <div class="p-4 font-mono text-sm">
+            <div v-for="(line, index) in inputLines" :key="index" class="flex items-center mb-1">
+              <span class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
+                {{ index + 1 }}
+              </span>
+              <span class="flex-1 whitespace-nowrap">{{ line }}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
+                {{ inputLines.length + 1 }}
+              </span>
+              <input 
+                v-model="newLine" 
+                @keydown.enter="addLine"
+                class="flex-1 bg-transparent border-none outline-none font-mono text-sm"
+                placeholder="텍스트를 입력하세요 (Enter로 새 줄 추가)"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 text-sm text-gray-600">
+          총 {{ inputLines.length }}개 라인
         </div>
       </div>
-      <textarea 
-        v-else 
-        class="textarea textarea-bordered w-full h-134 bg-base-200" 
-        readonly 
-        :value="finalResults.join('\n')"
-      ></textarea>
       
-      <div class="mt-2 text-sm text-gray-600">
-        총 {{ finalResults.length }}개 매치
+      <div>
+        <label class="block font-bold mb-2">추출된 결과</label>
+        <div v-if="isProcessing" class="textarea textarea-bordered w-full h-96 bg-base-200 flex items-center justify-center">
+          <div class="flex items-center gap-2 text-gray-400">
+            <span class="loading loading-spinner loading-sm"></span>
+            처리 중...
+          </div>
+        </div>
+        <div v-else class="relative">
+          <div class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
+            <div class="p-4 font-mono text-sm whitespace-nowrap">
+              <div v-if="showLineNumbers" class="flex items-center mb-2 text-gray-500">
+                <span class="w-8 text-center">#</span>
+                <span>결과</span>
+              </div>
+              <div v-for="(result, index) in finalResults" :key="index" class="flex items-center">
+                <span v-if="showLineNumbers" class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
+                  {{ index + 1 }}
+                </span>
+                <span class="flex-1">{{ result }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-2 text-sm text-gray-600">
+          총 {{ finalResults.length }}개 매치
+        </div>
+      </div>
+    </div>
+    
+    <div v-else class="grid grid-cols-1 md:grid-cols-6 gap-8">
+      <div class="md:col-span-4">
+        <label class="block font-bold mb-2">소스 입력</label>
+        <textarea 
+          v-model="input" 
+          class="textarea textarea-bordered w-full h-96" 
+          placeholder="정규식을 적용할 텍스트를 입력하세요"
+        ></textarea>
+      </div>
+      
+      <div class="md:col-span-2">
+        <label class="block font-bold mb-2">추출된 결과</label>
+        <div v-if="isProcessing" class="textarea textarea-bordered w-full h-96 bg-base-200 flex items-center justify-center">
+          <div class="flex items-center gap-2 text-gray-400">
+            <span class="loading loading-spinner loading-sm"></span>
+            처리 중...
+          </div>
+        </div>
+        <textarea 
+          v-else 
+          class="textarea textarea-bordered w-full h-96 bg-base-200 font-mono text-sm" 
+          readonly 
+          :value="finalResults.join('\n')"
+        ></textarea>
+        
+        <div class="mt-2 text-sm text-gray-600">
+          총 {{ finalResults.length }}개 매치
+        </div>
       </div>
     </div>
   </div>
@@ -126,6 +198,8 @@ const selectedPreset = ref('')
 const selectedCategory = ref('')
 const wholeWord = ref(false)
 const removeDuplicates = ref(false)
+const showLineNumbers = ref(false)
+const newLine = ref('')
 
 const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|dev|test|local|kr|us|jp|cn|uk|de|in|au|ca|fr)'
 
@@ -295,8 +369,13 @@ const finalResults = computed(() => {
   return extractedResults.value
 })
 
+// 입력 텍스트를 줄 단위로 분리
+const inputLines = computed(() => {
+  return input.value.split('\n').filter(line => line.trim() !== '')
+})
+
 // 입력이나 정규식 패턴 변경 시 처리 상태 관리
-watch([input, regexPattern, flags, wholeWord, removeDuplicates], () => {
+watch([input, regexPattern, flags, wholeWord, removeDuplicates, showLineNumbers], () => {
   isProcessing.value = true
   // 처리 시뮬레이션을 위한 짧은 지연
   setTimeout(() => {
@@ -321,6 +400,13 @@ const clearPreset = () => {
 const onCategoryChange = () => {
   // 카테고리 변경 시 선택 항목 초기화
   selectedPreset.value = ''
+}
+
+const addLine = () => {
+  if (newLine.value.trim()) {
+    input.value += (input.value ? '\n' : '') + newLine.value.trim()
+    newLine.value = ''
+  }
 }
 
 const getAppliedFlags = () => {
