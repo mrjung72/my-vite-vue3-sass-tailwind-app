@@ -19,7 +19,7 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 				본 사이트는 개발자의 업무 효율 향상을 위한 플랫폼입니다.
 			</p>
 			<p class="mb-4">
-				서버 관리, 데이터베이스 관리, 텍스트 추출 도구 등 다양한 기능을 제공하여 업무 효율성을 극대화합니다.
+				서버 관리, 데이터베이스 관리, 텍스트 추출 도구 등의 기능을 제공하며, 향후 더 많은 기능이 추가될 예정 입니다.
 			</p>
 		</div>
 	</div>
@@ -36,7 +36,7 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 						서버 및 데이터베이트 정보 조회 및 엑셀/CSV 파일 다운로드 기능을 제공합니다.
 					</p>
 					<div class="card-actions justify-center mt-4">
-						<router-link to="/servers/list" class="btn btn-primary btn-sm">서버 목록</router-link>
+						<router-link to="/servers/list" class="btn btn-accent btn-sm">서버 목록</router-link>
 					</div>
 				</div>
 			</div>
@@ -50,7 +50,7 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 						정규식 기반 추출기와 구분자 기반 추출기를 통해 다양한 형태의 데이터 추출 기능을 제공합니다.
 					</p>
 					<div class="card-actions justify-center mt-4">
-						<router-link to="/extract-regex" class="btn btn-secondary btn-sm">정규식 추출기</router-link>
+						<router-link to="/extract-regex" class="btn btn-accent btn-sm">정규식 추출기</router-link>
 						<router-link to="/extract-separator" class="btn btn-accent btn-sm">구분자 추출기</router-link>
 					</div>
 				</div>
@@ -72,8 +72,12 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 	<!-- 기술 스택 -->
 	<div class="container-center mb-12">
 		<div class="card bg-base-100 shadow-lg">
-			<div class="card-body">
-				<h3 class="card-title justify-center mb-6">🛠️ 기술 스택</h3>
+			<div class="card-body text-center">
+				<div class="text-4xl mb-4">🛠️</div>
+				<h3 class="card-title justify-center">기술 스택</h3>
+				<p class="text-sm text-gray-600 mb-2">
+					Vite, Vue 3, Tailwind CSS, DaisyUI 등 최신 프론트엔드 기술을 사용합니다.
+				</p>
 				<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
 					<div class="p-4">
 						<div class="text-2xl mb-2">⚡</div>
@@ -95,6 +99,9 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 						<div class="font-semibold">MariaDB</div>
 						<div class="text-xs text-gray-500">데이터베이스</div>
 					</div>
+				</div>
+				<div class="card-actions justify-center mt-4">
+					<router-link to="/tech-stack-detail" class="btn btn-outline btn-info btn-sm">상세 보기</router-link>
 				</div>
 			</div>
 		</div>

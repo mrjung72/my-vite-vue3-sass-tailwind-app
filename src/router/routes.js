@@ -136,4 +136,10 @@ export default [
 		component: () => import('@/views/ReleaseHistoryView.vue'),
 		meta: { title: '릴리즈 갱신이력' },
 	},
+	{
+		path: '/tech-stack-detail',
+		name: 'tech-stack-detail',
+		component: () => import('@/views/TechStackDetailView.vue'),
+		meta: { title: '기술스택 상세 안내' },
+	},
 ];
