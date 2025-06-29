@@ -68,6 +68,10 @@
           CSV
         </label>
         <label class="inline-flex items-center">
+          <input type="radio" v-model="resultFormat" value="xml" class="radio radio-xs mr-1" />
+          XML
+        </label>
+        <label class="inline-flex items-center">
           <input type="radio" v-model="resultFormat" value="html" class="radio radio-xs mr-1" />
           HTML
         </label>
@@ -125,6 +129,9 @@
           
           <!-- CSV 포맷 -->
           <textarea v-else-if="resultFormat === 'csv'" readonly class="textarea textarea-bordered w-full h-96" :value="csvResult"></textarea>
+          
+          <!-- XML 포맷 -->
+          <textarea v-else-if="resultFormat === 'xml'" readonly class="textarea textarea-bordered w-full h-96" :value="xmlResult"></textarea>
           
           <!-- HTML 포맷 -->
           <div v-else-if="resultFormat === 'html'" class="textarea textarea-bordered w-full h-96 overflow-auto">
@@ -299,6 +306,9 @@ const copyResults = () => {
     case 'csv':
       textToCopy = finalResults.value.map(row => row.map(cell => `\"${cell}\"`).join(',')).join('\n')
       break
+    case 'xml':
+      textToCopy = xmlResult.value.replace(/\n/g, '\r\n')
+      break
     case 'html':
       textToCopy = `<table>\n${finalResults.value.map(row => 
         `  <tr>\n${row.map(cell => `    <td>${cell}</td>`).join('\n')}\n  </tr>`
@@ -348,6 +358,13 @@ const csvResult = computed(() => {
   } else {
     return finalResults.value.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
   }
+})
+const xmlResult = computed(() => {
+  const lines = finalResults.value.map((row, idx) => {
+    const cells = row.map(cell => `  <cell>${cell}</cell>`).join('\n')
+    return `  <row>\n${cells}\n  </row>`
+  })
+  return `<rows>\n${lines.join('\n')}\n</rows>`
 })
 </script>
 
