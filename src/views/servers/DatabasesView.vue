@@ -13,7 +13,7 @@ const token = localStorage.getItem('token')
 
 const exportToCSV = () => {
   const header = [
-    'DB명', 'IP', '포트', '법인', '공정', '환경', '역할'
+    'DB명', 'IP', '포트', '법인', '공정', '환경', '역할', 'DB타입'
   ]
 
   const rows = filteredServers.value.map(s => [
@@ -24,6 +24,7 @@ const exportToCSV = () => {
     codeNames.value.cd_proc_ids[s.proc_id] || s.proc_id,
     codeNames.value.cd_env_type[s.env_type] || s.env_type,
     codeNames.value.cd_role_type[s.role_type] || s.role_type,
+    s.db_type || '',
   ])
 
   const csvContent =
@@ -54,6 +55,7 @@ const exportToExcel = async () => {
       { header: '상세공정', key: 'proc_detail', width: 12 },
       { header: '환경', key: 'env_type', width: 10 },
       { header: '역할', key: 'role_type', width: 12 },
+      { header: 'DB타입', key: 'db_type', width: 10 },
     ]
 
     // 헤더 행 글꼴 스타일
@@ -73,6 +75,7 @@ const exportToExcel = async () => {
         proc_id: s.proc_id,
         proc_detail: s.proc_detail,
         role_type: s.role_type,
+        db_type: s.db_type || '',
       })
       // 각 데이터 행 글꼴 스타일 적용 (선택사항)
       row.font = {
@@ -101,7 +104,8 @@ const codeGroups = {
   cd_usage_type: 'SERVER_USAGE_TYPE',
   cd_env_type: 'SERVER_ENV_TYPE',
   cd_role_type: 'SERVER_ROLE_TYPE',
-  cd_stat_yn: 'USE_YN'
+  cd_stat_yn: 'USE_YN',
+  cd_db_type: 'DB_TYPE'
 }
 
 const codeOptions = ref({
@@ -110,7 +114,8 @@ const codeOptions = ref({
   cd_usage_type: [],
   cd_env_type: [],
   cd_role_type: [],
-  cd_stat_yn: []
+  cd_stat_yn: [],
+  cd_db_type: []
 })
 
 const codeNames = ref({
@@ -119,7 +124,8 @@ const codeNames = ref({
   cd_usage_type: [],
   cd_env_type: [],
   cd_role_type: [],
-  cd_stat_yn: []
+  cd_stat_yn: [],
+  cd_db_type: []
 })
 
 const fetchCodeOptions = async () => {
@@ -218,7 +224,8 @@ const filter = ref({
   env_type: '',
   corp_id: '',
   proc_id: '',
-  role_type: ''
+  role_type: '',
+  db_type: ''
 })
 
 const fetchServers = async () => {
@@ -267,7 +274,8 @@ const filteredServers = computed(() => {
       (!filter.value.env_type || s.env_type === filter.value.env_type) &&
       (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
       (!filter.value.proc_id || s.proc_id === filter.value.proc_id) &&
-      (!filter.value.role_type || s.role_type === filter.value.role_type)
+      (!filter.value.role_type || s.role_type === filter.value.role_type) &&
+      (!filter.value.db_type || s.db_type === filter.value.db_type)
     )
   })
 })
@@ -326,6 +334,13 @@ const limitedPages = computed(() => {
         </option>
       </select>
 
+      <select v-model="filter.db_type" class="select select-sm select-bordered w-full">
+        <option value="">DB타입 선택</option>
+        <option v-for="item in codeOptions.cd_db_type" :key="item.code" :value="item.code">
+          {{ item.label }}
+        </option>
+      </select>
+
     <!-- IP/이름 통합 검색 -->
       <input
         v-model="filter.search"
@@ -349,6 +364,7 @@ const limitedPages = computed(() => {
           filter.corp_id = ''
           filter.proc_id = ''
           filter.role_type = ''
+          filter.db_type = ''
           filter.search = ''
         }">
           필터 초기화
@@ -390,13 +406,14 @@ const limitedPages = computed(() => {
             <th>포트</th>
             <th>환경</th>
             <th>역할</th>
+            <th>DB타입</th>
             <th>Telnet 요청결과</th>
             <th>Multi Telnet 요청결과</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="paginatedServers.length === 0 && !isLoading">
-            <td colspan="10" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
+            <td colspan="12" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
             <td>
@@ -410,6 +427,7 @@ const limitedPages = computed(() => {
             <td>{{ s.port }}</td>
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
+            <td>{{ s.db_type }}</td>
             <td>
               <button
                 class="btn btn-xs btn-outline"
