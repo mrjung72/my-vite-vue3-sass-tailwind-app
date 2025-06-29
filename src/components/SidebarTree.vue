@@ -10,7 +10,7 @@ const route = useRoute()
 
 const user_menu = ref([
   {
-    label: '사용자 메뉴',
+    label: '업무관련',
     children: [
       { label: '서버 목록', route: '/servers/list', requiresLogin: true },
       { label: 'DB 목록', route: '/servers/dblist', requiresLogin: true },
@@ -21,7 +21,7 @@ const user_menu = ref([
 
 const util_menu = ref([
   {
-    label: '업무용 유틸리티',
+    label: '유틸리티',
     children: [
       { label: '테이블명 추출기', route: '/extract-tables' },
       { label: '정규식 추출기', route: '/extract-regex' },
