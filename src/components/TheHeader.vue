@@ -47,10 +47,9 @@ onMounted(async () => {
 				<ul
 					tabindex="0"
 					class="menu menu-lg dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-					<li v-if="auth.isLoggedIn && auth.user"><a href="/members/list">회원목록</a></li>
 					<li v-if="auth.isLoggedIn && auth.user"><a href="/servers/list">서버목록</a></li>
-					<li v-if="auth.isLoggedIn && auth.user && auth.user.isAdmin == 1"><a href="/members/csv-register">회원정보파일 업로드</a></li>
-					<li v-if="auth.isLoggedIn && auth.user && auth.user.isAdmin == 1"><a href="/servers/csv-register">서버정보파일 업로드</a></li>
+					<li v-if="auth.isLoggedIn && auth.user"><a href="/servers/dblist">DB목록</a></li>
+					<li v-if="auth.isLoggedIn && auth.user"><a href="/board">게시판</a></li>
 				</ul>
 			</div>
 		</div>
