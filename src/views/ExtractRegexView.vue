@@ -64,6 +64,10 @@
             <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
             온전한 단어만 (공백 기준)
           </label>
+          <label class="inline-flex items-center mr-3">
+            <input type="checkbox" v-model="removeDuplicates" class="checkbox checkbox-xs mr-1" />
+            중복 제거
+          </label>
         </div>
         <div class="text-sm text-gray-500 mt-1">
           플래그: 
@@ -102,11 +106,11 @@
         v-else 
         class="textarea textarea-bordered w-full h-134 bg-base-200" 
         readonly 
-        :value="extractedResults.join('\n')"
+        :value="finalResults.join('\n')"
       ></textarea>
       
       <div class="mt-2 text-sm text-gray-600">
-        총 {{ extractedResults.length }}개 매치
+        총 {{ finalResults.length }}개 매치
       </div>
     </div>
   </div>
@@ -126,6 +130,7 @@ const flags = ref({
 const selectedPreset = ref('')
 const selectedCategory = ref('')
 const wholeWord = ref(false)
+const removeDuplicates = ref(false)
 
 const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|dev|test|local|kr|us|jp|cn|uk|de|in|au|ca|fr)'
 
@@ -231,59 +236,42 @@ const extractedResults = computed(() => {
       // 전역 매치
       let match
       while ((match = regex.exec(input.value)) !== null) {
-        if (match.length === 1) {
-          const matchedText = match[0]
-          // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
-          if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
-            const preset = presetPatterns[selectedPreset.value]
-            if (preset && !preset.pattern.includes('\\b')) {
-              // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
-              const words = input.value.split(/\s+/)
-              if (words.includes(matchedText.trim())) {
-                matches.push(matchedText)
-              }
-            } else {
+        const matchedText = match[0]
+        // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
+        if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
+          const preset = presetPatterns[selectedPreset.value]
+          if (preset && !preset.pattern.includes('\\b')) {
+            // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
+            const words = input.value.split(/\s+/)
+            if (words.includes(matchedText.trim())) {
               matches.push(matchedText)
             }
           } else {
             matches.push(matchedText)
           }
         } else {
-          // 그룹이 있는 경우 전체 매치와 그룹들을 모두 표시
-          const matchInfo = {
-            full: match[0],
-            groups: match.slice(1).map((group, index) => `그룹${index + 1}: ${group}`).join(', ')
-          }
-          matches.push(`${matchInfo.full} (${matchInfo.groups})`)
+          matches.push(matchedText)
         }
       }
     } else {
       // 단일 매치
       const match = input.value.match(regex)
       if (match) {
-        if (match.length === 1) {
-          const matchedText = match[0]
-          // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
-          if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
-            const preset = presetPatterns[selectedPreset.value]
-            if (preset && !preset.pattern.includes('\\b')) {
-              // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
-              const words = input.value.split(/\s+/)
-              if (words.includes(matchedText.trim())) {
-                matches.push(matchedText)
-              }
-            } else {
+        const matchedText = match[0]
+        // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
+        if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
+          const preset = presetPatterns[selectedPreset.value]
+          if (preset && !preset.pattern.includes('\\b')) {
+            // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
+            const words = input.value.split(/\s+/)
+            if (words.includes(matchedText.trim())) {
               matches.push(matchedText)
             }
           } else {
             matches.push(matchedText)
           }
         } else {
-          const matchInfo = {
-            full: match[0],
-            groups: match.slice(1).map((group, index) => `그룹${index + 1}: ${group}`).join(', ')
-          }
-          matches.push(`${matchInfo.full} (${matchInfo.groups})`)
+          matches.push(matchedText)
         }
       }
     }
@@ -294,8 +282,16 @@ const extractedResults = computed(() => {
   }
 })
 
+// 중복 제거 적용
+const finalResults = computed(() => {
+  if (removeDuplicates.value) {
+    return [...new Set(extractedResults.value)]
+  }
+  return extractedResults.value
+})
+
 // 입력이나 정규식 패턴 변경 시 처리 상태 관리
-watch([input, regexPattern, flags, wholeWord], () => {
+watch([input, regexPattern, flags, wholeWord, removeDuplicates], () => {
   isProcessing.value = true
   // 처리 시뮬레이션을 위한 짧은 지연
   setTimeout(() => {
