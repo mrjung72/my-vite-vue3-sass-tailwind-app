@@ -33,9 +33,18 @@ const exportToCSV = () => {
       .join('\n')
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=euc-kr;' })
-  saveAs(blob, `DB목록_${new Date().toISOString().slice(0, 10)}.csv`)
+  const filterStr = getFilterLabelString();
+  saveAs(blob, `DB목록${filterStr}_${new Date().toISOString().slice(0, 10)}.csv`)
 }
 
+function getFilterLabelString() {
+  const f = filter.value;
+  const parts = [];
+  if (f.corp_id) parts.push(f.corp_id);
+  if (f.proc_id) parts.push(f.proc_id);
+  if (f.env_type) parts.push(f.env_type);
+  return parts.length ? '_' + parts.join('_') : '';
+}
 
 const exportToExcel = async () => {
 
@@ -86,7 +95,8 @@ const exportToExcel = async () => {
 
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    saveAs(blob, `DB목록_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    const filterStr = getFilterLabelString();
+    saveAs(blob, `DB목록${filterStr}_${new Date().toISOString().slice(0, 10)}.xlsx`)
     isExporting.value = false   
 
   } catch (error) {
