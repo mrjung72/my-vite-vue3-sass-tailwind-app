@@ -40,6 +40,13 @@
       </button>
     </div>
 
+    <div class="flex flex-col w-80 items-start mb-2">
+      <p class="text-sm text-gray-600">
+        입력한 회원정보는 관리자 승인 후 정상 회원으로 등록됩니다.
+			</p>
+
+    </div>
+
     <div v-if="message" class="text-green-600 mt-4">{{ message }}</div>
     <div v-if="message2" class="text-green-600 mt-2">{{ message2 }}</div>
     <div v-if="error" class="text-red-600 mt-4">{{ error }}</div>

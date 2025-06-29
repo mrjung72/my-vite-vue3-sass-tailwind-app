@@ -16,10 +16,10 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 		<h1 class="mb-8">🚀 {{ title }}</h1>
 		<div class="text-base-content/70 mb-10">
 			<p class="text-lg mb-4">
-				본 사이트는 개발자의 업무 효율 향상을 위한 플랫폼입니다. <b>(시험 운영 중 ...)</b>
+				<b>본 사이트는 개발자의 업무 효율 향상을 위한 플랫폼입니다. (시험 운영 중 ...)</b>
 			</p>
 			<p class="mb-4">
-				서버 관리, 데이터베이스 관리, 텍스트 추출 도구 등의 기능을 제공하며, 향후 더 많은 기능이 추가될 예정 입니다.
+				<b>서버/DB 정보 조회, 텍스트 추출 도구 등의 기능을 제공하며, 향후 더 많은 기능이 추가될 예정 입니다.</b>
 			</p>
 		</div>
 	</div>
