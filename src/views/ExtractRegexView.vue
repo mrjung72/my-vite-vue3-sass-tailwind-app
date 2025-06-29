@@ -40,16 +40,20 @@
           g (전체 적용)
         </label>
         <label class="inline-flex items-center mr-3">
-          <input type="checkbox" v-model="removeDuplicates" class="checkbox checkbox-xs mr-1" />
-          중복 제거
-        </label>
-        <label class="inline-flex items-center mr-3">
           <input type="checkbox" v-model="flags.ignoreCase" class="checkbox checkbox-xs mr-1" />
           i (대소문자 무시)
         </label>
         <label class="inline-flex items-center mr-3">
-          <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
+          <input type="checkbox" v-model="flags.multiline" class="checkbox checkbox-xs mr-1" />
+          m (여러 줄 매치)
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="flags.wholeWord" class="checkbox checkbox-xs mr-1" />
           온전한 단어(공백 기준)
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="flags.removeDuplicates" class="checkbox checkbox-xs mr-1" />
+          중복 제거
         </label>
       </div>
     </div>
@@ -99,11 +103,11 @@ const isProcessing = ref(false)
 const flags = ref({
   global: true,
   ignoreCase: true,
-  multiline: true
+  multiline: true,
+  wholeWord: false,
+  removeDuplicates: false
 })
 const selectedPreset = ref('')
-const wholeWord = ref(false)
-const removeDuplicates = ref(false)
 
 const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|dev|test|local|kr|us|jp|cn|uk|de|in|au|ca|fr)'
 
@@ -167,7 +171,7 @@ const extractResults = computed(() => {
     
     // 온전한 단어 옵션 적용
     let finalPattern = regexPattern.value
-    if (wholeWord.value && selectedPreset.value) {
+    if (flags.value.wholeWord && selectedPreset.value) {
       const preset = presetPatterns[selectedPreset.value]
       // 이미 단어 경계가 있는 패턴만 제외 (email, phone, ip 등)
       if (preset && !preset.pattern.includes('\\b')) {
@@ -184,7 +188,7 @@ const extractResults = computed(() => {
       while ((match = regex.exec(input.value)) !== null) {
         const matchedText = match[0]
         // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
-        if (wholeWord.value && selectedPreset.value) {
+        if (flags.value.wholeWord && selectedPreset.value) {
           const preset = presetPatterns[selectedPreset.value]
           if (preset && !preset.pattern.includes('\\b')) {
             // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
@@ -205,7 +209,7 @@ const extractResults = computed(() => {
       if (match) {
         const matchedText = match[0]
         // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
-        if (wholeWord.value && selectedPreset.value) {
+        if (flags.value.wholeWord && selectedPreset.value) {
           const preset = presetPatterns[selectedPreset.value]
           if (preset && !preset.pattern.includes('\\b')) {
             // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
@@ -231,14 +235,14 @@ const extractResults = computed(() => {
 // 최종 결과 (카테고리에 따라 다르게)
 const finalResults = computed(() => {
   const results = extractResults.value
-  if (removeDuplicates.value) {
+  if (flags.value.removeDuplicates) {
     return [...new Set(results)]
   }
   return results
 })
 
 // 입력이나 정규식 패턴 변경 시 처리 상태 관리
-watch([input, regexPattern, flags, wholeWord, removeDuplicates], () => {
+watch([input, regexPattern, flags], () => {
   isProcessing.value = true
   // 처리 시뮬레이션을 위한 짧은 지연
   setTimeout(() => {
@@ -257,7 +261,7 @@ const applyPreset = () => {
 const clearPreset = () => {
   selectedPreset.value = ''
   regexPattern.value = ''
-  flags.value = { global: true, ignoreCase: true, multiline: true }
+  flags.value = { global: true, ignoreCase: true, multiline: true, wholeWord: false, removeDuplicates: false }
 }
 
 const clearInput = () => {
