@@ -78,27 +78,11 @@
           <label class="block font-bold">소스 입력</label>
           <button @click="clearInput" class="btn btn-sm btn-outline">초기화</button>
         </div>
-        <div class="border border-base-300 rounded-lg bg-base-100 h-96 overflow-auto">
-          <div class="p-4 font-mono text-sm">
-            <div v-for="(line, index) in inputLines" :key="index" class="flex items-center mb-1">
-              <span class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
-                {{ index + 1 }}
-              </span>
-              <span class="flex-1 whitespace-nowrap">{{ line }}</span>
-            </div>
-            <div class="flex items-center">
-              <span class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
-                {{ inputLines.length + 1 }}
-              </span>
-              <input 
-                v-model="newLine" 
-                @keydown.enter="addLine"
-                class="flex-1 bg-transparent border-none outline-none font-mono text-sm"
-                placeholder="텍스트를 입력하세요 (Enter로 새 줄 추가)"
-              />
-            </div>
-          </div>
-        </div>
+        <textarea 
+          v-model="input" 
+          class="textarea textarea-bordered w-full h-96" 
+          placeholder="구분자로 분리할 텍스트를 입력하세요 (여러 행 입력 가능)"
+        ></textarea>
         <div class="mt-2 text-sm text-gray-600">
           총 {{ inputLines.length }}개 라인
         </div>
@@ -204,7 +188,6 @@ const isProcessing = ref(false)
 const selectedPreset = ref('')
 const showLineNumbers = ref(true)
 const removeDuplicates = ref(false)
-const newLine = ref('')
 const customSeparator = ref('')
 const resultFormat = ref('json')
 
@@ -312,13 +295,6 @@ const clearPreset = () => {
 
 const clearInput = () => {
   input.value = ''
-}
-
-const addLine = () => {
-  if (newLine.value.trim()) {
-    input.value += (input.value ? '\n' : '') + newLine.value.trim()
-    newLine.value = ''
-  }
 }
 
 const copyResults = () => {
