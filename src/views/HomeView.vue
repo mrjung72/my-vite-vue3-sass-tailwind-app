@@ -4,7 +4,7 @@ import ThemeController from "@/components/Home/ThemeController.vue";
 import ComponentsPreview from "@/components/Home/ComponentsPreview.vue";
 import Guide from "@/components/Home/Guide.vue";
 
-const title = document.title;
+const title = "사하라 홈";
 const currentHostname = window.location.hostname;
 const demoHostname = "tpl-vue3-tailwind4-daisyui5.brown.sk";
 const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sass-tailwind4-daisyui5";
@@ -15,8 +15,88 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 	<div class="container-center text-center">
 		<h1 class="mb-8">🚀 {{ title }}</h1>
 		<div class="text-base-content/70 mb-10">
-			<p>Welcome! This starter template is designed to provide a pre-configured setup. It allows you to start by editing Vue components using Tailwind CSS and DaisyUI for styling.</p>
-			<p>Vite, Vue 3, Sass, Tailwind CSS 4, and DaisyUI 5 included. <b>Vue Router is also included and configured</b>, you could try navigating to another page or to <router-link :to="{ path: '/non-existing/route' }" class="link">a page that does not exist</router-link>.</p>
+			<p class="text-lg mb-4">
+				본 사이트는 개발자의 업무 효율 향상을 위한 플랫폼입니다.
+			</p>
+			<p class="mb-4">
+				서버 관리, 데이터베이스 관리, 텍스트 추출 도구 등 다양한 기능을 제공하여 업무 효율성을 극대화합니다.
+			</p>
+		</div>
+	</div>
+
+	<!-- 주요 기능 소개 -->
+	<div class="container-center mb-12">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+			<!-- 서버 관리 -->
+			<div class="card bg-base-100 shadow-lg">
+				<div class="card-body text-center">
+					<div class="text-4xl mb-4">🖥️</div>
+					<h3 class="card-title justify-center">서버 관리</h3>
+					<p class="text-sm text-gray-600">
+						서버 및 데이터베이트 정보 조회 및 엑셀/CSV 파일 다운로드 기능을 제공합니다.
+					</p>
+					<div class="card-actions justify-center mt-4">
+						<router-link to="/servers/list" class="btn btn-primary btn-sm">서버 목록</router-link>
+					</div>
+				</div>
+			</div>
+
+			<!-- 텍스트 추출 도구 -->
+			<div class="card bg-base-100 shadow-lg">
+				<div class="card-body text-center">
+					<div class="text-4xl mb-4">🔍</div>
+					<h3 class="card-title justify-center">텍스트 추출 도구</h3>
+					<p class="text-sm text-gray-600">
+						정규식 기반 추출기와 구분자 기반 추출기를 통해 다양한 형태의 데이터 추출 기능을 제공합니다.
+					</p>
+					<div class="card-actions justify-center mt-4">
+						<router-link to="/extract-regex" class="btn btn-secondary btn-sm">정규식 추출기</router-link>
+						<router-link to="/extract-separator" class="btn btn-accent btn-sm">구분자 추출기</router-link>
+					</div>
+				</div>
+			</div>
+
+			<!-- DB테이블 스키마 -->
+			<div class="card bg-base-100 shadow-lg">
+				<div class="card-body text-center">
+					<div class="text-4xl mb-4">👥</div>
+					<h3 class="card-title justify-center">DB테이블 스키마</h3>
+					<p class="text-sm text-gray-600">
+						DB테이블 관련 스키마정보 조회 기능을 향후 제공할 예정입니다.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 기술 스택 -->
+	<div class="container-center mb-12">
+		<div class="card bg-base-100 shadow-lg">
+			<div class="card-body">
+				<h3 class="card-title justify-center mb-6">🛠️ 기술 스택</h3>
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+					<div class="p-4">
+						<div class="text-2xl mb-2">⚡</div>
+						<div class="font-semibold">Vue 3 + Vite</div>
+						<div class="text-xs text-gray-500">프론트엔드</div>
+					</div>
+					<div class="p-4">
+						<div class="text-2xl mb-2">🎨</div>
+						<div class="font-semibold">Tailwind CSS</div>
+						<div class="text-xs text-gray-500">스타일링</div>
+					</div>
+					<div class="p-4">
+						<div class="text-2xl mb-2">🚀</div>
+						<div class="font-semibold">Node.js</div>
+						<div class="text-xs text-gray-500">백엔드</div>
+					</div>
+					<div class="p-4">
+						<div class="text-2xl mb-2">🗄️</div>
+						<div class="font-semibold">MariaDB</div>
+						<div class="text-xs text-gray-500">데이터베이스</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
