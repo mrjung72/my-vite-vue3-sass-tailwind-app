@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-6xl mx-auto p-8">
-    <div class="mb-4">
-      <label class="block font-bold mb-2">정규식 패턴으로 데이터 추출하기 </label>
-      <div class="flex gap-2 mb-2">
+  <div class="max-w-6xl mx-auto px-4 pt-4 pb-2">
+    <div class="mb-2">
+      <label class="block font-bold mb-1">정규식 패턴으로 데이터 추출하기 </label>
+      <div class="flex gap-2 mb-1">
         <select 
           v-model="selectedPreset" 
           class="select select-bordered select-sm flex-1"
@@ -65,6 +65,9 @@
           class="textarea textarea-bordered w-full h-96" 
           placeholder="정규식을 적용할 텍스트를 입력하세요"
         ></textarea>
+        <div class="mt-2 text-sm text-gray-600">
+          총 {{ lineCount }}개 행
+        </div>
       </div>
       
       <div class="md:col-span-2">
@@ -115,6 +118,10 @@ const selectedPreset = ref('')
 
 const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|dev|test|local|kr|us|jp|cn|uk|de|in|au|ca|fr)'
 
+const lineCount = computed(() => {
+  if (!input.value) return 0
+  return input.value.split(/\r?\n/).filter(line => line.trim() !== '').length
+})
 
 // 프리셋 패턴 정의
 const presetPatterns = {

@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-6xl mx-auto p-8">
-    <div class="mb-4">
-      <label class="block font-bold mb-2">지정 구분자(문자 또는 단어)로 데이터 추출하기</label>
-      <div class="flex gap-2 mb-2">
+  <div class="max-w-6xl mx-auto px-4 pt-4 pb-2">
+    <div class="mb-2">
+      <label class="block font-bold mb-1">지정 구분자(문자 또는 단어)로 데이터 추출하기</label>
+      <div class="flex gap-2 mb-1">
         <select 
           v-model="selectedPreset" 
           class="select select-bordered select-sm flex-1"
