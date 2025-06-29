@@ -121,7 +121,7 @@ const presetPatterns = {
     description: '이메일 주소 추출'
   },
   'phone': {
-    pattern: '(?:\\+?[0-9]{1,3}[-.\\s]?)?[0-9]{2,4}[-.\\s]?[0-9]{3,4}[-.\\s]?[0-9]{3,4}',
+    pattern: '(?:\\+?[0-9]{1,3}[-\\s]?)?[0-9]{2,4}[-\\s]?[0-9]{3,4}[-\\s]?[0-9]{3,4}',
     flags: { global: true, ignoreCase: true, multiline: true },
     description: '전화번호 추출'
   },
