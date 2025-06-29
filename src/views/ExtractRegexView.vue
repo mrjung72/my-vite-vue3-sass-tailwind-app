@@ -35,12 +35,12 @@
           @change="applyPreset"
         >
           <option value="">구분자 선택</option>
+          <option value="custom">직접 입력</option>
           <option value="comma-separated">쉼표(,)</option>
           <option value="semicolon-separated">세미콜론(;)</option>
           <option value="pipe-separated">파이프(|)</option>
           <option value="tab-separated">탭</option>
           <option value="space-separated">공백</option>
-          <option value="newline-separated">줄바꿈</option>
           <option value="underscore-separated">언더바(_)</option>
           <option value="dot-separated">마침표(.)</option>
         </select>
@@ -57,6 +57,12 @@
         v-model="regexPattern" 
         class="input input-bordered w-full" 
         placeholder="정규식 패턴을 입력하세요 (예: \b\w+@\w+\.\w+\b)"
+      />
+      <input 
+        v-if="selectedCategory === 'separator' && selectedPreset === 'custom'"
+        v-model="customSeparator" 
+        class="input input-bordered w-full" 
+        placeholder="구분자를 직접 입력하세요 (예: |, ;, \t 등)"
       />
       <div v-if="selectedPreset && presetPatterns[selectedPreset]" class="text-sm text-blue-600 mt-1">
         💡 {{ presetPatterns[selectedPreset].description }}
@@ -93,7 +99,10 @@
     
     <div v-if="selectedCategory === 'separator'" class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
-        <label class="block font-bold mb-2">소스 입력</label>
+        <div class="flex items-center justify-between mb-2">
+          <label class="block font-bold">소스 입력</label>
+          <button @click="clearInput" class="btn btn-sm btn-outline">초기화</button>
+        </div>
         <div class="border border-base-300 rounded-lg bg-base-100 h-96 overflow-auto">
           <div class="p-4 font-mono text-sm">
             <div v-for="(line, index) in inputLines" :key="index" class="flex items-center mb-1">
@@ -131,10 +140,6 @@
         <div v-else class="relative">
           <div class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
             <div class="p-4 font-mono text-sm whitespace-nowrap">
-              <div v-if="showLineNumbers" class="flex items-center mb-2 text-gray-500">
-                <span class="w-8 text-center">#</span>
-                <span>결과</span>
-              </div>
               <div v-for="(result, index) in finalResults" :key="index" class="flex items-center">
                 <span v-if="showLineNumbers" class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
                   {{ index + 1 }}
@@ -153,7 +158,10 @@
     
     <div v-else class="grid grid-cols-1 md:grid-cols-6 gap-8">
       <div class="md:col-span-4">
-        <label class="block font-bold mb-2">소스 입력</label>
+        <div class="flex items-center justify-between mb-2">
+          <label class="block font-bold">소스 입력</label>
+          <button @click="clearInput" class="btn btn-sm btn-outline">초기화</button>
+        </div>
         <textarea 
           v-model="input" 
           class="textarea textarea-bordered w-full h-96" 
@@ -199,8 +207,9 @@ const selectedPreset = ref('')
 const selectedCategory = ref('')
 const wholeWord = ref(false)
 const removeDuplicates = ref(false)
-const showLineNumbers = ref(false)
+const showLineNumbers = ref(true)
 const newLine = ref('')
+const customSeparator = ref('')
 
 const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|dev|test|local|kr|us|jp|cn|uk|de|in|au|ca|fr)'
 
@@ -261,11 +270,6 @@ const presetPatterns = {
     pattern: '\\S+',
     flags: { global: true, ignoreCase: true, multiline: true },
     description: '공백으로 구분된 값들 추출'
-  },
-  'newline-separated': {
-    pattern: '[^\\n\\r]+',
-    flags: { global: true, ignoreCase: true, multiline: true },
-    description: '줄바꿈으로 구분된 값들 추출'
   },
   'underscore-separated': {
     pattern: '[^_\\s]+',
@@ -382,7 +386,23 @@ const extractResults = computed(() => {
 // 최종 결과 (카테고리에 따라 다르게)
 const finalResults = computed(() => {
   if (selectedCategory.value === 'separator') {
-    return separatorResults.value
+    const results = separatorResults.value
+    if (removeDuplicates.value) {
+      // 각 행의 내용을 문자열로 변환하여 중복 제거
+      const uniqueRows = []
+      const seen = new Set()
+      
+      results.forEach(row => {
+        const rowString = row.join('|')
+        if (!seen.has(rowString)) {
+          seen.add(rowString)
+          uniqueRows.push(row)
+        }
+      })
+      
+      return uniqueRows
+    }
+    return results
   } else {
     const results = extractResults.value
     if (removeDuplicates.value) {
@@ -417,6 +437,7 @@ const applyPreset = () => {
 const clearPreset = () => {
   selectedPreset.value = ''
   regexPattern.value = ''
+  customSeparator.value = ''
   flags.value = { global: true, ignoreCase: true, multiline: true }
 }
 
@@ -442,6 +463,10 @@ const getAppliedFlags = () => {
 
 // 구분자 패턴에 따른 실제 구분자 반환
 const getSeparator = () => {
+  if (selectedPreset.value === 'custom') {
+    return customSeparator.value || ','
+  }
+  
   if (!selectedPreset.value) return ','
   
   const separatorMap = {
@@ -450,12 +475,15 @@ const getSeparator = () => {
     'pipe-separated': '|',
     'tab-separated': '\t',
     'space-separated': ' ',
-    'newline-separated': '\n',
     'underscore-separated': '_',
     'dot-separated': '.'
   }
   
   return separatorMap[selectedPreset.value] || ','
+}
+
+const clearInput = () => {
+  input.value = ''
 }
 </script>
 
