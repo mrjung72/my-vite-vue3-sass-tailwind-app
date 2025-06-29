@@ -10,10 +10,10 @@
       <div class="card bg-base-100 shadow-lg border-l-4 border-primary">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="card-title text-2xl">v2.0.0 - 텍스트 추출 도구 대폭 개선</h2>
+            <h2 class="card-title text-2xl">v1.2 - 텍스트 추출 도구 대폭 개선</h2>
             <div class="badge badge-primary">최신</div>
           </div>
-          <div class="text-sm text-gray-500 mb-4">2024년 12월</div>
+          <div class="text-sm text-gray-500 mb-4">2025년 6월</div>
           
           <div class="space-y-4">
             <div>
@@ -63,10 +63,10 @@
       <div class="card bg-base-100 shadow-lg border-l-4 border-secondary">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="card-title text-2xl">v1.5.0 - 텍스트 추출 기능 추가</h2>
+            <h2 class="card-title text-2xl">v1.1 - 텍스트 추출 기능 추가</h2>
             <div class="badge badge-secondary">이전</div>
           </div>
-          <div class="text-sm text-gray-500 mb-4">2024년 11월</div>
+          <div class="text-sm text-gray-500 mb-4">2025년 6월</div>
           
           <div class="space-y-4">
             <div>
@@ -95,10 +95,10 @@
       <div class="card bg-base-100 shadow-lg border-l-4 border-accent">
         <div class="card-body">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="card-title text-2xl">v1.0.0 - 초기 릴리즈</h2>
+            <h2 class="card-title text-2xl">v1.0 - 초기 릴리즈</h2>
             <div class="badge badge-accent">초기</div>
           </div>
-          <div class="text-sm text-gray-500 mb-4">2024년 10월</div>
+          <div class="text-sm text-gray-500 mb-4">2025년 5월</div>
           
           <div class="space-y-4">
             <div>
