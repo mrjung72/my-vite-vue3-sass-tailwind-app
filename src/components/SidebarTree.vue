@@ -23,7 +23,6 @@ const util_menu = ref([
     label: '업무용 유틸리티',
     children: [
       { label: '테이블명 추출기', route: '/extract-tables' },
-      { label: '@단어 추출기', route: '/extract-atwords' },
       { label: '정규식 추출기', route: '/extract-regex' },
     ],
   },
