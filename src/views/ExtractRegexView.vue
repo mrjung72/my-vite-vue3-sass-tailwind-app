@@ -16,6 +16,12 @@
             <option value="phone">전화번호</option>
             <option value="url">URL</option>
             <option value="ip">IP 주소</option>
+            <option value="comma-separated">쉼표로 구분</option>
+            <option value="semicolon-separated">세미콜론으로 구분</option>
+            <option value="pipe-separated">파이프로 구분</option>
+            <option value="tab-separated">탭으로 구분</option>
+            <option value="space-separated">공백으로 구분</option>
+            <option value="newline-separated">줄바꿈으로 구분</option>
           </select>
           <button 
             v-if="selectedPreset" 
@@ -68,7 +74,7 @@
       </div>
       <textarea 
         v-else 
-        class="textarea textarea-bordered w-full h-124 bg-base-200" 
+        class="textarea textarea-bordered w-full h-134 bg-base-200" 
         readonly 
         :value="extractedResults.join('\n')"
       ></textarea>
@@ -124,6 +130,36 @@ const presetPatterns = {
     pattern: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b',
     flags: { global: true, ignoreCase: false, multiline: false },
     description: 'IP 주소 추출'
+  },
+  'comma-separated': {
+    pattern: '[^,\\s]+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '쉼표로 구분된 값들 추출'
+  },
+  'semicolon-separated': {
+    pattern: '[^;\\s]+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '세미콜론으로 구분된 값들 추출'
+  },
+  'pipe-separated': {
+    pattern: '[^|\\s]+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '파이프(|)로 구분된 값들 추출'
+  },
+  'tab-separated': {
+    pattern: '[^\\t\\s]+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '탭으로 구분된 값들 추출'
+  },
+  'space-separated': {
+    pattern: '\\S+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '공백으로 구분된 값들 추출'
+  },
+  'newline-separated': {
+    pattern: '[^\\n\\r]+',
+    flags: { global: true, ignoreCase: false, multiline: true },
+    description: '줄바꿈으로 구분된 값들 추출'
   }
 }
 
