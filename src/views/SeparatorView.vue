@@ -70,6 +70,18 @@
           </label>
         </div>
       </div>
+      <div class="text-sm text-gray-500 mt-2">
+        <label class="block font-medium mb-1">열 선택:</label>
+        <div class="flex items-center gap-2">
+          <input 
+            v-model="selectedColumns" 
+            class="input input-bordered input-sm w-32" 
+            placeholder="예: 1,3,5"
+          />
+          <span class="text-xs text-gray-400">쉼표로 구분 (비워두면 모든 열)</span>
+          <button @click="clearColumnSelection" class="btn btn-xs btn-outline">초기화</button>
+        </div>
+      </div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -190,6 +202,7 @@ const showLineNumbers = ref(true)
 const removeDuplicates = ref(false)
 const customSeparator = ref('')
 const resultFormat = ref('json')
+const selectedColumns = ref('')
 
 // 프리셋 패턴 정의
 const presetPatterns = {
@@ -231,12 +244,24 @@ const separatorResults = computed(() => {
 // 최종 결과
 const finalResults = computed(() => {
   const results = separatorResults.value
+  
+  // 선택된 열만 필터링
+  let filteredResults = results
+  if (selectedColumns.value.trim()) {
+    const columnIndices = selectedColumns.value.split(',').map(s => parseInt(s.trim()) - 1).filter(i => !isNaN(i) && i >= 0)
+    if (columnIndices.length > 0) {
+      filteredResults = results.map(row => {
+        return columnIndices.map(index => row[index] || '').filter(cell => cell !== '')
+      })
+    }
+  }
+  
   if (removeDuplicates.value) {
     // 각 행의 내용을 문자열로 변환하여 중복 제거
     const uniqueRows = []
     const seen = new Set()
     
-    results.forEach(row => {
+    filteredResults.forEach(row => {
       const rowString = row.join('|')
       if (!seen.has(rowString)) {
         seen.add(rowString)
@@ -246,7 +271,7 @@ const finalResults = computed(() => {
     
     return uniqueRows
   }
-  return results
+  return filteredResults
 })
 
 // 입력 텍스트를 줄 단위로 분리
@@ -276,7 +301,7 @@ const getSeparator = () => {
 }
 
 // 입력이나 정규식 패턴 변경 시 처리 상태 관리
-watch([input, selectedPreset, customSeparator, removeDuplicates, showLineNumbers, resultFormat], () => {
+watch([input, selectedPreset, customSeparator, removeDuplicates, showLineNumbers, resultFormat, selectedColumns], () => {
   isProcessing.value = true
   // 처리 시뮬레이션을 위한 짧은 지연
   setTimeout(() => {
@@ -329,6 +354,10 @@ const copyResults = () => {
   }).catch(err => {
     console.error('복사 실패:', err)
   })
+}
+
+const clearColumnSelection = () => {
+  selectedColumns.value = ''
 }
 </script>
 
