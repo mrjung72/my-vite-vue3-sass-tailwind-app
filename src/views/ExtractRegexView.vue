@@ -26,6 +26,8 @@
             <option value="ip">IP 주소</option>
             <option value="email">이메일 주소</option>
             <option value="phone">전화번호</option>
+            <option value="line-start">줄 시작 단어</option>
+            <option value="line-end">줄 끝 단어</option>
           </select>
           <select 
             v-if="selectedCategory === 'separator'"
@@ -61,27 +63,20 @@
         </div>
         <div v-if="selectedCategory === 'extract'" class="text-sm text-gray-500 mt-1">
           <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
-            온전한 단어만 (공백 기준)
+            <input type="checkbox" v-model="flags.global" class="checkbox checkbox-xs mr-1" />
+            g (전체 적용)
           </label>
           <label class="inline-flex items-center mr-3">
             <input type="checkbox" v-model="removeDuplicates" class="checkbox checkbox-xs mr-1" />
             중복 제거
-          </label>
-        </div>
-        <div class="text-sm text-gray-500 mt-1">
-          플래그: 
-          <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="flags.global" class="checkbox checkbox-xs mr-1" />
-            g (전역)
           </label>
           <label class="inline-flex items-center mr-3">
             <input type="checkbox" v-model="flags.ignoreCase" class="checkbox checkbox-xs mr-1" />
             i (대소문자 무시)
           </label>
           <label class="inline-flex items-center mr-3">
-            <input type="checkbox" v-model="flags.multiline" class="checkbox checkbox-xs mr-1" />
-            m (멀티라인)
+            <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
+            온전한 단어(공백 기준)
           </label>
         </div>
       </div>
@@ -124,8 +119,8 @@ const regexPattern = ref('')
 const isProcessing = ref(false)
 const flags = ref({
   global: true,
-  ignoreCase: false,
-  multiline: false
+  ignoreCase: true,
+  multiline: true
 })
 const selectedPreset = ref('')
 const selectedCategory = ref('')
@@ -139,73 +134,83 @@ const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|
 const presetPatterns = {
   'at-words': {
     pattern: '@[\\w]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '@로 시작하는 단어 추출'
   },
   'email': {
     pattern: '[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '이메일 주소 추출'
   },
   'phone': {
     pattern: '(?:\\+?[0-9]{1,3}[-.\\s]?)?[0-9]{2,4}[-.\\s]?[0-9]{3,4}[-.\\s]?[0-9]{3,4}',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '전화번호 추출'
   },
   'url': {
     pattern: 'https?://'+pattern_domain,
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: 'URL 추출'
   },
   'ip': {
     pattern: '(?:\\d{1,3}\\.){3}\\d{1,3}',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: 'IP 주소 추출'
   },
   'domain': {
     pattern: pattern_domain,
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '도메인 추출'
   },
   'comma-separated': {
     pattern: '[^,\\s]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '쉼표로 구분된 값들 추출'
   },
   'semicolon-separated': {
     pattern: '[^;\\s]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '세미콜론으로 구분된 값들 추출'
   },
   'pipe-separated': {
     pattern: '[^|\\s]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '파이프(|)로 구분된 값들 추출'
   },
   'tab-separated': {
     pattern: '[^\\t\\s]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '탭으로 구분된 값들 추출'
   },
   'space-separated': {
     pattern: '\\S+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '공백으로 구분된 값들 추출'
   },
   'newline-separated': {
     pattern: '[^\\n\\r]+',
-    flags: { global: true, ignoreCase: false, multiline: true },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '줄바꿈으로 구분된 값들 추출'
   },
   'underscore-separated': {
     pattern: '[^_\\s]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '언더바(_)로 구분된 값들 추출'
   },
   'dot-separated': {
     pattern: '[^.\\s]+',
-    flags: { global: true, ignoreCase: false, multiline: false },
+    flags: { global: true, ignoreCase: true, multiline: true },
     description: '마침표(.)로 구분된 값들 추출'
+  },
+  'line-start': {
+    pattern: '^[a-zA-Z]+',
+    flags: { global: true, ignoreCase: true, multiline: true },
+    description: '각 줄의 시작 단어 추출 (m 플래그 필요)'
+  },
+  'line-end': {
+    pattern: '[a-zA-Z]+$',
+    flags: { global: true, ignoreCase: true, multiline: true },
+    description: '각 줄의 끝 단어 추출 (m 플래그 필요)'
   }
 }
 
@@ -310,12 +315,20 @@ const applyPreset = () => {
 const clearPreset = () => {
   selectedPreset.value = ''
   regexPattern.value = ''
-  flags.value = { global: true, ignoreCase: false, multiline: false }
+  flags.value = { global: true, ignoreCase: true, multiline: true }
 }
 
 const onCategoryChange = () => {
   // 카테고리 변경 시 선택 항목 초기화
   selectedPreset.value = ''
+}
+
+const getAppliedFlags = () => {
+  let flagString = ''
+  if (flags.value.global) flagString += 'g'
+  if (flags.value.ignoreCase) flagString += 'i'
+  if (flags.value.multiline) flagString += 'm'
+  return flagString
 }
 </script>
 
