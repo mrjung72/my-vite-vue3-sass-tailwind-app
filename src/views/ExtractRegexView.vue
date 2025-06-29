@@ -5,23 +5,43 @@
         <label class="block font-bold mb-2">정규식 패턴</label>
         <div class="flex gap-2 mb-2">
           <select 
+            v-model="selectedCategory" 
+            class="select select-bordered select-sm flex-1"
+            @change="onCategoryChange"
+          >
+            <option value="">직접 입력</option>
+            <option value="extract">추출 패턴</option>
+            <option value="separator">구분자 패턴</option>
+          </select>
+          <select 
+            v-if="selectedCategory === 'extract'"
             v-model="selectedPreset" 
             class="select select-bordered select-sm flex-1"
             @change="applyPreset"
           >
-            <option value="">직접 입력</option>
+            <option value="">패턴 선택</option>
             <option value="table-names">테이블명 추출</option>
             <option value="at-words">@단어 추출</option>
             <option value="email">이메일 주소</option>
             <option value="phone">전화번호</option>
             <option value="url">URL</option>
             <option value="ip">IP 주소</option>
-            <option value="comma-separated">쉼표로 구분</option>
-            <option value="semicolon-separated">세미콜론으로 구분</option>
-            <option value="pipe-separated">파이프로 구분</option>
-            <option value="tab-separated">탭으로 구분</option>
-            <option value="space-separated">공백으로 구분</option>
-            <option value="newline-separated">줄바꿈으로 구분</option>
+          </select>
+          <select 
+            v-if="selectedCategory === 'separator'"
+            v-model="selectedPreset" 
+            class="select select-bordered select-sm flex-1"
+            @change="applyPreset"
+          >
+            <option value="">구분자 선택</option>
+            <option value="comma-separated">쉼표(,)</option>
+            <option value="semicolon-separated">세미콜론(;)</option>
+            <option value="pipe-separated">파이프(|)</option>
+            <option value="tab-separated">탭</option>
+            <option value="space-separated">공백</option>
+            <option value="newline-separated">줄바꿈</option>
+            <option value="underscore-separated">언더바(_)</option>
+            <option value="dot-separated">마침표(.)</option>
           </select>
           <button 
             v-if="selectedPreset" 
@@ -98,6 +118,7 @@ const flags = ref({
   multiline: false
 })
 const selectedPreset = ref('')
+const selectedCategory = ref('')
 
 // 프리셋 패턴 정의
 const presetPatterns = {
@@ -160,6 +181,16 @@ const presetPatterns = {
     pattern: '[^\\n\\r]+',
     flags: { global: true, ignoreCase: false, multiline: true },
     description: '줄바꿈으로 구분된 값들 추출'
+  },
+  'underscore-separated': {
+    pattern: '[^_\\s]+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '언더바(_)로 구분된 값들 추출'
+  },
+  'dot-separated': {
+    pattern: '[^.\\s]+',
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '마침표(.)로 구분된 값들 추출'
   }
 }
 
@@ -234,6 +265,11 @@ const clearPreset = () => {
   selectedPreset.value = ''
   regexPattern.value = ''
   flags.value = { global: true, ignoreCase: false, multiline: false }
+}
+
+const onCategoryChange = () => {
+  // 카테고리 변경 시 선택 항목 초기화
+  selectedPreset.value = ''
 }
 </script>
 
