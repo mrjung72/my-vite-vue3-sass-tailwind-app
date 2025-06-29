@@ -46,40 +46,40 @@
         </label>
       </div>
       <div class="text-sm text-gray-500 mt-2">
-        <label class="block font-medium mb-1">결과 포맷:</label>
-        <div class="flex gap-2">
-          <label class="inline-flex items-center">
-            <input type="radio" v-model="resultFormat" value="json" class="radio radio-xs mr-1" />
-            JSON
-          </label>
-          <label class="inline-flex items-center">
-            <input type="radio" v-model="resultFormat" value="text" class="radio radio-xs mr-1" />
-            텍스트
-          </label>
-          <label class="inline-flex items-center">
-            <input type="radio" v-model="resultFormat" value="excel" class="radio radio-xs mr-1" />
-            엑셀
-          </label>
-          <label class="inline-flex items-center">
-            <input type="radio" v-model="resultFormat" value="csv" class="radio radio-xs mr-1" />
-            CSV
-          </label>
-          <label class="inline-flex items-center">
-            <input type="radio" v-model="resultFormat" value="html" class="radio radio-xs mr-1" />
-            HTML
-          </label>
-        </div>
-      </div>
-      <div class="text-sm text-gray-500 mt-2">
-        <label class="block font-medium mb-1">열 선택:</label>
-        <div class="flex items-center gap-2">
-          <input 
-            v-model="selectedColumns" 
-            class="input input-bordered input-sm w-32" 
-            placeholder="예: 1,3,5"
-          />
-          <span class="text-xs text-gray-400">쉼표로 구분 (비워두면 모든 열)</span>
-          <button @click="clearColumnSelection" class="btn btn-xs btn-outline">초기화</button>
+        <div class="flex flex-wrap gap-4 items-center">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-bold mr-1">결과 포맷</span>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="resultFormat" value="json" class="radio radio-xs mr-1" />
+              JSON
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="resultFormat" value="text" class="radio radio-xs mr-1" />
+              텍스트
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="resultFormat" value="excel" class="radio radio-xs mr-1" />
+              엑셀
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="resultFormat" value="csv" class="radio radio-xs mr-1" />
+              CSV
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" v-model="resultFormat" value="html" class="radio radio-xs mr-1" />
+              HTML
+            </label>
+          </div>
+          <div class="border-l border-base-300 pl-4 ml-2 flex flex-wrap items-center gap-2 min-w-[220px]">
+            <span class="font-bold mr-1">열 선택</span>
+            <input 
+              v-model="selectedColumns" 
+              class="input input-bordered input-sm w-32" 
+              placeholder="예: 1,3,5"
+            />
+            <button @click="clearColumnSelection" class="btn btn-xs btn-outline">초기화</button>
+            <span class="text-xs text-gray-400">쉼표로 구분 (비워두면 모든 열)</span>
+          </div>
         </div>
       </div>
     </div>
@@ -324,10 +324,34 @@ const clearColumnSelection = () => {
   selectedColumns.value = ''
 }
 
-const jsonResult = computed(() => finalResults.value.map(row => JSON.stringify(row)).join('\n'))
-const textResult = computed(() => finalResults.value.map(row => row.join(' | ')).join('\n'))
-const excelResult = computed(() => finalResults.value.map(row => row.join('\t')).join('\n'))
-const csvResult = computed(() => finalResults.value.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n'))
+const jsonResult = computed(() => {
+  if (showLineNumbers.value) {
+    return finalResults.value.map((row, idx) => `${idx + 1}. ${JSON.stringify(row)}`).join('\n')
+  } else {
+    return finalResults.value.map(row => JSON.stringify(row)).join('\n')
+  }
+})
+const textResult = computed(() => {
+  if (showLineNumbers.value) {
+    return finalResults.value.map((row, idx) => `${idx + 1}. ${row.join(' | ')}`).join('\n')
+  } else {
+    return finalResults.value.map(row => row.join(' | ')).join('\n')
+  }
+})
+const excelResult = computed(() => {
+  if (showLineNumbers.value) {
+    return finalResults.value.map((row, idx) => `${idx + 1}. ${row.join('\t')}`).join('\n')
+  } else {
+    return finalResults.value.map(row => row.join('\t')).join('\n')
+  }
+})
+const csvResult = computed(() => {
+  if (showLineNumbers.value) {
+    return finalResults.value.map((row, idx) => `${idx + 1}. ${row.map(cell => `"${cell}"`).join(',')}`).join('\n')
+  } else {
+    return finalResults.value.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
+  }
+})
 </script>
 
 <style scoped>
