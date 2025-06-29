@@ -194,13 +194,13 @@ const extractResults = computed(() => {
             // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
             const words = input.value.split(/\s+/)
             if (words.includes(matchedText.trim())) {
-              matches.push(matchedText)
+              matches.push(matchedText.trim())
             }
           } else {
-            matches.push(matchedText)
+            matches.push(matchedText.trim())
           }
         } else {
-          matches.push(matchedText)
+          matches.push(matchedText.trim())
         }
       }
     } else {
@@ -215,13 +215,13 @@ const extractResults = computed(() => {
             // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
             const words = input.value.split(/\s+/)
             if (words.includes(matchedText.trim())) {
-              matches.push(matchedText)
+              matches.push(matchedText.trim())
             }
           } else {
-            matches.push(matchedText)
+            matches.push(matchedText.trim())
           }
         } else {
-          matches.push(matchedText)
+          matches.push(matchedText.trim())
         }
       }
     }
