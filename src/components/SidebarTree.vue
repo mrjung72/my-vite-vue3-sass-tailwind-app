@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watchEffect } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
 
 const auth = useAuthStore()
 
 const router = useRouter()
+const route = useRoute()
 
 const user_menu = ref([
   {
@@ -55,6 +56,17 @@ const toggleExpand = (label) => {
 const goTo = (route) => {
   router.push(route)
 }
+
+// 메뉴 그룹이 현재 경로에 포함된 메뉴를 가지고 있으면 자동으로 펼침
+watchEffect(() => {
+  [user_menu, util_menu, admin_menu, special_menu].forEach(menuGroup => {
+    menuGroup.value.forEach(group => {
+      if (group.children.some(item => route.path.startsWith(item.route))) {
+        expanded.value[group.label] = true
+      }
+    })
+  })
+})
 </script>
 
 <template>
@@ -67,7 +79,12 @@ const goTo = (route) => {
         </div>
         <ul v-show="expanded[group.label]" class="pl-4">
           <li v-for="item in group.children" :key="item.label">
-            <a @click="goTo(item.route)">{{ item.label }}</a>
+            <a
+              @click="goTo(item.route)"
+              :class="[route.path.startsWith(item.route) ? 'font-bold text-primary bg-base-300' : '']"
+            >
+              {{ item.label }}
+            </a>
           </li>
         </ul>
       </li>
@@ -80,7 +97,12 @@ const goTo = (route) => {
         </div>
         <ul v-show="expanded[group.label]" class="pl-4">
           <li v-for="item in group.children" :key="item.label">
-            <a @click="goTo(item.route)">{{ item.label }}</a>
+            <a
+              @click="goTo(item.route)"
+              :class="[route.path.startsWith(item.route) ? 'font-bold text-primary bg-base-300' : '']"
+            >
+              {{ item.label }}
+            </a>
           </li>
         </ul>
       </li>
@@ -93,7 +115,12 @@ const goTo = (route) => {
         </div>
         <ul v-show="expanded[group.label]" class="pl-4">
           <li v-for="item in group.children" :key="item.label">
-            <a @click="goTo(item.route)">{{ item.label }}</a>
+            <a
+              @click="goTo(item.route)"
+              :class="[route.path.startsWith(item.route) ? 'font-bold text-primary bg-base-300' : '']"
+            >
+              {{ item.label }}
+            </a>
           </li>
         </ul>
       </li>
@@ -106,7 +133,12 @@ const goTo = (route) => {
         </div>
         <ul v-show="expanded[group.label]" class="pl-4">
           <li v-for="item in group.children" :key="item.label">
-            <a @click="goTo(item.route)">{{ item.label }}</a>
+            <a
+              @click="goTo(item.route)"
+              :class="[route.path.startsWith(item.route) ? 'font-bold text-primary bg-base-300' : '']"
+            >
+              {{ item.label }}
+            </a>
           </li>
         </ul>
       </li>

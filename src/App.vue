@@ -11,7 +11,7 @@ import SidebarTree from '@/components/SidebarTree.vue'
 
     <div class="flex flex-1">
       <!-- 좌측 사이드바 -->
-      <SidebarTree />
+      <SidebarTree v-if="$route.path !== '/'" />
 
       <!-- 본문 영역 -->
       <main class="flex-1 py-4 px-4 overflow-auto">
