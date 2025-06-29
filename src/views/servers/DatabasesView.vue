@@ -374,6 +374,7 @@ const limitedPages = computed(() => {
           class="btn btn-sm btn-outline btn-primary"
           @click="checkSelectedServerStatus"
           :disabled="selectedServers && selectedServers.length === 0"
+          v-if="auth.user?.isAdmin"
         >
           선택한 서버 Telnet 확인
         </button>
@@ -398,7 +399,7 @@ const limitedPages = computed(() => {
       <table class="table table-compact w-full text-sm">
         <thead class="bg-base-200 text-base-content">
           <tr>
-            <th><input type="checkbox" @change="toggleAll" :checked="allSelected" /></th>
+            <th><input type="checkbox" @change="toggleAll" :checked="allSelected" :disabled="!auth.user?.isAdmin" /></th>
             <th>DB명</th>
             <th>법인</th>
             <th>공정</th>
@@ -409,7 +410,7 @@ const limitedPages = computed(() => {
             <th>역할</th>
             <th>DB타입</th>
             <th>Telnet 요청결과</th>
-            <th>Multi Telnet 요청결과</th>
+            <th v-if="auth.user?.isAdmin">Multi Telnet 요청결과</th>
           </tr>
         </thead>
         <tbody>
@@ -426,8 +427,8 @@ const limitedPages = computed(() => {
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
             <td>
-              <input type="checkbox" v-model="selectedServers" :value="s" />
-            </td>            
+              <input type="checkbox" v-model="selectedServers" :value="s" :disabled="!auth.user?.isAdmin" />
+            </td>
             <td>{{ s.db_instance_name }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
             <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
@@ -437,63 +438,16 @@ const limitedPages = computed(() => {
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
             <td>{{ s.db_type }}</td>
-            <td>
-              <button
-                class="btn btn-xs btn-outline"
-                @click="checkTelnet(s.server_ip, s.port)"
-              >
-                Telnet
-              </button>
-              <span class="ml-2 text-sm">
-                <template v-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'success'">✅ OK</template>
-                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'timeout'">⏳ 타임아웃</template>
-                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'error'">❌ FAIL</template>
-                <template v-else-if="telnetStatuses[`${s.server_ip}:${s.port}`] === 'checking'">⌛ Checking...</template>
-              </span>
-            </td>
-            <td>
+            <td v-if="auth.user?.isAdmin">
               <span v-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'success'">✅ OK</span>
               <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'timeout'">⏳ 타임아웃</span>
               <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`] && checkedResults[`${s.server_ip}:${s.port}`].data.status === 'error'">❌ FAIL</span>
               <span v-else-if="checkedResults[`${s.server_ip}:${s.port}`]">⌛ Checking...</span>
             </td>
+            <td v-else></td>
           </tr>
         </tbody>
       </table>
     </div>
-
-<!-- 페이지네이션 -->
-<div class="flex justify-center mt-4 gap-2 flex-wrap">
-  <!-- 첫 페이지로 이동 -->
-  <button class="btn btn-sm" :disabled="currentPage === 1" @click="goToPage(1)">
-    맨 앞
-  </button>
-
-  <!-- 이전 페이지 -->
-  <button class="btn btn-sm" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
-    이전
-  </button>
-
-  <!-- 페이지 번호들 -->
-  <button
-    v-for="page in limitedPages"
-    :key="page"
-    class="btn btn-sm"
-    :class="{ 'btn-primary': page === currentPage, 'btn-outline': page !== currentPage }"
-    @click="goToPage(page)"
-  >
-    {{ page }}
-  </button>
-
-  <!-- 다음 페이지 -->
-  <button class="btn btn-sm" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
-    다음
-  </button>
-
-  <!-- 마지막 페이지로 이동 -->
-  <button class="btn btn-sm" :disabled="currentPage === totalPages" @click="goToPage(totalPages)">
-    마지막
-  </button>
-</div>
   </div>
 </template>
