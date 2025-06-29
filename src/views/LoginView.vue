@@ -48,11 +48,9 @@ const handleLogin = async () => {
   message.value = result.message
 
   if (result.isSuccess) {
-
     // ⬇️ redirect가 있는 경우 해당 주소로, 없으면 홈으로
     const redirectTo = route.query.redirect || '/'
-    router.push(redirectTo)    
-    // router.push({ name: 'home' }) // 로그인 후 홈으로 이동
+    window.location.href = redirectTo
   }
 }
 </script>

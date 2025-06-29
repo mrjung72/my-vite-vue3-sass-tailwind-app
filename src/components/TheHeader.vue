@@ -1,15 +1,20 @@
 <script setup>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import ThemeControllerMini from "@/components/ThemeControllerMini.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
 import { useAuthStore } from "@/stores/auth";
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
 const router = useRouter();
+const route = useRoute()
 const title = '사하라 홈';
 const pendingCount = ref(0)
+const badgePos = ref({ x: 0, y: 0 })
+const dragging = ref(false)
+const dragStart = ref({ x: 0, y: 0 })
+const mouseStart = ref({ x: 0, y: 0 })
 
 const handleLogout = () => {
   auth.logout(router)
@@ -21,7 +26,7 @@ function goToPendingMembers() {
   }
 }
 
-onMounted(async () => {
+async function fetchPendingCount() {
   if (auth.isLoggedIn && auth.user && auth.user.isAdmin == 1) {
     try {
       const res = await axios.get('/api/members/pending-count', {
@@ -31,8 +36,31 @@ onMounted(async () => {
     } catch (e) {
       pendingCount.value = 0
     }
+  } else {
+    pendingCount.value = 0
   }
-})
+}
+
+function onBadgeMouseDown(e) {
+  dragging.value = true
+  dragStart.value = { ...badgePos.value }
+  mouseStart.value = { x: e.clientX, y: e.clientY }
+  document.addEventListener('mousemove', onBadgeMouseMove)
+  document.addEventListener('mouseup', onBadgeMouseUp)
+}
+function onBadgeMouseMove(e) {
+  if (!dragging.value) return
+  badgePos.value.x = dragStart.value.x + (e.clientX - mouseStart.value.x)
+  badgePos.value.y = dragStart.value.y + (e.clientY - mouseStart.value.y)
+}
+function onBadgeMouseUp() {
+  dragging.value = false
+  document.removeEventListener('mousemove', onBadgeMouseMove)
+  document.removeEventListener('mouseup', onBadgeMouseUp)
+}
+
+onMounted(fetchPendingCount)
+watch(() => route.fullPath, fetchPendingCount)
 </script>
 
 <template>
@@ -90,14 +118,31 @@ onMounted(async () => {
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 				</svg>
 			</button>
-			<button class="btn btn-ghost btn-circle" @click="goToPendingMembers" :title="'미승인 회원 보기'">
-				<span class="indicator">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-					</svg>
-					<span v-if="auth.isLoggedIn && auth.user && auth.user.isAdmin == 1 && pendingCount > 0" class="badge badge-error indicator-item">{{ pendingCount }}</span>
-				</span>
-			</button>
+			<div v-if="auth.isLoggedIn && auth.user && auth.user.isAdmin == 1 && pendingCount > 0" class="tooltip" data-tip="미승인 회원 대기중">
+				<button class="btn btn-ghost btn-circle" @click="goToPendingMembers" :title="'미승인 회원 보기'">
+					<span class="indicator">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+						</svg>
+						<span
+							class="badge badge-error indicator-item text-xs px-2 py-0.5 shadow cursor-move"
+							:style="`position: absolute; right: 1px; top: 1px; transform: translate(${badgePos.x}px, ${badgePos.y}px); z-index: 50; user-select: none;`"
+							@mousedown="onBadgeMouseDown"
+						>
+							미승인 회원 {{ pendingCount }}명
+						</span>
+					</span>
+				</button>
+			</div>
+			<div v-else class="tooltip" data-tip="알림 없음.">
+				<button class="btn btn-ghost btn-circle" @click="goToPendingMembers" :title="'알림이 없습니다.'">
+					<span class="indicator">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+						</svg>
+					</span>
+				</button>
+			</div>
 		</div>
 	</div>
 
