@@ -118,55 +118,19 @@
         </div>
         <div v-else class="relative">
           <!-- JSON 포맷 -->
-          <div v-if="resultFormat === 'json'" class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
-            <div class="p-4 font-mono text-sm">
-              <div v-for="(row, rowIndex) in finalResults" :key="rowIndex" class="flex items-start mb-2">
-                <span v-if="showLineNumbers" class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2 flex-shrink-0">
-                  {{ rowIndex + 1 }}
-                </span>
-                <span class="flex-1 text-blue-600">{{ JSON.stringify(row) }}</span>
-              </div>
-            </div>
-          </div>
+          <textarea v-if="resultFormat === 'json'" readonly class="textarea textarea-bordered w-full h-96" :value="jsonResult"></textarea>
           
           <!-- 텍스트 포맷 -->
-          <div v-else-if="resultFormat === 'text'" class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
-            <div class="p-4 font-mono text-sm">
-              <div v-for="(row, rowIndex) in finalResults" :key="rowIndex" class="flex items-center mb-1">
-                <span v-if="showLineNumbers" class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
-                  {{ rowIndex + 1 }}
-                </span>
-                <span class="flex-1">{{ row.join(' | ') }}</span>
-              </div>
-            </div>
-          </div>
+          <textarea v-else-if="resultFormat === 'text'" readonly class="textarea textarea-bordered w-full h-96" :value="textResult"></textarea>
           
           <!-- 엑셀 포맷 -->
-          <div v-else-if="resultFormat === 'excel'" class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
-            <div class="p-4 font-mono text-sm">
-              <div v-for="(row, rowIndex) in finalResults" :key="rowIndex" class="flex items-center mb-1">
-                <span v-if="showLineNumbers" class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
-                  {{ rowIndex + 1 }}
-                </span>
-                <span class="flex-1">{{ row.join('\t') }}</span>
-              </div>
-            </div>
-          </div>
+          <textarea v-else-if="resultFormat === 'excel'" readonly class="textarea textarea-bordered w-full h-96" :value="excelResult"></textarea>
           
           <!-- CSV 포맷 -->
-          <div v-else-if="resultFormat === 'csv'" class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
-            <div class="p-4 font-mono text-sm">
-              <div v-for="(row, rowIndex) in finalResults" :key="rowIndex" class="flex items-center mb-1">
-                <span v-if="showLineNumbers" class="w-8 text-center text-gray-500 border-r border-gray-300 pr-2 mr-2">
-                  {{ rowIndex + 1 }}
-                </span>
-                <span class="flex-1">{{ row.map(cell => `"${cell}"`).join(',') }}</span>
-              </div>
-            </div>
-          </div>
+          <textarea v-else-if="resultFormat === 'csv'" readonly class="textarea textarea-bordered w-full h-96" :value="csvResult"></textarea>
           
           <!-- HTML 포맷 -->
-          <div v-else-if="resultFormat === 'html'" class="border border-base-300 rounded-lg bg-base-200 h-96 overflow-auto">
+          <div v-else-if="resultFormat === 'html'" class="textarea textarea-bordered w-full h-96 overflow-auto">
             <div class="p-4 font-mono text-sm">
               <div v-for="(row, rowIndex) in finalResults" :key="rowIndex" class="mb-2">
                 <div v-if="showLineNumbers" class="text-xs text-gray-500 mb-1">라인 {{ rowIndex + 1 }}:</div>
@@ -336,7 +300,7 @@ const copyResults = () => {
       textToCopy = finalResults.value.map(row => row.join('\t')).join('\n')
       break
     case 'csv':
-      textToCopy = finalResults.value.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n')
+      textToCopy = finalResults.value.map(row => row.map(cell => `\"${cell}\"`).join(',')).join('\n')
       break
     case 'html':
       textToCopy = `<table>\n${finalResults.value.map(row => 
@@ -359,6 +323,11 @@ const copyResults = () => {
 const clearColumnSelection = () => {
   selectedColumns.value = ''
 }
+
+const jsonResult = computed(() => finalResults.value.map(row => JSON.stringify(row)).join('\n'))
+const textResult = computed(() => finalResults.value.map(row => row.join(' | ')).join('\n'))
+const excelResult = computed(() => finalResults.value.map(row => row.join('\t')).join('\n'))
+const csvResult = computed(() => finalResults.value.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n'))
 </script>
 
 <style scoped>
