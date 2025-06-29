@@ -61,7 +61,7 @@
         <button class="btn btn-xs" :disabled="currentPage === totalPages" @click="currentPage++">다음</button>
       </div>
 
-      <div v-if="auth.isLoggedIn && auth.user.isAdmin" class="flex gap-2 mt-4">
+      <div v-if="auth.isLoggedIn && auth.user.isAdmin && auth.user.userid=='admin'" class="flex gap-2 mt-4">
         <button class="btn btn-sm btn-primary" @click="showRegisterModal = true">회원 등록</button>
       </div>
     </div>

@@ -34,6 +34,14 @@ const admin_menu = ref([
     label: '관리자 메뉴',
     children: [
       { label: '회원 목록', route: '/members/list' },
+    ],
+  },
+])
+
+const special_menu = ref([
+  {
+    label: '특별 메뉴',
+    children: [
       { label: '회원정보 업로드', route: '/members/csv-register' },
       { label: '서버정보 업로드', route: '/servers/csv-register' },
     ],
@@ -79,6 +87,19 @@ const goTo = (route) => {
     </ul>
     <ul v-if="auth.user && auth.user.isAdmin == 1" class="menu">
       <li v-for="group in admin_menu" :key="group.label">
+        <div @click="toggleExpand(group.label)" class="cursor-pointer font-bold">
+          {{ group.label }}
+          <span class="float-right">{{ expanded[group.label] ? '▾' : '▸' }}</span>
+        </div>
+        <ul v-show="expanded[group.label]" class="pl-4">
+          <li v-for="item in group.children" :key="item.label">
+            <a @click="goTo(item.route)">{{ item.label }}</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <ul v-if="auth.user && auth.user.isAdmin == 1 && auth.user.userid=='admin'" class="menu">
+      <li v-for="group in special_menu" :key="group.label">
         <div @click="toggleExpand(group.label)" class="cursor-pointer font-bold">
           {{ group.label }}
           <span class="float-right">{{ expanded[group.label] ? '▾' : '▸' }}</span>
