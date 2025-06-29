@@ -20,12 +20,12 @@
             @change="applyPreset"
           >
             <option value="">패턴 선택</option>
-            <option value="table-names">테이블명 추출</option>
             <option value="at-words">@단어 추출</option>
+            <option value="url">URL</option>
+            <option value="domain">도메인</option>
+            <option value="ip">IP 주소</option>
             <option value="email">이메일 주소</option>
             <option value="phone">전화번호</option>
-            <option value="url">URL</option>
-            <option value="ip">IP 주소</option>
           </select>
           <select 
             v-if="selectedCategory === 'separator'"
@@ -127,13 +127,11 @@ const selectedPreset = ref('')
 const selectedCategory = ref('')
 const wholeWord = ref(false)
 
+const pattern_domain = '([\\w-]+\\.){1,3}(com|org|net|edu|gov|mil|int|io|ai|app|dev|test|local|kr|us|jp|cn|uk|de|in|au|ca|fr)'
+
+
 // 프리셋 패턴 정의
 const presetPatterns = {
-  'table-names': {
-    pattern: '(?:FROM|JOIN|UPDATE|INTO|TABLE)\\s+([`"\\[]?[\\w.]+[`"\\]]?)(?:\\s+(?:AS\\s+)?([\\w]+))?',
-    flags: { global: true, ignoreCase: true, multiline: false },
-    description: 'SQL/DDL에서 테이블명과 별칭 추출'
-  },
   'at-words': {
     pattern: '@[\\w]+',
     flags: { global: true, ignoreCase: false, multiline: false },
@@ -150,7 +148,7 @@ const presetPatterns = {
     description: '전화번호 추출'
   },
   'url': {
-    pattern: 'https?://[\\w.-]+(?:\\.[\\w.-]+)*(?:/[\\w./?=&%#-]*)?',
+    pattern: 'https?://'+pattern_domain,
     flags: { global: true, ignoreCase: false, multiline: false },
     description: 'URL 추출'
   },
@@ -158,6 +156,11 @@ const presetPatterns = {
     pattern: '(?:\\d{1,3}\\.){3}\\d{1,3}',
     flags: { global: true, ignoreCase: false, multiline: false },
     description: 'IP 주소 추출'
+  },
+  'domain': {
+    pattern: pattern_domain,
+    flags: { global: true, ignoreCase: false, multiline: false },
+    description: '도메인 추출'
   },
   'comma-separated': {
     pattern: '[^,\\s]+',
