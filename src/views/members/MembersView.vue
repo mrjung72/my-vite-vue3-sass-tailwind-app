@@ -30,6 +30,11 @@
         class="input input-sm input-bordered w-full mb-2"
       />
 
+      <label class="label cursor-pointer mb-2">
+        <input type="checkbox" v-model="showPendingOnly" class="checkbox checkbox-sm mr-2" />
+        <span class="label-text">미승인 회원</span>
+      </label>
+
       <div class="text-sm text-gray-600 mb-2">
         <span v-if="isLoading">🔍 검색 중...</span>
         <span v-else>총 {{ filteredMembers.length }}명</span>
@@ -123,10 +128,11 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from "@/stores/auth";
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const auth = useAuthStore() // Pinia 스토어에서 인증 상태 가져오기
 const router = useRouter()  
+const route = useRoute()
 
 const members = ref([])
 const currentPage = ref(1)
@@ -137,6 +143,7 @@ const editForm = ref({ name: '', email: '', isAdmin: false, userid: '' })
 const searchQuery = ref('')
 const isLoading = ref(false)
 const token = localStorage.getItem('token') 
+const showPendingOnly = ref(false)
 
 const statusCode = {Y:'정상회원', A:'승인대기', N:'탈퇴회원'}
 
@@ -164,7 +171,12 @@ const fetchMembers = async () => {
 }
 
 // ✅ 컴포넌트가 마운트되면 회원 목록 요청
-onMounted(fetchMembers)
+onMounted(() => {
+  fetchMembers()
+  if (route.query.pending === '1' || route.query.pending === 1) {
+    showPendingOnly.value = true
+  }
+})
 
 // ✅ 검색 후 페이지 1로
 watch(searchQuery, () => {
@@ -178,8 +190,10 @@ watch(searchQuery, () => {
 
 // ✅ 검색 + 페이지네이션
 const filteredMembers = computed(() => {
-  if (!searchQuery.value) return members.value
-  return members.value.filter(m =>
+  let arr = members.value
+  if (showPendingOnly.value) arr = arr.filter(m => m.status_cd === 'A')
+  if (!searchQuery.value) return arr
+  return arr.filter(m =>
     m.userid?.includes(searchQuery.value) || m.name?.includes(searchQuery.value) || m.email?.includes(searchQuery.value)
   )
 })

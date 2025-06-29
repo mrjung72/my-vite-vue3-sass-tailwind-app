@@ -3,14 +3,36 @@ import { useRouter } from "vue-router";
 import ThemeControllerMini from "@/components/ThemeControllerMini.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
 import { useAuthStore } from "@/stores/auth";
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 const auth = useAuthStore()
 const router = useRouter();
 const title = '사하라 홈';
+const pendingCount = ref(0)
 
 const handleLogout = () => {
   auth.logout(router)
 }
+
+function goToPendingMembers() {
+  if (auth.isLoggedIn && auth.user && auth.user.isAdmin == 1 && pendingCount.value > 0) {
+    router.push({ path: '/members/list', query: { pending: 1 } })
+  }
+}
+
+onMounted(async () => {
+  if (auth.isLoggedIn && auth.user && auth.user.isAdmin == 1) {
+    try {
+      const res = await axios.get('/api/members/pending-count', {
+        headers: { Authorization: `Bearer ${auth.token}` }
+      })
+      pendingCount.value = res.data.count
+    } catch (e) {
+      pendingCount.value = 0
+    }
+  }
+})
 </script>
 
 <template>
@@ -69,12 +91,12 @@ const handleLogout = () => {
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 				</svg>
 			</button>
-			<button class="btn btn-ghost btn-circle">
+			<button class="btn btn-ghost btn-circle" @click="goToPendingMembers" :title="'미승인 회원 보기'">
 				<span class="indicator">
 					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
 					</svg>
-					<span class="badge badge-xs badge-primary indicator-item"></span>
+					<span v-if="auth.isLoggedIn && auth.user && auth.user.isAdmin == 1 && pendingCount > 0" class="badge badge-error indicator-item">{{ pendingCount }}</span>
 				</span>
 			</button>
 		</div>
