@@ -118,4 +118,10 @@ export default [
 		component: () => import('@/views/ExtractAtWordsView.vue'),
 		meta: { title: '@단어 추출기' },
 	},
+	{
+		path: '/extract-regex',
+		name: 'extract-regex',
+		component: () => import('@/views/ExtractRegexView.vue'),
+		meta: { title: '정규식 추출기' },
+	},
 ];
