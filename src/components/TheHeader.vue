@@ -9,8 +9,7 @@ const router = useRouter();
 const title = '사하라 홈';
 
 const handleLogout = () => {
-  auth.logout()
-  router.push({ name: 'login' })
+  auth.logout(router)
 }
 </script>
 

@@ -3,12 +3,14 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('token') || '')
   const isLoggedIn = computed(() => !!token.value)
+  const router = useRouter()
 
   // 초기화 시 localStorage에서 user 정보 복원
   const storedUser = localStorage.getItem('user')
@@ -41,13 +43,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const logout = () => {
+  const logout = (router) => {
     user.value = null
     token.value = ''
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     delete axios.defaults.headers.common['Authorization']
-
+    if (router) router.push('/')
   }
 
   return {
