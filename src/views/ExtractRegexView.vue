@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-6xl mx-auto p-8">
     <div class="mb-4">
-      <label class="block font-bold mb-2">정규식 패턴</label>
+      <label class="block font-bold mb-2">정규식 패턴으로 데이터 추출하기 </label>
       <div class="flex gap-2 mb-2">
         <select 
           v-model="selectedPreset" 
@@ -37,23 +37,19 @@
       <div class="text-sm text-gray-500 mt-1">
         <label class="inline-flex items-center mr-3">
           <input type="checkbox" v-model="flags.global" class="checkbox checkbox-xs mr-1" />
-          g (전체 적용)
+          전체 적용
         </label>
         <label class="inline-flex items-center mr-3">
           <input type="checkbox" v-model="flags.ignoreCase" class="checkbox checkbox-xs mr-1" />
-          i (대소문자 무시)
-        </label>
-        <label class="inline-flex items-center mr-3">
-          <input type="checkbox" v-model="flags.multiline" class="checkbox checkbox-xs mr-1" />
-          m (여러 줄 매치)
-        </label>
-        <label class="inline-flex items-center mr-3">
-          <input type="checkbox" v-model="flags.wholeWord" class="checkbox checkbox-xs mr-1" />
-          온전한 단어(공백 기준)
+          대소문자 무시
         </label>
         <label class="inline-flex items-center mr-3">
           <input type="checkbox" v-model="flags.removeDuplicates" class="checkbox checkbox-xs mr-1" />
           중복 제거
+        </label>
+        <label class="inline-flex items-center mr-3">
+          <input type="checkbox" v-model="flags.wholeWord" class="checkbox checkbox-xs mr-1" />
+          온전한 단어(공백 기준)
         </label>
       </div>
     </div>
