@@ -59,7 +59,7 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 			<!-- DB테이블 스키마 -->
 			<div class="card bg-base-100 shadow-lg">
 				<div class="card-body text-center">
-					<div class="text-4xl mb-4">👥</div>
+					<div class="text-4xl mb-4">🗄️</div>
 					<h3 class="card-title justify-center">DB테이블 스키마</h3>
 					<p class="text-sm text-gray-600">
 						DB테이블 관련 스키마정보 조회 기능을 향후 제공할 예정입니다.
