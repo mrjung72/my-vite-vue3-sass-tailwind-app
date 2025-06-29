@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-6xl mx-auto px-4 pt-4 pb-2">
     <div class="mb-2">
-      <label class="block font-bold mb-1">정규식 패턴으로 데이터 추출하기 </label>
+      <label class="block font-bold mb-1">정규식 패턴으로 특정 데이터 추출하기 </label>
       <div class="flex gap-2 mb-1">
         <select 
           v-model="selectedPreset" 
@@ -15,8 +15,6 @@
           <option value="ip">IP 주소</option>
           <option value="email">이메일 주소</option>
           <option value="phone">전화번호</option>
-          <option value="line-start">줄 시작 단어</option>
-          <option value="line-end">줄 끝 단어</option>
         </select>
         <button 
           v-if="selectedPreset" 

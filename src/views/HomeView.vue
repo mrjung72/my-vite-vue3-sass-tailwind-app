@@ -51,8 +51,9 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 						정규식 기반 추출기와 구분자 기반 추출기를 통해 다양한 형태의 데이터 추출 기능을 제공합니다.
 					</p>
 					<div class="card-actions justify-center mt-4">
+						<router-link to="/extract-tables" class="btn btn-sm">테이블명 추출기</router-link>
 						<router-link to="/extract-regex" class="btn btn-sm">정규식 추출기</router-link>
-						<router-link to="/extract-separator" class="btn btn-sm">구분자 추출기</router-link>
+						<router-link to="/extract-separator" class="btn btn-sm">구분자 적용기</router-link>
 					</div>
 				</div>
 			</div>
