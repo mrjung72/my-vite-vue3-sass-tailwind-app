@@ -130,7 +130,7 @@ const wholeWord = ref(false)
 // 프리셋 패턴 정의
 const presetPatterns = {
   'table-names': {
-    pattern: '\\b(?:FROM|JOIN|UPDATE|INTO|TABLE)\\s+([`"\\[]?[\\w.]+[`"\\]]?)(?:\\s+(?:AS\\s+)?([\\w]+))?',
+    pattern: '(?:FROM|JOIN|UPDATE|INTO|TABLE)\\s+([`"\\[]?[\\w.]+[`"\\]]?)(?:\\s+(?:AS\\s+)?([\\w]+))?',
     flags: { global: true, ignoreCase: true, multiline: false },
     description: 'SQL/DDL에서 테이블명과 별칭 추출'
   },
@@ -140,12 +140,12 @@ const presetPatterns = {
     description: '@로 시작하는 단어 추출'
   },
   'email': {
-    pattern: '\\b[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}\\b',
+    pattern: '[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}',
     flags: { global: true, ignoreCase: false, multiline: false },
     description: '이메일 주소 추출'
   },
   'phone': {
-    pattern: '\\b(?:\\+?[0-9]{1,3}[-.\\s]?)?[0-9]{2,4}[-.\\s]?[0-9]{3,4}[-.\\s]?[0-9]{3,4}\\b',
+    pattern: '(?:\\+?[0-9]{1,3}[-.\\s]?)?[0-9]{2,4}[-.\\s]?[0-9]{3,4}[-.\\s]?[0-9]{3,4}',
     flags: { global: true, ignoreCase: false, multiline: false },
     description: '전화번호 추출'
   },
@@ -155,7 +155,7 @@ const presetPatterns = {
     description: 'URL 추출'
   },
   'ip': {
-    pattern: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b',
+    pattern: '(?:\\d{1,3}\\.){3}\\d{1,3}',
     flags: { global: true, ignoreCase: false, multiline: false },
     description: 'IP 주소 추출'
   },
@@ -215,8 +215,9 @@ const extractedResults = computed(() => {
     let finalPattern = regexPattern.value
     if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
       const preset = presetPatterns[selectedPreset.value]
-      if (preset && !preset.pattern.includes('\\b') && !preset.pattern.startsWith('@')) {
-        finalPattern = '\\s+' + preset.pattern + '\\s+'
+      // 이미 단어 경계가 있는 패턴만 제외 (email, phone, ip 등)
+      if (preset && !preset.pattern.includes('\\b')) {
+        finalPattern = '\\s+' + preset.pattern 
       }
     }
     
@@ -228,7 +229,22 @@ const extractedResults = computed(() => {
       let match
       while ((match = regex.exec(input.value)) !== null) {
         if (match.length === 1) {
-          matches.push(match[0])
+          const matchedText = match[0]
+          // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
+          if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
+            const preset = presetPatterns[selectedPreset.value]
+            if (preset && !preset.pattern.includes('\\b')) {
+              // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
+              const words = input.value.split(/\s+/)
+              if (words.includes(matchedText.trim())) {
+                matches.push(matchedText)
+              }
+            } else {
+              matches.push(matchedText)
+            }
+          } else {
+            matches.push(matchedText)
+          }
         } else {
           // 그룹이 있는 경우 전체 매치와 그룹들을 모두 표시
           const matchInfo = {
@@ -243,7 +259,22 @@ const extractedResults = computed(() => {
       const match = input.value.match(regex)
       if (match) {
         if (match.length === 1) {
-          matches.push(match[0])
+          const matchedText = match[0]
+          // 온전한 단어 옵션이 체크된 경우, 실제로 공백으로 구분된 단어인지 확인
+          if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
+            const preset = presetPatterns[selectedPreset.value]
+            if (preset && !preset.pattern.includes('\\b')) {
+              // 매치된 텍스트가 실제로 공백으로 구분된 완전한 단어인지 확인
+              const words = input.value.split(/\s+/)
+              if (words.includes(matchedText.trim())) {
+                matches.push(matchedText)
+              }
+            } else {
+              matches.push(matchedText)
+            }
+          } else {
+            matches.push(matchedText)
+          }
         } else {
           const matchInfo = {
             full: match[0],
