@@ -45,46 +45,44 @@
           중복 제거
         </label>
       </div>
-      <div class="text-sm text-gray-500 mt-2">
-        <div class="flex flex-wrap gap-4 items-center">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="font-bold mr-1">결과 포맷</span>
-            <label class="inline-flex items-center">
-              <input type="radio" v-model="resultFormat" value="json" class="radio radio-xs mr-1" />
-              JSON
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" v-model="resultFormat" value="text" class="radio radio-xs mr-1" />
-              텍스트
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" v-model="resultFormat" value="excel" class="radio radio-xs mr-1" />
-              엑셀
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" v-model="resultFormat" value="csv" class="radio radio-xs mr-1" />
-              CSV
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" v-model="resultFormat" value="html" class="radio radio-xs mr-1" />
-              HTML
-            </label>
-          </div>
-          <div class="border-l border-base-300 pl-4 ml-2 flex flex-wrap items-center gap-2 min-w-[220px]">
-            <span class="font-bold mr-1">열 선택</span>
-            <input 
-              v-model="selectedColumns" 
-              class="input input-bordered input-sm w-32" 
-              placeholder="예: 1,3,5"
-            />
-            <button @click="clearColumnSelection" class="btn btn-xs btn-outline">초기화</button>
-            <span class="text-xs text-gray-400">쉼표로 구분 (비워두면 모든 열)</span>
-          </div>
-        </div>
-      </div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- 첫 번째 행: 결과 포맷(왼쪽), 열 선택(오른쪽) -->
+      <div class="text-sm text-gray-500 flex items-center gap-2 mb-2">
+        <span class="font-bold">결과 포맷</span>
+        <label class="inline-flex items-center">
+          <input type="radio" v-model="resultFormat" value="json" class="radio radio-xs mr-1" />
+          JSON
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" v-model="resultFormat" value="text" class="radio radio-xs mr-1" />
+          텍스트
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" v-model="resultFormat" value="excel" class="radio radio-xs mr-1" />
+          엑셀
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" v-model="resultFormat" value="csv" class="radio radio-xs mr-1" />
+          CSV
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" v-model="resultFormat" value="html" class="radio radio-xs mr-1" />
+          HTML
+        </label>
+      </div>
+      <div class="text-sm text-gray-500 flex items-center gap-2 mb-2">
+        <span class="font-bold">열 선택</span>
+        <input 
+          v-model="selectedColumns" 
+          class="input input-bordered input-sm w-32" 
+          placeholder="예: 1,3,5"
+        />
+        <button @click="clearColumnSelection" class="btn btn-xs btn-outline">초기화</button>
+        <span class="text-xs text-gray-400">쉼표로 구분 (비워두면 모든 열)</span>
+      </div>
+      <!-- 두 번째 행: 입력창(왼쪽), 결과창(오른쪽) -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block font-bold">소스 입력</label>
@@ -99,7 +97,6 @@
           총 {{ inputLines.length }}개 라인
         </div>
       </div>
-      
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="block font-bold">추출된 결과</label>
@@ -162,7 +159,7 @@ import { ref, computed, watch } from 'vue'
 const input = ref('')
 const isProcessing = ref(false)
 const selectedPreset = ref('')
-const showLineNumbers = ref(true)
+const showLineNumbers = ref(false)
 const removeDuplicates = ref(false)
 const customSeparator = ref('')
 const resultFormat = ref('json')
