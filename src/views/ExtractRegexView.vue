@@ -53,6 +53,7 @@
         </button>
       </div>
       <input 
+        v-if="selectedCategory !== 'separator'"
         v-model="regexPattern" 
         class="input input-bordered w-full" 
         placeholder="정규식 패턴을 입력하세요 (예: \b\w+@\w+\.\w+\b)"
@@ -145,7 +146,7 @@
         </div>
         
         <div class="mt-2 text-sm text-gray-600">
-          총 {{ finalResults.length }}개 매치
+          총 {{ selectedCategory === 'separator' ? finalResults.length : finalResults.length }}개 {{ selectedCategory === 'separator' ? '행' : '매치' }}
         </div>
       </div>
     </div>
@@ -176,7 +177,7 @@
         ></textarea>
         
         <div class="mt-2 text-sm text-gray-600">
-          총 {{ finalResults.length }}개 매치
+          총 {{ selectedCategory === 'separator' ? finalResults.length : finalResults.length }}개 {{ selectedCategory === 'separator' ? '행' : '매치' }}
         </div>
       </div>
     </div>
@@ -288,7 +289,24 @@ const presetPatterns = {
   }
 }
 
-const extractedResults = computed(() => {
+// 구분자 패턴일 때 각 행별 결과
+const separatorResults = computed(() => {
+  if (selectedCategory.value !== 'separator') return []
+  
+  // 줄바꿈 문자를 정규화 (Windows의 \r\n도 처리)
+  const normalizedInput = input.value.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const lines = normalizedInput.split('\n').filter(line => line.trim() !== '')
+  const separator = getSeparator()
+  
+  return lines.map((line, index) => {
+    return line.split(separator).map(cell => cell.trim()).filter(cell => cell !== '')
+  })
+})
+
+// 추출 패턴일 때 기존 결과
+const extractResults = computed(() => {
+  if (selectedCategory.value !== 'extract') return []
+  
   if (!input.value || !regexPattern.value) return []
   
   try {
@@ -361,12 +379,17 @@ const extractedResults = computed(() => {
   }
 })
 
-// 중복 제거 적용
+// 최종 결과 (카테고리에 따라 다르게)
 const finalResults = computed(() => {
-  if (removeDuplicates.value) {
-    return [...new Set(extractedResults.value)]
+  if (selectedCategory.value === 'separator') {
+    return separatorResults.value
+  } else {
+    const results = extractResults.value
+    if (removeDuplicates.value) {
+      return [...new Set(results)]
+    }
+    return results
   }
-  return extractedResults.value
 })
 
 // 입력 텍스트를 줄 단위로 분리
@@ -415,6 +438,24 @@ const getAppliedFlags = () => {
   if (flags.value.ignoreCase) flagString += 'i'
   if (flags.value.multiline) flagString += 'm'
   return flagString
+}
+
+// 구분자 패턴에 따른 실제 구분자 반환
+const getSeparator = () => {
+  if (!selectedPreset.value) return ','
+  
+  const separatorMap = {
+    'comma-separated': ',',
+    'semicolon-separated': ';',
+    'pipe-separated': '|',
+    'tab-separated': '\t',
+    'space-separated': ' ',
+    'newline-separated': '\n',
+    'underscore-separated': '_',
+    'dot-separated': '.'
+  }
+  
+  return separatorMap[selectedPreset.value] || ','
 }
 </script>
 
