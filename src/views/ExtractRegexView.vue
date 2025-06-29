@@ -59,6 +59,12 @@
         <div v-if="selectedPreset && presetPatterns[selectedPreset]" class="text-sm text-blue-600 mt-1">
           💡 {{ presetPatterns[selectedPreset].description }}
         </div>
+        <div v-if="selectedCategory === 'extract'" class="text-sm text-gray-500 mt-1">
+          <label class="inline-flex items-center mr-3">
+            <input type="checkbox" v-model="wholeWord" class="checkbox checkbox-xs mr-1" />
+            온전한 단어만 (공백 기준)
+          </label>
+        </div>
         <div class="text-sm text-gray-500 mt-1">
           플래그: 
           <label class="inline-flex items-center mr-3">
@@ -119,6 +125,7 @@ const flags = ref({
 })
 const selectedPreset = ref('')
 const selectedCategory = ref('')
+const wholeWord = ref(false)
 
 // 프리셋 패턴 정의
 const presetPatterns = {
@@ -204,7 +211,16 @@ const extractedResults = computed(() => {
     if (flags.value.ignoreCase) flagString += 'i'
     if (flags.value.multiline) flagString += 'm'
     
-    const regex = new RegExp(regexPattern.value, flagString)
+    // 온전한 단어 옵션 적용
+    let finalPattern = regexPattern.value
+    if (wholeWord.value && selectedCategory.value === 'extract' && selectedPreset.value) {
+      const preset = presetPatterns[selectedPreset.value]
+      if (preset && !preset.pattern.includes('\\b') && !preset.pattern.startsWith('@')) {
+        finalPattern = '\\s+' + preset.pattern + '\\s+'
+      }
+    }
+    
+    const regex = new RegExp(finalPattern, flagString)
     const matches = []
     
     if (flags.value.global) {
@@ -245,7 +261,7 @@ const extractedResults = computed(() => {
 })
 
 // 입력이나 정규식 패턴 변경 시 처리 상태 관리
-watch([input, regexPattern, flags], () => {
+watch([input, regexPattern, flags, wholeWord], () => {
   isProcessing.value = true
   // 처리 시뮬레이션을 위한 짧은 지연
   setTimeout(() => {
