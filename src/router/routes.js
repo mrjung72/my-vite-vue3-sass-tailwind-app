@@ -124,4 +124,10 @@ export default [
 		component: () => import('@/views/ExtractRegexView.vue'),
 		meta: { title: '정규식 추출기' },
 	},
+	{
+		path: '/extract-separator',
+		name: 'extract-separator',
+		component: () => import('@/views/SeparatorView.vue'),
+		meta: { title: '구분자 추출기' },
+	},
 ];

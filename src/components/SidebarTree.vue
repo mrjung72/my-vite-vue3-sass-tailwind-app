@@ -24,6 +24,7 @@ const util_menu = ref([
     children: [
       { label: '테이블명 추출기', route: '/extract-tables' },
       { label: '정규식 추출기', route: '/extract-regex' },
+      { label: '구분자 추출기', route: '/extract-separator' },
     ],
   },
 ])
