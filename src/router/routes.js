@@ -130,4 +130,10 @@ export default [
 		component: () => import('@/views/SeparatorView.vue'),
 		meta: { title: '구분자 추출기' },
 	},
+	{
+		path: '/release-history',
+		name: 'release-history',
+		component: () => import('@/views/ReleaseHistoryView.vue'),
+		meta: { title: '릴리즈 갱신이력' },
+	},
 ];
