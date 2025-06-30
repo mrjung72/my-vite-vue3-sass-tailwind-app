@@ -4,9 +4,10 @@ import axios from 'axios'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import { useAuthStore } from "@/stores/auth";
+import { getCommonCode } from '@/utils/axiosInterceptors'
+import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
-import { useRouter } from 'vue-router'
 const router = useRouter()  
 const isExporting = ref(false)
 const token = localStorage.getItem('token') 
@@ -141,20 +142,18 @@ const fetchCodeOptions = async () => {
   try {
     for (const key in codeGroups) {
       const groupCode = codeGroups[key]
-      const res = await axios.get(`/api/code/${groupCode}`)
-
-      if (Array.isArray(res.data)) {
-        codeOptions.value[key] = res.data
-        codeNames.value[key] = res.data.reduce((acc, { code, label }) => {
+      const resData = await getCommonCode(groupCode)
+      if (Array.isArray(resData)) {
+        codeOptions.value[key] = resData
+        codeNames.value[key] = resData.reduce((acc, { code, label }) => {
           acc[code] = label
           return acc
         }, {})
       } else {
-        console.warn(`공통코드 그룹 ${groupCode} 응답 형식이 잘못되었습니다.`, res.data)
+        console.warn(`공통코드 그룹 ${groupCode} 응답 형식이 잘못되었습니다.`, resData)
         codeOptions.value[key] = []
         codeNames.value[key] = {}
       }
-      
     }
   } catch (err) {
     console.error('공통코드 로딩 오류', err)

@@ -17,3 +17,20 @@ export function setupAxiosInterceptors() {
     }
   )
 }
+
+export async function getCommonCode(groupCode) {
+  const key = `commonCode_${groupCode}`
+  const cache = localStorage.getItem(key)
+  const expireKey = `${key}_expire`
+  const expire = localStorage.getItem(expireKey)
+  const now = Date.now()
+  // 1시간(3600000ms) 캐시
+  if (cache && expire && now < Number(expire)) {
+    return JSON.parse(cache)
+  }
+  // 서버에서 받아오기
+  const res = await axios.get(`/api/code/${groupCode}`)
+  localStorage.setItem(key, JSON.stringify(res.data))
+  localStorage.setItem(expireKey, now + 3600000)
+  return res.data
+}
