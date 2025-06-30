@@ -46,7 +46,10 @@ npm install
 - ⏩ Run the Vite development server with HMR: `npm run dev`
 
 ### Production
-- ⏩ Build the project: `npm run build`
+- Build the project: `npm run build`
+- Serve the built files: `npm run serve` (uses vite preview)
+
+(서버 환경에서는 정적 파일을 Nginx 등으로 서비스하거나, vite preview로 임시 서비스할 수 있습니다.)
 
 ### Folder structure
 - 📁 `public/` - Static files
