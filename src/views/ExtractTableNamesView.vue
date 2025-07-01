@@ -6,13 +6,17 @@
     </div>
     <div class="md:col-span-2">
       <label class="block font-bold mb-2">추출된 테이블명</label>
+      <div class="flex items-center mb-2">
+        <input type="checkbox" id="dedup" v-model="dedupOnlyName" class="checkbox checkbox-sm mr-2" />
+        <label for="dedup" class="text-sm">테이블명만 중복제거</label>
+      </div>
       <div v-if="isProcessing" class="textarea textarea-bordered w-full h-120 bg-base-200 flex items-center justify-center">
         <div class="flex items-center gap-2 text-gray-400">
           <span class="loading loading-spinner loading-sm"></span>
           처리 중...
         </div>
       </div>
-      <textarea v-else class="textarea textarea-bordered w-full h-120 bg-base-200" readonly :value="tableNames.join('\n')"></textarea>
+      <textarea v-else class="textarea textarea-bordered w-full h-120 bg-base-200" readonly :value="displayTableNames.join('\n')"></textarea>
     </div>
   </div>
 </template>
@@ -22,6 +26,7 @@ import { ref, computed, watch } from 'vue'
 
 const input = ref('')
 const isProcessing = ref(false)
+const dedupOnlyName = ref(false)
 
 const tableNames = computed(() => {
   if (!input.value) return []
@@ -39,6 +44,21 @@ const tableNames = computed(() => {
     if (name && !found.includes(label)) found.push(label)
   }
   return found
+})
+
+const displayTableNames = computed(() => {
+  if (!dedupOnlyName.value) return tableNames.value
+  // 테이블명만 기준으로 중복제거
+  const seen = new Set()
+  const result = []
+  for (const label of tableNames.value) {
+    const name = label.split(' ')[0] // alias 분리
+    if (!seen.has(name)) {
+      seen.add(name)
+      result.push(label)
+    }
+  }
+  return result
 })
 
 // 입력 시 처리 상태 관리
