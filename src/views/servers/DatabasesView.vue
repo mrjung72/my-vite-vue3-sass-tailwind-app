@@ -437,7 +437,7 @@ const limitedPages = computed(() => {
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
             <td>
               <input type="checkbox" v-model="selectedServers" :value="s" :disabled="!auth.user?.isAdmin" />
-            </td>
+            </td>            
             <td>{{ s.db_instance_name }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
             <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
@@ -471,5 +471,39 @@ const limitedPages = computed(() => {
         </tbody>
       </table>
     </div>
+
+<!-- 페이지네이션 -->
+<div class="flex justify-center mt-4 gap-2 flex-wrap">
+  <!-- 첫 페이지로 이동 -->
+  <button class="btn btn-sm" :disabled="currentPage === 1" @click="goToPage(1)">
+    맨 앞
+  </button>
+
+  <!-- 이전 페이지 -->
+  <button class="btn btn-sm" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+    이전
+  </button>
+
+  <!-- 페이지 번호들 -->
+  <button
+    v-for="page in limitedPages"
+    :key="page"
+    class="btn btn-sm"
+    :class="{ 'btn-primary': page === currentPage, 'btn-outline': page !== currentPage }"
+    @click="goToPage(page)"
+  >
+    {{ page }}
+  </button>
+
+  <!-- 다음 페이지 -->
+  <button class="btn btn-sm" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
+    다음
+  </button>
+
+  <!-- 마지막 페이지로 이동 -->
+  <button class="btn btn-sm" :disabled="currentPage === totalPages" @click="goToPage(totalPages)">
+    마지막
+  </button>
+</div>
   </div>
 </template>
