@@ -30,7 +30,7 @@ const exportToCSV = () => {
 
   const csvContent =
     [header, ...rows]
-      .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .map(e => e.map(v => `${String(v).replace(/"/g, '""')}`).join(','))
       .join('\n')
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=euc-kr;' })
