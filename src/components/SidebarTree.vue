@@ -10,10 +10,12 @@ const route = useRoute()
 
 const user_menu = ref([
   {
-    label: '업무관련',
+    label: '서버관련',
     children: [
       { label: '서버 목록', route: '/servers/list', requiresLogin: true },
       { label: 'DB 목록', route: '/servers/dblist', requiresLogin: true },
+      { label: 'Telnet 체크 결과', route: '/servers/telnet-check-history', requiresLogin: true },
+      { label: 'DB접속 체크 결과', route: '/servers/db-check-history', requiresLogin: true },
       { label: '게시판', route: '/board', requiresLogin: true },
     ],
   },

@@ -82,6 +82,18 @@ export default [
 		component: () => import('@/views/servers/ServersCsvUploadView.vue'),
 		meta: { title: '서버정보CVS파일 업로드', requiresAuth: true  },
 	},
+	{
+		path: '/servers/telnet-check-history', 
+		name: 'telnet-check-history',
+		component: () => import('@/views/servers/TelnetCheckHistoryView.vue'),
+		meta: { title: 'Telnet 체크 결과', requiresLogin: true  },
+	},
+	{
+		path: '/servers/db-check-history', 
+		name: 'db-check-history',
+		component: () => import('@/views/servers/DatabaseCheckHistoryView.vue'),
+		meta: { title: 'DB접속 체크 결과', requiresLogin: true  },
+	},
 	{ 
 		path: '/board',
 		name: 'board',

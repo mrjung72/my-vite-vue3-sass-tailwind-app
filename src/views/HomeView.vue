@@ -38,6 +38,8 @@ const githubRepo = "https://github.com/martinille/starter-template-vite-vue3-sas
 					<div class="card-actions justify-center mt-4">
 						<router-link to="/servers/list" class="btn btn-sm">서버 목록</router-link>
 						<router-link to="/servers/dblist" class="btn btn-sm">DB 목록</router-link>
+						<router-link to="/servers/telnet-check-history" class="btn btn-sm">Telnet Check</router-link>
+						<router-link to="/servers/db-check-history" class="btn btn-sm">DB접속 Check</router-link>
 					</div>
 				</div>
 			</div>
