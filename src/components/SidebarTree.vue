@@ -8,7 +8,7 @@ const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 
-const user_menu = ref([
+const server_menu = ref([
   {
     label: '서버관련',
     children: [
@@ -16,6 +16,14 @@ const user_menu = ref([
       { label: 'DB 목록', route: '/servers/dblist', requiresLogin: true },
       { label: 'Telnet 체크 결과', route: '/servers/telnet-check-history', requiresLogin: true },
       { label: 'DB접속 체크 결과', route: '/servers/db-check-history', requiresLogin: true },
+    ],
+  },
+])
+
+const community_menu = ref([
+  {
+    label: '커뮤니티',
+    children: [
       { label: '게시판', route: '/board', requiresLogin: true },
     ],
   },
@@ -61,7 +69,7 @@ const goTo = (route) => {
 
 // 메뉴 그룹이 현재 경로에 포함된 메뉴를 가지고 있으면 자동으로 펼침
 watchEffect(() => {
-  [user_menu, util_menu, admin_menu, special_menu].forEach(menuGroup => {
+  [server_menu, community_menu, util_menu, admin_menu, special_menu].forEach(menuGroup => {
     menuGroup.value.forEach(group => {
       if (group.children.some(item => route.path.startsWith(item.route))) {
         expanded.value[group.label] = true
@@ -74,7 +82,25 @@ watchEffect(() => {
 <template>
   <div class="w-64 bg-base-200 h-full p-4 shadow-md">
     <ul v-if="auth.isLoggedIn" class="menu">
-      <li v-for="group in user_menu" :key="group.label">
+      <li v-for="group in server_menu" :key="group.label">
+        <div @click="toggleExpand(group.label)" class="cursor-pointer font-bold">
+          {{ group.label }}
+          <span class="float-right">{{ expanded[group.label] ? '▾' : '▸' }}</span>
+        </div>
+        <ul v-show="expanded[group.label]" class="pl-4">
+          <li v-for="item in group.children" :key="item.label">
+            <a
+              @click="goTo(item.route)"
+              :class="[route.path.startsWith(item.route) ? 'font-bold text-primary bg-base-300' : '']"
+            >
+              {{ item.label }}
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <ul v-if="auth.isLoggedIn" class="menu">
+      <li v-for="group in community_menu" :key="group.label">
         <div @click="toggleExpand(group.label)" class="cursor-pointer font-bold">
           {{ group.label }}
           <span class="float-right">{{ expanded[group.label] ? '▾' : '▸' }}</span>
