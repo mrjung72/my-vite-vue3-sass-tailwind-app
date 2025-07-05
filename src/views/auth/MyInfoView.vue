@@ -12,7 +12,26 @@
       <div class="mb-2"><strong>관리자 여부:</strong> {{ user.isAdmin ? '✔️' : '❌' }}</div>
 
       <button class="btn btn-primary mt-4" @click="goToEdit">수정하기</button>
+      <button class="btn btn-outline ml-2 mt-4" @click="showPwModal = true">비밀번호 변경</button>
     </div>
+
+    <!-- 비밀번호 변경 모달 -->
+    <dialog class="modal" :open="showPwModal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">비밀번호 변경</h3>
+        <form @submit.prevent="changePassword">
+          <input v-model="pwForm.currentPassword" type="password" class="input input-bordered w-full mb-2" placeholder="현재 비밀번호" required />
+          <input v-model="pwForm.newPassword" type="password" class="input input-bordered w-full mb-2" placeholder="새 비밀번호" required />
+          <input v-model="pwForm.newPassword2" type="password" class="input input-bordered w-full mb-2" placeholder="새 비밀번호 확인" required />
+          <div class="modal-action">
+            <button class="btn btn-primary" type="submit">변경</button>
+            <button class="btn" type="button" @click="closePwModal">닫기</button>
+          </div>
+        </form>
+        <div v-if="pwError" class="text-red-500 mt-2">{{ pwError }}</div>
+        <div v-if="pwSuccess" class="text-green-600 mt-2">{{ pwSuccess }}</div>
+      </div>
+    </dialog>
   </div>
 </template>
 
@@ -51,5 +70,46 @@ onMounted(fetchMyInfo)
 
 const goToEdit = () => {
   router.push('/myinfoedit')
+}
+
+// 비밀번호 변경 관련
+const showPwModal = ref(false)
+const pwForm = ref({ currentPassword: '', newPassword: '', newPassword2: '' })
+const pwError = ref('')
+const pwSuccess = ref('')
+
+const closePwModal = () => {
+  showPwModal.value = false
+  pwForm.value = { currentPassword: '', newPassword: '', newPassword2: '' }
+  pwError.value = ''
+  pwSuccess.value = ''
+}
+
+const changePassword = async () => {
+  pwError.value = ''
+  pwSuccess.value = ''
+  if (!pwForm.value.currentPassword || !pwForm.value.newPassword || !pwForm.value.newPassword2) {
+    pwError.value = '모든 항목을 입력하세요.'
+    return
+  }
+  if (pwForm.value.newPassword !== pwForm.value.newPassword2) {
+    pwError.value = '새 비밀번호가 일치하지 않습니다.'
+    return
+  }
+  try {
+    const token = localStorage.getItem('token')
+    const res = await axios.put('/api/me/change-password', {
+      currentPassword: pwForm.value.currentPassword,
+      newPassword: pwForm.value.newPassword
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    pwSuccess.value = '비밀번호가 성공적으로 변경되었습니다.'
+    setTimeout(() => {
+      closePwModal()
+    }, 1200)
+  } catch (err) {
+    pwError.value = err.response?.data?.message || '비밀번호 변경 실패'
+  }
 }
 </script>
