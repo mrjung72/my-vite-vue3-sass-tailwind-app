@@ -111,7 +111,7 @@
         <div v-if="selected && !selected.isAdmin && auth.isLoggedIn && (auth.user.userid === selected.userid || auth.user.isAdmin)" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>
           <button class="btn btn-sm btn-outline" @click="initPassword">비밀번호 초기화</button>
-          <button v-if="selected.status_cd === 'A'" class="btn btn-sm btn-error" @click="aproveMember">승인</button>
+          <button v-if="selected.status_cd === 'A'" class="btn btn-sm btn-success" @click="aproveMember">승인 처리</button>
           <button class="btn btn-sm btn-error" @click="deleteMember">삭제</button>
           <button class="btn btn-sm btn-outline" @click="selected = null">닫기</button>
         </div>
@@ -256,7 +256,7 @@ async function saveEdit() {
 }
 
 async function aproveMember() {
-  if (!confirm('승인 처리하시겠습니까?')) return
+  if (!confirm('승인 처리하시겠습니까?\n승인 완료 시 해당 회원에게 이메일 알림이 전송됩니다.')) return
 
   try {
     const res = await axios.get('/api/members/approval', {
@@ -265,10 +265,19 @@ async function aproveMember() {
       },
       params: { userid: selected.value.userid },
     })
+    
     await fetchMembers()
     selected.value.status_cd = 'Y'
+    
+    // 승인 결과 메시지 표시
+    if (res.data.emailSent) {
+      alert(`회원 승인이 완료되었습니다.\n\n승인된 회원: ${res.data.member.name} (${res.data.member.email})\n이메일 알림이 전송되었습니다.`)
+    } else {
+      alert(`회원 승인이 완료되었습니다.\n\n승인된 회원: ${res.data.member.name} (${res.data.member.email})`)
+    }
   } catch (err) {
-    alert('승인 실패')
+    const errorMessage = err.response?.data?.message || '승인 처리 중 오류가 발생했습니다.'
+    alert(`승인 실패: ${errorMessage}`)
     console.error(err)
   }
 }
