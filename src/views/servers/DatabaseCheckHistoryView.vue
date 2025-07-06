@@ -90,7 +90,6 @@ const codeGroups = {
   cd_usage_type: 'SERVER_USAGE_TYPE',
   cd_env_type: 'SERVER_ENV_TYPE',
   cd_role_type: 'SERVER_ROLE_TYPE',
-  cd_stat_yn: 'USE_YN',
   cd_db_type: 'DB_TYPE'
 }
 
@@ -100,7 +99,6 @@ const codeOptions = ref({
   cd_usage_type: [],
   cd_env_type: [],
   cd_role_type: [],
-  cd_stat_yn: [],
   cd_db_type: []
 })
 
@@ -110,7 +108,6 @@ const codeNames = ref({
   cd_usage_type: [],
   cd_env_type: [],
   cd_role_type: [],
-  cd_stat_yn: [],
   cd_db_type: []
 })
 
@@ -177,7 +174,7 @@ const fetchServers = async () => {
   isLoading.value = true
   error.value = null
   try {
-    const res = await axios.get('/api/servers/db', {
+    const res = await axios.get('/api/check-server-log/db', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -330,7 +327,6 @@ const limitedPages = computed(() => {
       <table class="table table-compact w-full text-sm">
         <thead class="bg-base-200 text-base-content">
           <tr>
-            <th><input type="checkbox" @change="toggleAll" :checked="allSelected" :disabled="!auth.user?.isAdmin" /></th>
             <th>DB명</th>
             <th>법인</th>
             <th>공정</th>
@@ -340,8 +336,6 @@ const limitedPages = computed(() => {
             <th>환경</th>
             <th>역할</th>
             <th>DB타입</th>
-            <th>Telnet 요청결과</th>
-            <th v-if="auth.user?.isAdmin">Multi Telnet 요청결과</th>
           </tr>
         </thead>
         <tbody>
@@ -357,9 +351,6 @@ const limitedPages = computed(() => {
             <td colspan="12" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
-            <td>
-              <input type="checkbox" v-model="selectedServers" :value="s" :disabled="!auth.user?.isAdmin" />
-            </td>            
             <td>{{ s.db_instance_name }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
             <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>

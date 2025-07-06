@@ -40,7 +40,6 @@ const exportToExcel = async () => {
       { header: '법인', key: 'corp_id', width: 10 },
       { header: '공정', key: 'proc_id', width: 12 },
       { header: '역할', key: 'role_type', width: 12 },
-      { header: '상태', key: 'status', width: 10 },
     ]
 
     // 헤더 행 글꼴 스타일
@@ -60,7 +59,6 @@ const exportToExcel = async () => {
         corp_id: s.corp_id,
         proc_id: s.proc_id,
         role_type: s.role_type,
-        status: s.status_cd === 'Y' ? '사용' : '미사용',
       })
       // 각 데이터 행 글꼴 스타일 적용 (선택사항)
       row.font = {
@@ -72,7 +70,7 @@ const exportToExcel = async () => {
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
     const filterStr = getFilterLabelString();
-    saveAs(blob, `서버접속체크결과${filterStr}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    saveAs(blob, `Telnet체크결과${filterStr}_${new Date().toISOString().slice(0, 10)}.xlsx`)
     isExporting.value = false   
 
   } catch (error) {
@@ -89,8 +87,7 @@ const codeGroups = {
   cd_proc_ids: 'PROC_GR',
   cd_usage_type: 'SERVER_USAGE_TYPE',
   cd_env_type: 'SERVER_ENV_TYPE',
-  cd_role_type: 'SERVER_ROLE_TYPE',
-  cd_stat_yn: 'USE_YN'
+  cd_role_type: 'SERVER_ROLE_TYPE'
 }
 
 const codeOptions = ref({
@@ -99,7 +96,6 @@ const codeOptions = ref({
   cd_usage_type: [],
   cd_env_type: [],
   cd_role_type: [],
-  cd_stat_yn: []
 })
 
 const codeNames = ref({
@@ -108,7 +104,6 @@ const codeNames = ref({
   cd_usage_type: [],
   cd_env_type: [],
   cd_role_type: [],
-  cd_stat_yn: []
 })
 
 const fetchCodeOptions = async () => {
@@ -167,14 +162,13 @@ const filter = ref({
   corp_id: '',
   proc_id: '',
   role_type: '',
-  status_cd: 'Y',
 })
 
 const fetchServers = async () => {
   isLoading.value = true
   error.value = null
   try {
-    const res = await axios.get('/api/servers', {
+    const res = await axios.get('/api/check-server-log/telnet', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -217,8 +211,7 @@ const filteredServers = computed(() => {
       (!filter.value.env_type || s.env_type === filter.value.env_type) &&
       (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
       (!filter.value.proc_id || s.proc_id === filter.value.proc_id) &&
-      (!filter.value.role_type || s.role_type === filter.value.role_type) &&
-      (!filter.value.status_cd || s.status_cd === filter.value.status_cd)
+      (!filter.value.role_type || s.role_type === filter.value.role_type)
     )
   })
 })
@@ -284,12 +277,6 @@ const limitedPages = computed(() => {
         </option>
       </select>
 
-      <select v-model="filter.status_cd" class="select select-sm select-bordered w-full">
-        <option v-for="item in codeOptions.cd_stat_yn" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
-
     <!-- IP/이름 통합 검색 -->
       <input
         v-model="filter.search"
@@ -315,7 +302,6 @@ const limitedPages = computed(() => {
           filter.corp_id = ''
           filter.proc_id = ''
           filter.role_type = ''
-          filter.status_cd = 'Y'
           filter.search = ''
         }">
           필터 초기화
@@ -345,7 +331,6 @@ const limitedPages = computed(() => {
             <th>용도</th>
             <th>환경</th>
             <th>역할</th>
-            <th>상태</th>
           </tr>
         </thead>
         <tbody>
@@ -373,7 +358,6 @@ const limitedPages = computed(() => {
             <td>{{ codeNames.cd_usage_type[s.usage_type] }}</td>
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
-            <td>{{ codeNames.cd_stat_yn[s.status_cd] }}</td>
           </tr>
         </tbody>
       </table>
