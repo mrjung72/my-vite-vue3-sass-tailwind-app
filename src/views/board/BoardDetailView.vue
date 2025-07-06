@@ -6,10 +6,21 @@
       <h2 class="text-2xl font-bold mb-2">{{ post.title }}</h2>
       <div class="text-sm text-gray-500 mb-4">작성자: {{ post.userid }} | {{ post.createdAt || post.date }}</div>
       <div class="text-base mb-4 whitespace-pre-line">{{ post.content }}</div>
-      <div v-if="post.filename" class="mb-4">
-        <a :href="`/api/board/download/${post.board_id}`" target="_blank" class="link text-blue-600">
-          {{ post.origin_filename || '첨부파일 다운로드' }}
-        </a>
+      
+      <!-- 첨부파일 목록 -->
+      <div v-if="post.files && post.files.length > 0" class="mb-4">
+        <h3 class="text-lg font-semibold mb-2">📎 첨부파일 ({{ post.files.length }}개)</h3>
+        <div class="space-y-2">
+          <div v-for="file in post.files" :key="file.file_id" class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">{{ file.origin_filename }}</span>
+              <span class="text-xs text-gray-500">({{ formatFileSize(file.file_size) }})</span>
+            </div>
+            <a :href="`/api/board/download/${file.file_id}`" target="_blank" class="btn btn-sm btn-outline">
+              다운로드
+            </a>
+          </div>
+        </div>
       </div>
       <BoardReplies :boardId="post.board_id" />
       <div>&nbsp;</div>
@@ -52,6 +63,14 @@ const fetchPost = async () => {
 }
 
 onMounted(fetchPost)
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
 
 function goEdit() {
   router.push(`/board/edit/${post.value.board_id}`)
