@@ -13,10 +13,10 @@
         <div class="space-y-2">
           <div v-for="file in post.files" :key="file.file_id" class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
             <div class="flex items-center gap-2">
-              <span class="text-sm">{{ file.origin_filename }}</span>
+              <span class="text-sm" :title="file.origin_filename">{{ file.origin_filename }}</span>
               <span class="text-xs text-gray-500">({{ formatFileSize(file.file_size) }})</span>
             </div>
-            <a :href="`/api/board/download/${file.file_id}`" target="_blank" class="btn btn-sm btn-outline">
+            <a :href="`/api/board/download/${file.file_id}`" target="_blank" class="btn btn-sm btn-outline" :download="file.origin_filename">
               다운로드
             </a>
           </div>

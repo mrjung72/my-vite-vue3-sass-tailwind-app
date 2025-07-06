@@ -144,9 +144,11 @@ async function editPost() {
       formData.append('deleteFiles', JSON.stringify(filesToDelete.value))
     }
     
-    // 새 파일들 추가
+    // 새 파일들 추가 - 한글 파일명 지원
     selectedFiles.value.forEach(file => {
-      formData.append('files', file)
+      // 파일명을 UTF-8로 인코딩하여 추가
+      const blob = new Blob([file], { type: file.type });
+      formData.append('files', blob, file.name);
     })
     
     const res = await axios.put(`/api/board/${form.value.board_id}`, formData, {

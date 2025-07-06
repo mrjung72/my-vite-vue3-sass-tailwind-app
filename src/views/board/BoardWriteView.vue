@@ -98,9 +98,11 @@ async function addPost() {
     formData.append('title', newPost.value.title)
     formData.append('content', newPost.value.content)
     
-    // 다중 파일 추가
+    // 다중 파일 추가 - 한글 파일명 지원
     selectedFiles.value.forEach(file => {
-      formData.append('files', file)
+      // 파일명을 UTF-8로 인코딩하여 추가
+      const blob = new Blob([file], { type: file.type });
+      formData.append('files', blob, file.name);
     })
     
     const res = await axios.post('/api/board', formData, {

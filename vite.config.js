@@ -19,6 +19,13 @@ export default defineConfig(({mode}) => ({
 	server: {
 		proxy: {
 		'/api': 'http://localhost:4000' // Spring 또는 Node 서버 주소
+		},
+		fs: {
+			allow: ['..']
 		}
-	}	
+	},
+	define: {
+		__VUE_OPTIONS_API__: true,
+		__VUE_PROD_DEVTOOLS__: false
+	}
 }))
