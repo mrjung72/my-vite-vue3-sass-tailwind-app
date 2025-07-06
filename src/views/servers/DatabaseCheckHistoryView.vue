@@ -33,6 +33,7 @@ const exportToExcel = async () => {
 
     worksheet.columns = [
       { header: 'DB명', key: 'db_instance_name', width: 20 },
+      { header: 'DB사용자', key: 'db_userid', width: 15 },
       { header: 'IP', key: 'server_ip', width: 15 },
       { header: '포트', key: 'port', width: 8 },
       { header: '법인', key: 'corp_id', width: 10 },
@@ -55,6 +56,7 @@ const exportToExcel = async () => {
         server_ip: s.server_ip,
         port: s.port,
         db_instance_name: s.db_instance_name,
+        db_userid: s.db_userid || '',
         env_type: s.env_type,
         corp_id: s.corp_id,
         proc_id: s.proc_id,
@@ -328,6 +330,7 @@ const limitedPages = computed(() => {
         <thead class="bg-base-200 text-base-content">
           <tr>
             <th>DB명</th>
+            <th>DB사용자</th>
             <th>법인</th>
             <th>공정</th>
             <th>세부공정</th>
@@ -340,7 +343,7 @@ const limitedPages = computed(() => {
         </thead>
         <tbody>
           <tr v-if="isLoading">
-            <td colspan="12" class="text-center text-gray-400 py-4">
+            <td colspan="13" class="text-center text-gray-400 py-4">
               <div class="flex items-center justify-center gap-2">
                 <span class="loading loading-spinner loading-sm"></span>
                 검색 중...
@@ -348,10 +351,11 @@ const limitedPages = computed(() => {
             </td>
           </tr>
           <tr v-else-if="paginatedServers.length === 0">
-            <td colspan="12" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
+            <td colspan="13" class="text-center text-gray-400 py-4">검색 결과가 없습니다</td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
             <td>{{ s.db_instance_name }}</td>
+            <td>{{ s.db_userid || '-' }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
             <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
             <td>{{ s.proc_detail }}</td>
