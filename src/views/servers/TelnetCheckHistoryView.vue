@@ -322,15 +322,18 @@ const limitedPages = computed(() => {
         <thead class="bg-base-200 text-base-content">
           <tr>
             <th><input type="checkbox" @change="toggleAll" :checked="allSelected" :disabled="!auth.user?.isAdmin" /></th>
+            <th>Telnet Check ID</th>
             <th>법인</th>
             <th>공정</th>
             <th>세부공정</th>
             <th>IP</th>
             <th>포트</th>
-            <th>호스트명</th>
+            <!-- <th>호스트명</th>  -->
             <th>용도</th>
             <th>환경</th>
             <th>역할</th>
+            <th>Check 결과</th>
+            <th>에러메세지</th>
           </tr>
         </thead>
         <tbody>
@@ -349,15 +352,18 @@ const limitedPages = computed(() => {
             <td>
               <input type="checkbox" v-model="selectedServers" :value="s" :disabled="!auth.user?.isAdmin" />
             </td>            
+            <td>{{ s.yyyymmdd }}-{{ s.hhmmss }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
             <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
             <td>{{ s.proc_detail }}</td>
             <td>{{ s.server_ip }}</td>
             <td>{{ s.port }}</td>
-            <td>{{ s.hostname }}</td>
+            <!-- <td>{{ s.hostname }}</td> -->
             <td>{{ codeNames.cd_usage_type[s.usage_type] }}</td>
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
+            <td>{{ s.result_code }}</td>
+            <td>[{{ s.error_code }}] {{ s.error_msg }}</td>
           </tr>
         </tbody>
       </table>
