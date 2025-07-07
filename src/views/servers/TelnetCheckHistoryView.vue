@@ -14,15 +14,6 @@ const token = localStorage.getItem('token')
 
 // 현재 사용자 IP 가져오기
 const currentUserIP = ref('')
-const getUserIP = async () => {
-  try {
-    const response = await axios.get('https://api.ipify.org?format=json')
-    currentUserIP.value = response.data.ip
-  } catch (error) {
-    console.error('IP 주소를 가져오는데 실패했습니다:', error)
-    currentUserIP.value = '알 수 없음'
-  }
-}
 
 // 체크일자/시분초 필터
 const dateFilter = ref({
@@ -232,6 +223,7 @@ const fetchServers = async () => {
       },
     })
     servers.value = res.data
+    currentUserIP.value = res.data.pc_ip
 
   } catch (err) {
     error.value = `서버 목록을 불러오는 중 오류가 발생했습니다. ${err.message}`
@@ -244,7 +236,6 @@ const fetchServers = async () => {
 onMounted(() => {
   fetchCodeOptions()
   fetchServers()
-  getUserIP()
   fetchCheckDates()
 })
 
@@ -317,72 +308,62 @@ const limitedPages = computed(() => {
 
 <template>
   <div class="p-4">
-
-    <!-- 현재 사용자 IP 정보 -->
+    <!-- 상단 바: 사용자 IP, 체크일자, 체크타임, 안내 -->
     <div class="bg-base-200 p-3 rounded-lg mb-4">
-      <div class="flex items-center gap-2 text-sm">
-        <span class="font-semibold">현재 사용자 IP:</span>
+      <div class="flex flex-wrap items-center gap-3 text-sm">
+        <span class="font-semibold">PC IP:</span>
         <span class="text-primary font-mono">{{ currentUserIP }}</span>
         <span class="text-gray-500">|</span>
-        <span class="text-gray-600">Telnet 체크 히스토리 조회</span>
+        <!-- 체크일자 선택 -->
+        <select v-model="dateFilter.checkDate" class="select select-sm select-bordered">
+          <option value="">체크일자 선택</option>
+          <option v-for="date in checkDateOptions" :key="date.value" :value="date.value">
+            {{ date.label }}
+          </option>
+        </select>
+        <!-- 체크시분초 선택 -->
+        <select v-model="dateFilter.checkTime" class="select select-sm select-bordered">
+          <option value="">체크시간 선택</option>
+          <option v-for="time in checkTimeOptions" :key="time.value" :value="time.value">
+            {{ time.label }}
+          </option>
+        </select>
       </div>
     </div>
 
     <!-- 🔍 검색 필터 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
-
-      <!-- 체크일자 선택 -->
-      <select v-model="dateFilter.checkDate" class="select select-sm select-bordered w-full">
-        <option value="">체크일자 선택</option>
-        <option v-for="date in checkDateOptions" :key="date.value" :value="date.value">
-          {{ date.label }}
-        </option>
-      </select>
-
-      <!-- 체크시분초 선택 -->
-      <select v-model="dateFilter.checkTime" class="select select-sm select-bordered w-full">
-        <option value="">체크시간 선택</option>
-        <option v-for="time in checkTimeOptions" :key="time.value" :value="time.value">
-          {{ time.label }}
-        </option>
-      </select>
-
       <select v-model="filter.corp_id" class="select select-sm select-bordered w-full">
         <option value="">법인 선택</option>
         <option v-for="item in codeOptions.cd_corp_ids" :key="item.code" :value="item.code">
           {{ item.label }}
         </option>
       </select>
-
       <select v-model="filter.proc_id" class="select select-sm select-bordered w-full">
         <option value="">공정 선택</option>
         <option v-for="item in codeOptions.cd_proc_ids" :key="item.code" :value="item.code">
           {{ item.label }}
         </option>
       </select>
-
       <select v-model="filter.usage_type" class="select select-sm select-bordered w-full">
         <option value="">용도 선택</option>
         <option v-for="item in codeOptions.cd_usage_type" :key="item.code" :value="item.code">
           {{ item.label }}
         </option>
       </select>
-
       <select v-model="filter.env_type" class="select select-sm select-bordered w-full">
         <option value="">환경 선택</option>
         <option v-for="item in codeOptions.cd_env_type" :key="item.code" :value="item.code">
           {{ item.label }}
         </option>
       </select>
-
       <select v-model="filter.role_type" class="select select-sm select-bordered w-full">
         <option value="">역할 선택</option>
         <option v-for="item in codeOptions.cd_role_type" :key="item.code" :value="item.code">
           {{ item.label }}
         </option>
       </select>
-
-    <!-- IP/이름 통합 검색 -->
+      <!-- IP/이름 통합 검색 -->
       <input
         v-model="filter.search"
         type="text"
