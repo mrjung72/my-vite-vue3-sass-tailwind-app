@@ -1,6 +1,5 @@
 // src/utils/axiosInterceptors.js
 import axios from 'axios'
-import { useAuthStore } from '@/stores/auth'
 import router from '@/router' // router/index.js에서 export default로 router 인스턴스 내보내야 함
 
 export function setupAxiosInterceptors() {
@@ -8,8 +7,10 @@ export function setupAxiosInterceptors() {
     response => response,
     error => {
       if (error.response?.status === 443) {
-        const auth = useAuthStore()
-        auth.logout()
+        // localStorage에서 토큰 제거
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        // 로그인 페이지로 리다이렉트
         router.push({ name: 'login' })
         return Promise.reject(error)
       }

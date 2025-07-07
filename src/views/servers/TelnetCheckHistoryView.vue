@@ -12,6 +12,64 @@ const router = useRouter()
 const isExporting = ref(false)
 const token = localStorage.getItem('token') 
 
+// 현재 사용자 IP 가져오기
+const currentUserIP = ref('')
+const getUserIP = async () => {
+  try {
+    const response = await axios.get('https://api.ipify.org?format=json')
+    currentUserIP.value = response.data.ip
+  } catch (error) {
+    console.error('IP 주소를 가져오는데 실패했습니다:', error)
+    currentUserIP.value = '알 수 없음'
+  }
+}
+
+// 체크일자/시분초 필터
+const dateFilter = ref({
+  checkDate: '',
+  checkTime: ''
+})
+
+// 체크일자/시분초 옵션 (API에서 동적 로딩)
+const checkDateOptions = ref([])
+const checkTimeOptions = ref([])
+
+// 체크일자 목록 불러오기
+const fetchCheckDates = async () => {
+  try {
+    const res = await axios.get('/api/check-server-log/dates', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { check_method: 'TELNET' }
+    })
+    checkDateOptions.value = res.data.map(date => ({ value: date, label: date }))
+  } catch (err) {
+    checkDateOptions.value = []
+  }
+}
+
+// 체크시분초 목록 불러오기 (특정 일자)
+const fetchCheckTimes = async (yyyymmdd) => {
+  if (!yyyymmdd) {
+    checkTimeOptions.value = []
+    return
+  }
+  try {
+    const res = await axios.get('/api/check-server-log/times', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { yyyymmdd, check_method: 'TELNET' }
+    })
+    checkTimeOptions.value = res.data.map(time => ({ value: time, label: time }))
+  } catch (err) {
+    checkTimeOptions.value = []
+  }
+}
+
+// 체크일자 변경 시 체크시분초 목록 갱신
+watch(() => dateFilter.value.checkDate, (newDate) => {
+  dateFilter.value.checkTime = ''
+  fetchCheckTimes(newDate)
+})
+
 function getFilterLabelString() {
   const f = filter.value;
   const parts = [];
@@ -186,6 +244,8 @@ const fetchServers = async () => {
 onMounted(() => {
   fetchCodeOptions()
   fetchServers()
+  getUserIP()
+  fetchCheckDates()
 })
 
 
@@ -199,10 +259,21 @@ watch(
   { deep: true }
 )
 
+watch(
+  dateFilter,
+  () => {
+    if (currentPage.value !== null) {
+      currentPage.value = 1
+    }
+  },
+  { deep: true }
+)
+
 const filteredServers = computed(() => {
   if (!Array.isArray(servers.value)) return []
   return servers.value.filter(s => {
-    return (
+    // 기존 필터 조건
+    const basicFilter = (
       (!filter.value.search ||
         s.server_ip?.includes(filter.value.search) ||
         s.proc_detail?.includes(filter.value.search) ||
@@ -213,6 +284,14 @@ const filteredServers = computed(() => {
       (!filter.value.proc_id || s.proc_id === filter.value.proc_id) &&
       (!filter.value.role_type || s.role_type === filter.value.role_type)
     )
+
+    // 날짜/시간 필터 조건
+    const dateTimeFilter = (
+      (!dateFilter.value.checkDate || s.yyyymmdd === dateFilter.value.checkDate) &&
+      (!dateFilter.value.checkTime || s.hhmmss?.startsWith(dateFilter.value.checkTime.slice(0, 2)))
+    )
+
+    return basicFilter && dateTimeFilter
   })
 })
 
@@ -239,8 +318,34 @@ const limitedPages = computed(() => {
 <template>
   <div class="p-4">
 
+    <!-- 현재 사용자 IP 정보 -->
+    <div class="bg-base-200 p-3 rounded-lg mb-4">
+      <div class="flex items-center gap-2 text-sm">
+        <span class="font-semibold">현재 사용자 IP:</span>
+        <span class="text-primary font-mono">{{ currentUserIP }}</span>
+        <span class="text-gray-500">|</span>
+        <span class="text-gray-600">Telnet 체크 히스토리 조회</span>
+      </div>
+    </div>
+
     <!-- 🔍 검색 필터 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
+
+      <!-- 체크일자 선택 -->
+      <select v-model="dateFilter.checkDate" class="select select-sm select-bordered w-full">
+        <option value="">체크일자 선택</option>
+        <option v-for="date in checkDateOptions" :key="date.value" :value="date.value">
+          {{ date.label }}
+        </option>
+      </select>
+
+      <!-- 체크시분초 선택 -->
+      <select v-model="dateFilter.checkTime" class="select select-sm select-bordered w-full">
+        <option value="">체크시간 선택</option>
+        <option v-for="time in checkTimeOptions" :key="time.value" :value="time.value">
+          {{ time.label }}
+        </option>
+      </select>
 
       <select v-model="filter.corp_id" class="select select-sm select-bordered w-full">
         <option value="">법인 선택</option>
@@ -303,6 +408,8 @@ const limitedPages = computed(() => {
           filter.proc_id = ''
           filter.role_type = ''
           filter.search = ''
+          dateFilter.checkDate = ''
+          dateFilter.checkTime = ''
         }">
           필터 초기화
         </button>
