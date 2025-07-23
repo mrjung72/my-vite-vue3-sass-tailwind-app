@@ -51,13 +51,23 @@ const exportToDBInfo = () => {
   filteredServers.value.forEach((server, index) => {
     const dbKey = server.db_instance_name || `DB_${index + 1}`
     
+    const parts = [];
+    if (server.corp_id) parts.push(`${codeNames.value.cd_corp_ids[server.corp_id] || server.corp_id}`);
+    if (server.proc_id) parts.push(`${codeNames.value.cd_proc_ids[server.proc_id] || server.proc_id}`);
+    if (server.env_type) parts.push(`${codeNames.value.cd_env_type[server.env_type] || server.env_type}`);
+    if (server.role_type) parts.push(`${codeNames.value.cd_role_type[server.role_type] || server.role_type}`);
+    if (server.db_type) parts.push(`${server.db_type}`);
+
+    const filterStr = parts.length ? '_' + parts.join('_') : '';
+
     // DB 연결 정보 구성
     dbinfo.dbs[dbKey] = {
+      title: filterStr,
+      server: server.server_ip || "localhost",
+      port: parseInt(server.port) || 1433,
+      database: server.db_instance_name || "DATABASE_NAME",
       user: "username",
       password: "password", 
-      server: server.server_ip || "localhost",
-      database: server.db_instance_name || "DATABASE_NAME",
-      port: parseInt(server.port) || 1433,
       options: { 
         encrypt: true, 
         trustServerCertificate: true 
