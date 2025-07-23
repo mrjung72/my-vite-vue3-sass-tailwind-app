@@ -39,6 +39,29 @@ const exportToCSV = () => {
   saveAs(blob, `서버목록${filterStr}_${new Date().toISOString().slice(0, 10)}.csv`)
 }
 
+const exportToJSON = () => {
+  // 현재 필터링된 서버 데이터를 JSON 형태로 다운로드
+  const filterStr = getFilterLabelString()
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '')
+  
+  // 코드명이 포함된 완전한 데이터로 변환
+  const jsonData = filteredServers.value.map(server => ({
+    ...server,
+    corp_name: codeNames.value.cd_corp_ids[server.corp_id] || server.corp_id,
+    proc_name: codeNames.value.cd_proc_ids[server.proc_id] || server.proc_id,
+    usage_type_name: codeNames.value.cd_usage_type[server.usage_type] || server.usage_type,
+    env_type_name: codeNames.value.cd_env_type[server.env_type] || server.env_type,
+    role_type_name: codeNames.value.cd_role_type[server.role_type] || server.role_type,
+    status_name: codeNames.value.cd_stat_yn[server.status_cd] || server.status_cd,
+    export_date: new Date().toISOString()
+  }))
+
+  // JSON 파일 다운로드
+  const jsonContent = JSON.stringify(jsonData, null, 2)
+  const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+  saveAs(blob, `서버목록${filterStr}_${timestamp}.json`)
+}
+
 function getFilterLabelString() {
   const f = filter.value;
   const parts = [];
@@ -407,6 +430,12 @@ const limitedPages = computed(() => {
           @click="exportToCSV"
         >
           📄 CSV 다운로드
+        </button>
+        <button
+          class="btn btn-sm btn-outline btn-secondary"
+          @click="exportToJSON"
+        >
+          📋 JSON 다운로드
         </button>
       </div>
     </div>

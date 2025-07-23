@@ -38,6 +38,70 @@ const exportToCSV = () => {
   saveAs(blob, `DB목록${filterStr}_${new Date().toISOString().slice(0, 10)}.csv`)
 }
 
+const exportToDBInfo = () => {
+  // 현재 필터링된 서버 데이터를 sql2excel용 dbinfo.json 형태로 변환
+  const filterStr = getFilterLabelString()
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '')
+  
+  const dbinfo = {
+    dbs: {}
+  }
+
+  // 각 DB에 대한 연결 정보 생성
+  filteredServers.value.forEach((server, index) => {
+    const dbKey = server.db_instance_name || `DB_${index + 1}`
+    
+    // DB 연결 정보 구성
+    dbinfo.dbs[dbKey] = {
+      user: "username",
+      password: "password", 
+      server: server.server_ip || "localhost",
+      database: server.db_instance_name || "DATABASE_NAME",
+      port: parseInt(server.port) || 1433,
+      options: { 
+        encrypt: true, 
+        trustServerCertificate: true 
+      }
+    }
+
+    // DB 타입에 따른 추가 설정
+    if (server.db_type && server.db_type.toLowerCase().includes('mysql')) {
+      // MySQL/MariaDB용 설정
+      delete dbinfo.dbs[dbKey].options.encrypt
+      delete dbinfo.dbs[dbKey].options.trustServerCertificate
+    } else if (server.db_type && server.db_type.toLowerCase().includes('postgres')) {
+      // PostgreSQL용 설정
+      dbinfo.dbs[dbKey].options = { ssl: false }
+    }
+  })
+
+  // JSON 파일 다운로드
+  const jsonContent = JSON.stringify(dbinfo, null, 2)
+  const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+  saveAs(blob, `dbinfo${filterStr}_${timestamp}.json`)
+}
+
+const exportToJSON = () => {
+  // 현재 필터링된 DB 데이터를 JSON 형태로 다운로드
+  const filterStr = getFilterLabelString()
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '')
+  
+  // 코드명이 포함된 완전한 데이터로 변환
+  const jsonData = filteredServers.value.map(server => ({
+    ...server,
+    corp_name: codeNames.value.cd_corp_ids[server.corp_id] || server.corp_id,
+    proc_name: codeNames.value.cd_proc_ids[server.proc_id] || server.proc_id,
+    env_type_name: codeNames.value.cd_env_type[server.env_type] || server.env_type,
+    role_type_name: codeNames.value.cd_role_type[server.role_type] || server.role_type,
+    export_date: new Date().toISOString()
+  }))
+
+  // JSON 파일 다운로드
+  const jsonContent = JSON.stringify(jsonData, null, 2)
+  const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+  saveAs(blob, `DB목록${filterStr}_${timestamp}.json`)
+}
+
 function getFilterLabelString() {
   const f = filter.value;
   const parts = [];
@@ -352,6 +416,19 @@ const limitedPages = computed(() => {
           @click="exportToCSV"
         >
           📄 CSV 다운로드
+        </button>
+        <button
+          class="btn btn-sm btn-outline btn-secondary"
+          @click="exportToJSON"
+        >
+          📋 JSON 다운로드
+        </button>
+        <button
+          v-if="auth.user?.isAdmin"
+          class="btn btn-sm btn-outline btn-warning"
+          @click="exportToDBInfo"
+        >
+          🔗 dbinfo.json 다운로드
         </button>
       </div>
     </div>
