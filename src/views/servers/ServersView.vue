@@ -62,6 +62,55 @@ const exportToJSON = () => {
   saveAs(blob, `서버목록${filterStr}_${timestamp}.json`)
 }
 
+const exportToXML = () => {
+  // 현재 필터링된 서버 데이터를 XML 형태로 다운로드
+  const filterStr = getFilterLabelString()
+  const timestamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '')
+  
+  // XML 헤더 및 루트 엘리먼트
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
+  xml += `<servers export_date="${new Date().toISOString()}" filter_applied="${filterStr || '없음'}" total_count="${filteredServers.value.length}">\n`
+  
+  // 각 서버 정보를 XML로 변환
+  filteredServers.value.forEach((server, index) => {
+    xml += `  <server id="${index + 1}">\n`
+    xml += `    <server_ip>${escapeXml(server.server_ip || '')}</server_ip>\n`
+    xml += `    <port>${escapeXml(server.port || '')}</port>\n`
+    xml += `    <hostname>${escapeXml(server.hostname || '')}</hostname>\n`
+    xml += `    <corp_id>${escapeXml(server.corp_id || '')}</corp_id>\n`
+    xml += `    <corp_name>${escapeXml(codeNames.value.cd_corp_ids[server.corp_id] || server.corp_id || '')}</corp_name>\n`
+    xml += `    <proc_id>${escapeXml(server.proc_id || '')}</proc_id>\n`
+    xml += `    <proc_name>${escapeXml(codeNames.value.cd_proc_ids[server.proc_id] || server.proc_id || '')}</proc_name>\n`
+    xml += `    <proc_detail>${escapeXml(server.proc_detail || '')}</proc_detail>\n`
+    xml += `    <usage_type>${escapeXml(server.usage_type || '')}</usage_type>\n`
+    xml += `    <usage_type_name>${escapeXml(codeNames.value.cd_usage_type[server.usage_type] || server.usage_type || '')}</usage_type_name>\n`
+    xml += `    <env_type>${escapeXml(server.env_type || '')}</env_type>\n`
+    xml += `    <env_type_name>${escapeXml(codeNames.value.cd_env_type[server.env_type] || server.env_type || '')}</env_type_name>\n`
+    xml += `    <role_type>${escapeXml(server.role_type || '')}</role_type>\n`
+    xml += `    <role_type_name>${escapeXml(codeNames.value.cd_role_type[server.role_type] || server.role_type || '')}</role_type_name>\n`
+    xml += `    <status_cd>${escapeXml(server.status_cd || '')}</status_cd>\n`
+    xml += `    <status_name>${escapeXml(codeNames.value.cd_stat_yn[server.status_cd] || server.status_cd || '')}</status_name>\n`
+    xml += `    <server_port_id>${escapeXml(server.server_port_id || '')}</server_port_id>\n`
+    xml += `  </server>\n`
+  })
+  
+  xml += `</servers>`
+  
+  // XML 파일 다운로드
+  const blob = new Blob([xml], { type: 'application/xml;charset=utf-8;' })
+  saveAs(blob, `서버목록${filterStr}_${timestamp}.xml`)
+}
+
+// XML 특수문자 이스케이프 함수
+const escapeXml = (str) => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
 function getFilterLabelString() {
   const f = filter.value;
   const parts = [];
@@ -440,6 +489,12 @@ const limitedPages = computed(() => {
           @click="exportToJSON"
         >
           📋 JSON 다운로드
+        </button>
+        <button
+          class="btn btn-sm btn-outline btn-accent"
+          @click="exportToXML"
+        >
+          📄 XML 다운로드
         </button>
       </div>
     </div>
