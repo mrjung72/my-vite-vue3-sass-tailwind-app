@@ -105,9 +105,14 @@ const exportToJSON = () => {
 function getFilterLabelString() {
   const f = filter.value;
   const parts = [];
-  if (f.corp_id) parts.push(f.corp_id);
-  if (f.proc_id) parts.push(f.proc_id);
-  if (f.env_type) parts.push(f.env_type);
+  
+  if (f.corp_id) parts.push(`${codeNames.value.cd_corp_ids[f.corp_id] || f.corp_id}`);
+  if (f.proc_id) parts.push(`${codeNames.value.cd_proc_ids[f.proc_id] || f.proc_id}`);
+  if (f.env_type) parts.push(`${codeNames.value.cd_env_type[f.env_type] || f.env_type}`);
+  if (f.role_type) parts.push(`${codeNames.value.cd_role_type[f.role_type] || f.role_type}`);
+  if (f.db_type) parts.push(`${f.db_type}`);
+  if (f.search) parts.push(`${f.search}`);
+  
   return parts.length ? '_' + parts.join('_') : '';
 }
 
