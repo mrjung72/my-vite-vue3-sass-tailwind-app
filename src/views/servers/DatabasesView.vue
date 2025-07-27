@@ -460,7 +460,7 @@ const limitedPages = computed(() => {
           filter.corp_id = ''
           filter.proc_id = ''
           filter.role_type = ''
-          filter.db_type = ''
+          filter.db_type = 'MAIN'
           filter.search = ''
         }">
           필터 초기화

@@ -169,7 +169,7 @@ const filter = ref({
   corp_id: '',
   proc_id: '',
   role_type: '',
-  db_type: ''
+  db_type: 'MAIN'
 })
 
 const fetchServers = async () => {
