@@ -5,11 +5,11 @@ import Breadcrumbs from "@/components/Breadcrumbs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
+import { site } from "@/data/siteConfig.js";
 
 const auth = useAuthStore()
 const router = useRouter();
 const route = useRoute()
-const title = '사하라 홈';
 const pendingCount = ref(0)
 const badgePos = ref({ x: 0, y: 0 })
 const dragging = ref(false)
@@ -82,7 +82,7 @@ watch(() => route.fullPath, fetchPendingCount)
 			</div>
 		</div>
 		<div class="flex-1 w-auto">
-			<router-link :to="{ name: 'home' }" class="text-xl">{{ title }}</router-link>
+			<router-link :to="{ name: 'home' }" class="text-xl">{{ site.name }}</router-link>
 		</div>
 
 
