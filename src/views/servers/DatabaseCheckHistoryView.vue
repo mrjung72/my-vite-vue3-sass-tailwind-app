@@ -49,6 +49,43 @@ const fetchCheckDates = async () => {
   }
 }
 
+// 체크시분초 목록 불러오기
+const fetchCheckTimes = async (checkDate) => {
+  if (!checkDate) {
+    checkTimeOptions.value = []
+    return
+  }
+  
+  try {
+    console.log('체크시분초 목록 조회:', checkDate)
+    
+    const res = await axios.get('/api/check-server-log/times', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { 
+        check_method: 'DB_CONN',
+        yyyymmdd: checkDate
+      }
+    })
+    
+    console.log('체크시분초 API 응답:', res.data)
+    
+    if (Array.isArray(res.data)) {
+      checkTimeOptions.value = res.data.map(time => ({ value: time, label: time }))
+    } else if (res.data && Array.isArray(res.data.times)) {
+      checkTimeOptions.value = res.data.times.map(time => ({ value: time, label: time }))
+    } else {
+      console.warn('체크시분초 응답 구조가 예상과 다름:', res.data)
+      checkTimeOptions.value = []
+    }
+    
+    console.log('설정된 시분초 옵션:', checkTimeOptions.value)
+    
+  } catch (err) {
+    console.error('체크시분초 로딩 에러:', err)
+    checkTimeOptions.value = []
+  }
+}
+
 
 // 체크일자 변경 시 체크시분초 목록 갱신 및 서버 데이터 재조회
 watch(() => dateFilter.value.checkDate, async (newDate, oldDate) => {
@@ -273,6 +310,19 @@ const fetchServers = async () => {
       console.warn('예상하지 못한 API 응답 구조:', res.data)
       servers.value = []
       currentUserIP.value = res.data?.pc_ip || ''
+    }
+    
+    // DB 접속 체크 API의 실제 응답 구조에 맞춰 데이터 매핑
+    if (servers.value.length > 0) {
+      servers.value = servers.value.map(server => ({
+        ...server,
+        // API 응답의 필드명을 프론트엔드에서 사용하는 필드명으로 매핑
+        db_instance_name: server.db_name || server.db_instance_name,
+        server_port_id: server.server_ip + '_' + server.port, // 고유 키 생성
+        env_type: server.db_instance_type || server.env_type,
+        role_type: server.role_type || 'MAIN',
+        db_type: server.db_instance_type || server.db_type || 'MAIN'
+      }))
     }
     
     console.log('처리된 서버 데이터 (첫 3개):', servers.value.slice(0, 3))
