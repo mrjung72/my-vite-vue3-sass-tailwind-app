@@ -5,10 +5,36 @@
 
     <div v-if="isLoading">불러오는 중...</div>
     <div v-else>
-      <input v-model="name" class="input input-bordered w-full mb-2" placeholder="이름" />
-      <input v-model="email" class="input input-bordered w-full mb-2" placeholder="이메일" />
+      <!-- PC IP 정보 표시 (읽기 전용) -->
+      <div class="bg-base-200 p-3 rounded-lg mb-4">
+        <div class="flex items-center gap-2 text-sm">
+          <span class="font-semibold">현재 PC IP:</span>
+          <span class="text-primary font-mono">{{ currentPcIp || '정보 없음' }}</span>
+        </div>
+        <div v-if="registeredPcIp" class="flex items-center gap-2 text-sm mt-1">
+          <span class="font-semibold">등록 시 IP:</span>
+          <span class="font-mono text-sm">{{ registeredPcIp }}</span>
+        </div>
+      </div>
 
-      <div class="flex gap-2 mt-4">
+      <!-- 수정 가능한 필드들 -->
+      <div class="space-y-3">
+        <div>
+          <label class="label">
+            <span class="label-text font-semibold">이름</span>
+          </label>
+          <input v-model="name" class="input input-bordered w-full" placeholder="이름을 입력하세요" />
+        </div>
+        
+        <div>
+          <label class="label">
+            <span class="label-text font-semibold">이메일</span>
+          </label>
+          <input v-model="email" class="input input-bordered w-full" placeholder="이메일을 입력하세요" />
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-6">
         <button class="btn btn-primary" @click="save">저장</button>
         <button class="btn btn-outline" @click="cancel">취소</button>
       </div>
@@ -29,6 +55,8 @@ const auth = useAuthStore() // Pinia 스토어에서 인증 상태 가져오기
 const router = useRouter()
 const name = ref('')
 const email = ref('')
+const currentPcIp = ref('')
+const registeredPcIp = ref('')
 const isLoading = ref(false)
 const message = ref('')
 const error = ref('')
@@ -44,6 +72,8 @@ const fetchMyInfo = async () => {
     })
     name.value = res.data.name
     email.value = res.data.email
+    currentPcIp.value = res.data.current_pc_ip || ''
+    registeredPcIp.value = res.data.user_pc_ip || ''
   } catch (err) {
     error.value = '정보를 불러오는 데 실패했습니다.'
   } finally {

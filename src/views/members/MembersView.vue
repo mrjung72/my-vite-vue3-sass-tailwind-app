@@ -76,6 +76,9 @@
       <h3 class="text-lg font-bold mb-2">회원 {{ isEditing ? '수정' : '상세 정보' }}</h3>
 
       <div v-if="isEditing" class="space-y-2">
+        <!-- PC IP 정보 (읽기 전용) -->
+        <p class="text-sm"><strong>PC IP:</strong> <span class="font-mono">{{ selected.user_pc_ip }}</span></p>
+        
         <label class="block">
           사용자ID:
           <input v-model="editForm.userid" class="input input-sm input-bordered w-full mb-2" :readonly="true" />
@@ -101,12 +104,15 @@
       </div>
 
       <div v-else>
-        <p><strong>사용자ID:</strong> {{ selected.userid }}</p>
-        <p><strong>이메일:</strong> {{ selected.email }}</p>
-        <p><strong>이름:</strong> {{ selected.name }}</p>
-        <p><strong>상태:</strong> {{ statusCode[selected.status_cd] }}</p>
-        <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
-        <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p>
+        <div class="space-y-2">
+          <p><strong>사용자ID:</strong> {{ selected.userid }}</p>
+          <p><strong>이메일:</strong> {{ selected.email }}</p>
+          <p><strong>이름:</strong> {{ selected.name }}</p>
+          <p><strong>상태:</strong> {{ statusCode[selected.status_cd] }}</p>
+          <p><strong>가입일:</strong> {{ selected.createdAt }}</p>
+          <p><strong>관리자:</strong> {{ selected.isAdmin ? '예' : '아니오' }}</p>
+          <p><strong>PC IP:</strong> <span class="font-mono text-sm">{{ selected.user_pc_ip }}</span></p>
+        </div>
 
         <div v-if="selected && !selected.isAdmin && auth.isLoggedIn && (auth.user.userid === selected.userid || auth.user.isAdmin)" class="flex gap-2 mt-4">
           <button class="btn btn-sm btn-outline" @click="startEdit">수정</button>

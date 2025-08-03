@@ -6,13 +6,40 @@
     <div v-if="isLoading">불러오는 중...</div>
     <div v-else-if="error" class="text-red-500">{{ error }}</div>
     <div v-else>
-      <div class="mb-2"><strong>이름:</strong> {{ user.name }}</div>
-      <div class="mb-2"><strong>아이디:</strong> {{ user.userid }}</div>
-      <div class="mb-2"><strong>이메일:</strong> {{ user.email }}</div>
-      <div class="mb-2"><strong>관리자 여부:</strong> {{ user.isAdmin ? '✔️' : '❌' }}</div>
+      <div class="bg-base-200 p-3 rounded-lg mb-4">
+        <div class="flex items-center gap-2 text-sm">
+          <span class="font-semibold">현재 PC IP:</span>
+          <span class="text-primary font-mono">{{ user.current_pc_ip || '정보 없음' }}</span>
+        </div>
+      </div>
+      
+      <div class="space-y-3">
+        <div class="flex">
+          <span class="font-semibold w-24">이름:</span>
+          <span>{{ user.name }}</span>
+        </div>
+        <div class="flex">
+          <span class="font-semibold w-24">아이디:</span>
+          <span>{{ user.userid }}</span>
+        </div>
+        <div class="flex">
+          <span class="font-semibold w-24">이메일:</span>
+          <span>{{ user.email }}</span>
+        </div>
+        <div class="flex">
+          <span class="font-semibold w-24">관리자:</span>
+          <span>{{ user.isAdmin ? '✔️ 예' : '❌ 아니오' }}</span>
+        </div>
+        <div v-if="user.user_pc_ip" class="flex">
+          <span class="font-semibold w-24">등록 IP:</span>
+          <span class="font-mono text-sm">{{ user.user_pc_ip }}</span>
+        </div>
+      </div>
 
-      <button class="btn btn-primary mt-4" @click="goToEdit">수정하기</button>
-      <button class="btn btn-outline ml-2 mt-4" @click="showPwModal = true">비밀번호 변경</button>
+      <div class="flex gap-2 mt-6">
+        <button class="btn btn-primary" @click="goToEdit">수정하기</button>
+        <button class="btn btn-outline" @click="showPwModal = true">비밀번호 변경</button>
+      </div>
     </div>
 
     <!-- 비밀번호 변경 모달 -->
