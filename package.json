@@ -2,10 +2,10 @@
   "name": "sahara web",
   "version": "1.1.0",
   "description": "사하라 홈페이지",
-  "author": "Martin Ille <ille.martin@gmail.com>",
+  "author": "Sahara Jung",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/martinille/starter-template-vite-vue3-sass-tailwind4-daisyui5.git"
+    "url": "https://github.com/mrjung72/my-vite-vue3-sass-tailwind-app.git"
   },
   "license": "MIT",
   "type": "module",
