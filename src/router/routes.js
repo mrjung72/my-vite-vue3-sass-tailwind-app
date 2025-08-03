@@ -143,6 +143,12 @@ export default [
 		meta: { title: '구분자 추출기' },
 	},
 	{
+		path: '/template-engine',
+		name: 'template-engine',
+		component: () => import('@/views/extract/TemplateEngineView.vue'),
+		meta: { title: '템플릿 엔진' },
+	},
+	{
 		path: '/release-history',
 		name: 'release-history',
 		component: () => import('@/views/system/ReleaseHistoryView.vue'),

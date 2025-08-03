@@ -36,6 +36,7 @@ const util_menu = ref([
       { label: '테이블명 추출기', route: '/extract-tables' },
       { label: '정규식 추출기', route: '/extract-regex' },
       { label: '구분자 추출기', route: '/extract-separator' },
+      { label: '템플릿 엔진', route: '/template-engine' },
     ],
   },
 ])
