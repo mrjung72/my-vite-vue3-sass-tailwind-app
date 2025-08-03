@@ -52,11 +52,23 @@ export const useAuthStore = defineStore('auth', () => {
     if (router) router.push('/')
   }
 
+  // 토큰 갱신 시 사용자 정보 업데이트
+  const updateToken = (newToken, newUser) => {
+    token.value = newToken
+    if (newUser) {
+      user.value = newUser
+      localStorage.setItem('user', JSON.stringify(newUser))
+    }
+    localStorage.setItem('token', newToken)
+    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+  }
+
   return {
     user,
     token,
     isLoggedIn,
     login,
     logout,
+    updateToken,
   }
 })
