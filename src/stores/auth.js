@@ -52,6 +52,23 @@ export const useAuthStore = defineStore('auth', () => {
     if (router) router.push('/')
   }
 
+  // 서버 재시작으로 인한 토큰 초기화 (라우터 이동 없이)
+  const clearTokensOnServerRestart = () => {
+    user.value = null
+    token.value = ''
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('lastServerStartTime')
+    delete axios.defaults.headers.common['Authorization']
+    
+    // 캐시된 공통코드도 함께 초기화
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('commonCode_')) {
+        localStorage.removeItem(key)
+      }
+    })
+  }
+
   // 토큰 갱신 시 사용자 정보 업데이트
   const updateToken = (newToken, newUser) => {
     token.value = newToken
@@ -69,6 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoggedIn,
     login,
     logout,
+    clearTokensOnServerRestart,
     updateToken,
   }
 })
