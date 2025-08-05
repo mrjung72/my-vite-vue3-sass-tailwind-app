@@ -446,7 +446,7 @@ const getCheckResultBadgeClass = (result) => {
 
 // 체크 결과 상태에 따른 텍스트 반환
 const getCheckResultText = (result) => {
-  if (!result) return '알 수 없음'
+  if (!result) return '⚪ 알 수 없음'
   
   const status = result.toString().toLowerCase()
   switch (status) {
@@ -459,9 +459,9 @@ const getCheckResultText = (result) => {
     case 'error':
     case '0':
     case 'false':
-      return '❌ 실패'
+      return '❌ fail'
     default:
-      return result
+      return `⚪ ${result}`
   }
 }
 
