@@ -459,14 +459,6 @@ const getCheckResultText = (result) => {
     case '0':
     case 'false':
       return '❌ 실패'
-    case 'timeout':
-      return '⏰ 타임아웃'
-    case 'warning':
-    case 'warn':
-      return '⚠️ 경고'
-    case 'checking':
-    case 'pending':
-      return '🔄 확인중'
     default:
       return result
   }
@@ -562,12 +554,8 @@ const getCheckResultText = (result) => {
 
       <select v-model="filter.check_result" class="select select-sm select-bordered w-full">
         <option value="">체크결과 선택</option>
-        <option value="success">✅ 성공</option>
-        <option value="fail">❌ 실패</option>
-        <option value="error">❌ 에러</option>
-        <option value="timeout">⏰ 타임아웃</option>
-        <option value="warning">⚠️ 경고</option>
-        <option value="checking">🔄 확인중</option>
+        <option value="1">✅ 성공</option>
+        <option value="0">❌ 실패</option>
       </select>
 
     <!-- IP/이름 통합 검색 -->
