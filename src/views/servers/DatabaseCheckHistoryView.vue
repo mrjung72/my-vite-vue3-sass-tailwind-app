@@ -629,14 +629,10 @@ const getCheckResultText = (result) => {
             <th>체크일시</th>
             <th>DB명</th>
             <th>DB사용자</th>
-            <th>법인</th>
-            <th>공정</th>
-            <th>세부공정</th>
+            <th>법인/공정</th>
             <th>IP</th>
             <th>포트</th>
-            <th>환경</th>
-            <th>역할</th>
-            <th>DB타입</th>
+            <th>환경 / 역할 / DB타입</th>
             <th>체크결과</th>
             <th>결과상세</th>
           </tr>
@@ -670,22 +666,13 @@ const getCheckResultText = (result) => {
             </td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
-            <td class="font-mono text-xs">
-              <div class="flex flex-col">
-                <span>{{ s.yyyymmdd }}</span>
-                <span class="text-gray-500">{{ s.hhmmss }}</span>
-              </div>
-            </td>
+            <td>{{ s.yyyymmdd }} {{ s.hhmmss }}</td>
             <td>{{ s.db_instance_name }}</td>
             <td>{{ s.db_userid || '-' }}</td>
-            <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
-            <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
-            <td>{{ s.proc_detail }}</td>
+            <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }} / [{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }} ({{ s.proc_detail }})</td>
             <td>{{ s.server_ip }}</td>
             <td>{{ s.port }}</td>
-            <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
-            <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
-            <td>{{ codeNames.cd_db_type[s.db_type] || s.db_type }}</td>
+            <td>{{ codeNames.cd_env_type[s.env_type] }} / {{ codeNames.cd_role_type[s.role_type] }} / {{ codeNames.cd_db_type[s.db_type] || s.db_type }}</td>
             <td>
               <span 
                 :class="getCheckResultBadgeClass(s.result_code)"
