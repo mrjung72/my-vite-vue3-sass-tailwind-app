@@ -129,6 +129,7 @@ const exportToExcel = async () => {
     const worksheet = workbook.addWorksheet('DB목록')
 
     worksheet.columns = [
+      { header: '체크일시', key: 'check_datetime', width: 15 },
       { header: 'DB명', key: 'db_instance_name', width: 20 },
       { header: 'DB사용자', key: 'db_userid', width: 15 },
       { header: 'IP', key: 'server_ip', width: 15 },
@@ -139,6 +140,9 @@ const exportToExcel = async () => {
       { header: '환경', key: 'env_type', width: 10 },
       { header: '역할', key: 'role_type', width: 12 },
       { header: 'DB타입', key: 'db_type', width: 10 },
+      { header: '체크결과', key: 'check_result', width: 12 },
+      { header: '응답시간', key: 'response_time', width: 10 },
+      { header: '에러메시지', key: 'error_message', width: 20 },
     ]
 
     // 헤더 행 글꼴 스타일
@@ -150,16 +154,20 @@ const exportToExcel = async () => {
 
     filteredServers.value.forEach(s => {
       const row = worksheet.addRow({
-        server_ip: s.server_ip,
-        port: s.port,
+        check_datetime: `${s.yyyymmdd} ${s.hhmmss}`,
         db_instance_name: s.db_instance_name,
         db_userid: s.db_userid || '',
-        env_type: s.env_type,
+        server_ip: s.server_ip,
+        port: s.port,
         corp_id: s.corp_id,
         proc_id: s.proc_id,
         proc_detail: s.proc_detail,
+        env_type: s.env_type,
         role_type: s.role_type,
         db_type: s.db_type || '',
+        check_result: getCheckResultText(s.result_code || s.conn_result),
+        response_time: s.response_time || s.elapsed_time ? `${s.response_time || s.elapsed_time}ms` : '-',
+        error_message: s.error_code ? `[${s.error_code}] ${s.error_msg || ''}` : (s.error_msg || '정상'),
       })
       // 각 데이터 행 글꼴 스타일 적용 (선택사항)
       row.font = {
@@ -266,7 +274,8 @@ const filter = ref({
   corp_id: '',
   proc_id: '',
   role_type: '',
-  db_type: 'MAIN'
+  db_type: 'MAIN',
+  check_result: ''
 })
 
 const fetchServers = async () => {
@@ -394,7 +403,10 @@ const filteredServers = computed(() => {
       (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
       (!filter.value.proc_id || s.proc_id === filter.value.proc_id) &&
       (!filter.value.role_type || s.role_type === filter.value.role_type) &&
-      (!filter.value.db_type || s.db_type === filter.value.db_type)
+      (!filter.value.db_type || s.db_type === filter.value.db_type) &&
+      (!filter.value.check_result || 
+        (s.result_code && s.result_code.toString().toLowerCase().includes(filter.value.check_result)) ||
+        (s.conn_result && s.conn_result.toString().toLowerCase().includes(filter.value.check_result)))
     )
 
     // 시분초 필터링 (클라이언트에서 처리)
@@ -422,6 +434,61 @@ const limitedPages = computed(() => {
 
   return pages
 })
+
+// 체크 결과 상태에 따른 배지 클래스 반환
+const getCheckResultBadgeClass = (result) => {
+  if (!result) return 'badge-ghost'
+  
+  const status = result.toString().toLowerCase()
+  switch (status) {
+    case 'success':
+    case 'ok':
+    case '0':
+    case 'true':
+      return 'badge-success'
+    case 'fail':
+    case 'error':
+    case 'timeout':
+    case 'false':
+      return 'badge-error'
+    case 'warning':
+    case 'warn':
+      return 'badge-warning'
+    case 'checking':
+    case 'pending':
+      return 'badge-info'
+    default:
+      return 'badge-ghost'
+  }
+}
+
+// 체크 결과 상태에 따른 텍스트 반환
+const getCheckResultText = (result) => {
+  if (!result) return '알 수 없음'
+  
+  const status = result.toString().toLowerCase()
+  switch (status) {
+    case 'success':
+    case 'ok':
+    case '0':
+    case 'true':
+      return '✅ 성공'
+    case 'fail':
+    case 'error':
+    case 'false':
+      return '❌ 실패'
+    case 'timeout':
+      return '⏰ 타임아웃'
+    case 'warning':
+    case 'warn':
+      return '⚠️ 경고'
+    case 'checking':
+    case 'pending':
+      return '🔄 확인중'
+    default:
+      return result
+  }
+}
 
 </script>
 
@@ -511,6 +578,16 @@ const limitedPages = computed(() => {
         </option>
       </select>
 
+      <select v-model="filter.check_result" class="select select-sm select-bordered w-full">
+        <option value="">체크결과 선택</option>
+        <option value="success">✅ 성공</option>
+        <option value="fail">❌ 실패</option>
+        <option value="error">❌ 에러</option>
+        <option value="timeout">⏰ 타임아웃</option>
+        <option value="warning">⚠️ 경고</option>
+        <option value="checking">🔄 확인중</option>
+      </select>
+
     <!-- IP/이름 통합 검색 -->
       <input
         v-model="filter.search"
@@ -547,6 +624,7 @@ const limitedPages = computed(() => {
           filter.proc_id = ''
           filter.role_type = ''
           filter.db_type = ''
+          filter.check_result = ''
           filter.search = ''
           dateFilter.checkDate = ''
           dateFilter.checkTime = ''
@@ -577,6 +655,7 @@ const limitedPages = computed(() => {
       <table class="table table-compact w-full text-sm">
         <thead class="bg-base-200 text-base-content">
           <tr>
+            <th>체크일시</th>
             <th>DB명</th>
             <th>DB사용자</th>
             <th>법인</th>
@@ -587,11 +666,14 @@ const limitedPages = computed(() => {
             <th>환경</th>
             <th>역할</th>
             <th>DB타입</th>
+            <th>체크결과</th>
+            <th>응답시간</th>
+            <th>에러메시지</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="isLoading">
-            <td colspan="10" class="text-center text-gray-400 py-4">
+            <td colspan="14" class="text-center text-gray-400 py-4">
               <div class="flex items-center justify-center gap-2">
                 <span class="loading loading-spinner loading-sm"></span>
                 검색 중...
@@ -599,7 +681,7 @@ const limitedPages = computed(() => {
             </td>
           </tr>
           <tr v-else-if="error">
-            <td colspan="10" class="text-center text-red-500 py-4">
+            <td colspan="14" class="text-center text-red-500 py-4">
               <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -610,7 +692,7 @@ const limitedPages = computed(() => {
             </td>
           </tr>
           <tr v-else-if="paginatedServers.length === 0">
-            <td colspan="10" class="text-center text-gray-400 py-4">
+            <td colspan="14" class="text-center text-gray-400 py-4">
               검색 결과가 없습니다
               <div class="text-xs text-gray-500 mt-1">
                 (전체 데이터: {{ servers.length }}건)
@@ -618,6 +700,12 @@ const limitedPages = computed(() => {
             </td>
           </tr>
           <tr v-for="s in paginatedServers" :key="s.server_port_id">
+            <td class="font-mono text-xs">
+              <div class="flex flex-col">
+                <span>{{ s.yyyymmdd }}</span>
+                <span class="text-gray-500">{{ s.hhmmss }}</span>
+              </div>
+            </td>
             <td>{{ s.db_instance_name }}</td>
             <td>{{ s.db_userid || '-' }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
@@ -628,6 +716,27 @@ const limitedPages = computed(() => {
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
             <td>{{ s.db_type }}</td>
+            <td>
+              <span 
+                :class="getCheckResultBadgeClass(s.result_code || s.conn_result)"
+                class="badge badge-sm"
+              >
+                {{ getCheckResultText(s.result_code || s.conn_result) }}
+              </span>
+            </td>
+            <td class="text-xs font-mono">
+              <span v-if="s.response_time || s.elapsed_time" class="text-blue-600">
+                {{ s.response_time || s.elapsed_time }}ms
+              </span>
+              <span v-else class="text-gray-400">-</span>
+            </td>
+            <td class="text-xs max-w-xs">
+              <div v-if="s.error_code || s.error_msg" class="text-red-600">
+                <span v-if="s.error_code" class="font-bold">[{{ s.error_code }}]</span>
+                <span v-if="s.error_msg" class="block">{{ s.error_msg }}</span>
+              </div>
+              <span v-else class="text-gray-400">정상</span>
+            </td>
           </tr>
         </tbody>
       </table>
