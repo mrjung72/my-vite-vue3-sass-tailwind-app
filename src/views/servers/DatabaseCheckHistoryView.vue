@@ -155,7 +155,7 @@ const exportToExcel = async () => {
         proc_detail: s.proc_detail,
         env_type: s.env_type,
         role_type: s.role_type,
-        db_type: s.db_type || '',
+        db_type: codeNames.value.cd_db_type[s.db_type] || s.db_type || '',
         check_result: getCheckResultText(s.result_code),
         result_detail: s.result_code === '1' ? 
           `S:${s.perm_select ? '✅' : '❌'} I:${s.perm_insert ? '✅' : '❌'} U:${s.perm_update ? '✅' : '❌'} D:${s.perm_delete ? '✅' : '❌'}` : 
@@ -266,7 +266,7 @@ const filter = ref({
   corp_id: '',
   proc_id: '',
   role_type: '',
-  db_type: 'MAIN',
+  db_type: '',
   check_result: ''
 })
 
@@ -315,9 +315,9 @@ const fetchServers = async () => {
         // API 응답의 필드명을 프론트엔드에서 사용하는 필드명으로 매핑
         db_instance_name: server.db_name || server.db_instance_name,
         server_port_id: server.server_ip + '_' + server.port, // 고유 키 생성
-        env_type: server.db_instance_type || server.env_type,
-        role_type: server.role_type || 'MAIN',
-        db_type: server.db_instance_type || server.db_type || 'MAIN'
+        env_type: server.env_type || 'UNKNOWN',
+        role_type: server.role_type || 'UNKNOWN',
+        db_type: server.db_instance_type || 'UNKNOWN'
       }))
     }
     
@@ -459,7 +459,7 @@ const getCheckResultText = (result) => {
     case 'error':
     case '0':
     case 'false':
-      return '❌ fail'
+      return '❌ 실패'
     default:
       return `⚪ ${result}`
   }
@@ -547,7 +547,7 @@ const getCheckResultText = (result) => {
       </select>
 
       <select v-model="filter.db_type" class="select select-sm select-bordered w-full">
-        <option value="">DB타입 선택</option>
+        <option value="">전체 DB타입</option>
         <option v-for="item in codeOptions.cd_db_type" :key="item.code" :value="item.code">
           {{ item.label }}
         </option>
@@ -685,7 +685,7 @@ const getCheckResultText = (result) => {
             <td>{{ s.port }}</td>
             <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
             <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
-            <td>{{ s.db_type }}</td>
+            <td>{{ codeNames.cd_db_type[s.db_type] || s.db_type }}</td>
             <td>
               <span 
                 :class="getCheckResultBadgeClass(s.result_code)"
