@@ -133,7 +133,7 @@ const exportToExcel = async () => {
       { header: '역할', key: 'role_type', width: 12 },
       { header: 'DB타입', key: 'db_type', width: 10 },
       { header: '체크결과', key: 'check_result', width: 12 },
-      { header: '에러메시지', key: 'error_message', width: 20 },
+      { header: '결과상세', key: 'result_detail', width: 20 },
     ]
 
     // 헤더 행 글꼴 스타일
@@ -157,8 +157,9 @@ const exportToExcel = async () => {
         role_type: s.role_type,
         db_type: s.db_type || '',
         check_result: getCheckResultText(s.result_code),
-        response_time: s.response_time || s.elapsed_time ? `${s.response_time || s.elapsed_time}ms` : '-',
-        error_message: s.error_code ? `[${s.error_code}] ${s.error_msg || ''}` : (s.error_msg || '정상'),
+        result_detail: s.result_code === '1' ? 
+          `S:${s.perm_select ? '✅' : '❌'} I:${s.perm_insert ? '✅' : '❌'} U:${s.perm_update ? '✅' : '❌'} D:${s.perm_delete ? '✅' : '❌'}` : 
+          (s.error_code ? `[${s.error_code}] ${s.error_msg || ''}` : (s.error_msg || '에러정보 없음')),
       })
       // 각 데이터 행 글꼴 스타일 적용 (선택사항)
       row.font = {
@@ -637,12 +638,12 @@ const getCheckResultText = (result) => {
             <th>역할</th>
             <th>DB타입</th>
             <th>체크결과</th>
-            <th>에러메시지</th>
+            <th>결과상세</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="isLoading">
-            <td colspan="14" class="text-center text-gray-400 py-4">
+            <td colspan="13" class="text-center text-gray-400 py-4">
               <div class="flex items-center justify-center gap-2">
                 <span class="loading loading-spinner loading-sm"></span>
                 검색 중...
@@ -650,7 +651,7 @@ const getCheckResultText = (result) => {
             </td>
           </tr>
           <tr v-else-if="error">
-            <td colspan="14" class="text-center text-red-500 py-4">
+            <td colspan="17" class="text-center text-red-500 py-4">
               <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -661,7 +662,7 @@ const getCheckResultText = (result) => {
             </td>
           </tr>
           <tr v-else-if="paginatedServers.length === 0">
-            <td colspan="14" class="text-center text-gray-400 py-4">
+            <td colspan="13" class="text-center text-gray-400 py-4">
               검색 결과가 없습니다
               <div class="text-xs text-gray-500 mt-1">
                 (전체 데이터: {{ servers.length }}건)
@@ -694,11 +695,33 @@ const getCheckResultText = (result) => {
               </span>
             </td>
             <td class="text-xs max-w-xs">
-              <div v-if="s.error_code || s.error_msg" class="text-red-600">
-                <span v-if="s.error_code" class="font-bold">[{{ s.error_code }}]</span>
-                <span v-if="s.error_msg" class="block">{{ s.error_msg }}</span>
+              <!-- 접속 성공 시: DML 권한 표시 (한 줄) -->
+              <div v-if="s.result_code === '1'" class="flex items-center gap-2 flex-wrap">
+                <span class="text-gray-600 font-semibold">S:</span>
+                <span :class="s.perm_select ? 'text-green-600' : 'text-red-500'">
+                  {{ s.perm_select ? '✅' : '❌' }}
+                </span>
+                <span class="text-gray-600 font-semibold">I:</span>
+                <span :class="s.perm_insert ? 'text-green-600' : 'text-red-500'">
+                  {{ s.perm_insert ? '✅' : '❌' }}
+                </span>
+                <span class="text-gray-600 font-semibold">U:</span>
+                <span :class="s.perm_update ? 'text-green-600' : 'text-red-500'">
+                  {{ s.perm_update ? '✅' : '❌' }}
+                </span>
+                <span class="text-gray-600 font-semibold">D:</span>
+                <span :class="s.perm_delete ? 'text-green-600' : 'text-red-500'">
+                  {{ s.perm_delete ? '✅' : '❌' }}
+                </span>
               </div>
-              <span v-else class="text-gray-400">정상</span>
+              <!-- 접속 실패 시: 에러메시지 표시 -->
+              <div v-else>
+                <div v-if="s.error_code || s.error_msg" class="text-red-600">
+                  <span v-if="s.error_code" class="font-bold">[{{ s.error_code }}]</span>
+                  <span v-if="s.error_msg" class="block">{{ s.error_msg }}</span>
+                </div>
+                <span v-else class="text-gray-400">에러정보 없음</span>
+              </div>
             </td>
           </tr>
         </tbody>
