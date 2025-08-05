@@ -57,8 +57,6 @@ const fetchCheckTimes = async (checkDate) => {
   }
   
   try {
-    console.log('체크시분초 목록 조회:', checkDate)
-    
     const res = await axios.get('/api/check-server-log/times', {
       headers: { Authorization: `Bearer ${token}` },
       params: { 
@@ -66,8 +64,6 @@ const fetchCheckTimes = async (checkDate) => {
         yyyymmdd: checkDate
       }
     })
-    
-    console.log('체크시분초 API 응답:', res.data)
     
     if (Array.isArray(res.data)) {
       checkTimeOptions.value = res.data.map(time => ({ value: time, label: time }))
@@ -78,8 +74,6 @@ const fetchCheckTimes = async (checkDate) => {
       checkTimeOptions.value = []
     }
     
-    console.log('설정된 시분초 옵션:', checkTimeOptions.value)
-    
   } catch (err) {
     console.error('체크시분초 로딩 에러:', err)
     checkTimeOptions.value = []
@@ -89,7 +83,6 @@ const fetchCheckTimes = async (checkDate) => {
 
 // 체크일자 변경 시 체크시분초 목록 갱신 및 서버 데이터 재조회
 watch(() => dateFilter.value.checkDate, async (newDate, oldDate) => {
-  console.log('체크일자 변경됨:', { old: oldDate, new: newDate })
   
   // 체크시간 초기화 (watch 함수 트리거 방지를 위해 임시로 watch 비활성화)
   const oldCheckTime = dateFilter.value.checkTime
@@ -104,7 +97,6 @@ watch(() => dateFilter.value.checkDate, async (newDate, oldDate) => {
 
 // 체크시간 변경 시 클라이언트 필터링만 수행 (서버 조회 안함)
 watch(() => dateFilter.value.checkTime, (newTime, oldTime) => {
-  console.log('체크시간 변경됨 (클라이언트 필터링):', { old: oldTime, new: newTime })
   // 시간 변경 시에는 서버 조회 없이 클라이언트에서만 필터링
   // filteredServers computed가 자동으로 재계산됨
 }) 
@@ -165,7 +157,7 @@ const exportToExcel = async () => {
         env_type: s.env_type,
         role_type: s.role_type,
         db_type: s.db_type || '',
-        check_result: getCheckResultText(s.result_code || s.conn_result),
+        check_result: getCheckResultText(s.result_code),
         response_time: s.response_time || s.elapsed_time ? `${s.response_time || s.elapsed_time}ms` : '-',
         error_message: s.error_code ? `[${s.error_code}] ${s.error_msg || ''}` : (s.error_msg || '정상'),
       })
@@ -289,8 +281,6 @@ const fetchServers = async () => {
     }
     // 시분초는 클라이언트에서 필터링하므로 서버에 전달하지 않음
     
-    console.log('서버 데이터 조회 중...', params)
-    
     const res = await axios.get('/api/check-server-log/db', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -299,9 +289,6 @@ const fetchServers = async () => {
     })
     
     // 응답 데이터 구조 디버깅
-    console.log('API 응답 전체:', res.data)
-    console.log('응답 데이터 타입:', typeof res.data)
-    console.log('응답이 배열인가?', Array.isArray(res.data))
     
     // API 응답 구조에 따른 데이터 처리
     if (Array.isArray(res.data)) {
@@ -334,12 +321,8 @@ const fetchServers = async () => {
       }))
     }
     
-    console.log('처리된 서버 데이터 (첫 3개):', servers.value.slice(0, 3))
-    console.log('서버 데이터 총 개수:', servers.value.length)
-    console.log('현재 사용자 IP:', currentUserIP.value)
-    
     // 시간 데이터 형식 확인
-    if (servers.value.length > 0) {
+    if (servers.value.length > 0 && false) {
       const sample = servers.value[0]
       console.log('서버 데이터 시간 형식 샘플:', {
         yyyymmdd: sample.yyyymmdd,
@@ -405,8 +388,7 @@ const filteredServers = computed(() => {
       (!filter.value.role_type || s.role_type === filter.value.role_type) &&
       (!filter.value.db_type || s.db_type === filter.value.db_type) &&
       (!filter.value.check_result || 
-        (s.result_code && s.result_code.toString().toLowerCase().includes(filter.value.check_result)) ||
-        (s.conn_result && s.conn_result.toString().toLowerCase().includes(filter.value.check_result)))
+        (s.result_code && s.result_code.toString().toLowerCase().includes(filter.value.check_result)))
     )
 
     // 시분초 필터링 (클라이언트에서 처리)
@@ -470,11 +452,12 @@ const getCheckResultText = (result) => {
   switch (status) {
     case 'success':
     case 'ok':
-    case '0':
+    case '1':
     case 'true':
       return '✅ 성공'
     case 'fail':
     case 'error':
+    case '0':
     case 'false':
       return '❌ 실패'
     case 'timeout':
@@ -718,10 +701,10 @@ const getCheckResultText = (result) => {
             <td>{{ s.db_type }}</td>
             <td>
               <span 
-                :class="getCheckResultBadgeClass(s.result_code || s.conn_result)"
+                :class="getCheckResultBadgeClass(s.result_code)"
                 class="badge badge-sm"
               >
-                {{ getCheckResultText(s.result_code || s.conn_result) }}
+                {{ getCheckResultText(s.result_code) }}
               </span>
             </td>
             <td class="text-xs font-mono">
