@@ -133,7 +133,6 @@ const exportToExcel = async () => {
       { header: '역할', key: 'role_type', width: 12 },
       { header: 'DB타입', key: 'db_type', width: 10 },
       { header: '체크결과', key: 'check_result', width: 12 },
-      { header: '응답시간', key: 'response_time', width: 10 },
       { header: '에러메시지', key: 'error_message', width: 20 },
     ]
 
@@ -650,7 +649,6 @@ const getCheckResultText = (result) => {
             <th>역할</th>
             <th>DB타입</th>
             <th>체크결과</th>
-            <th>응답시간</th>
             <th>에러메시지</th>
           </tr>
         </thead>
@@ -706,12 +704,6 @@ const getCheckResultText = (result) => {
               >
                 {{ getCheckResultText(s.result_code) }}
               </span>
-            </td>
-            <td class="text-xs font-mono">
-              <span v-if="s.response_time || s.elapsed_time" class="text-blue-600">
-                {{ s.response_time || s.elapsed_time }}ms
-              </span>
-              <span v-else class="text-gray-400">-</span>
             </td>
             <td class="text-xs max-w-xs">
               <div v-if="s.error_code || s.error_msg" class="text-red-600">
