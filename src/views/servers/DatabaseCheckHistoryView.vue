@@ -630,8 +630,7 @@ const getCheckResultText = (result) => {
             <th>DB명</th>
             <th>DB사용자</th>
             <th>법인/공정</th>
-            <th>IP</th>
-            <th>포트</th>
+            <th>IP/포트</th>
             <th>환경 / 역할 / DB타입</th>
             <th>체크결과</th>
             <th>결과상세</th>
@@ -670,8 +669,7 @@ const getCheckResultText = (result) => {
             <td>{{ s.db_instance_name }}</td>
             <td>{{ s.db_userid || '-' }}</td>
             <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }} / [{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }} ({{ s.proc_detail }})</td>
-            <td>{{ s.server_ip }}</td>
-            <td>{{ s.port }}</td>
+            <td>{{ s.server_ip }}:{{ s.port }}</td>
             <td>{{ codeNames.cd_env_type[s.env_type] }} / {{ codeNames.cd_role_type[s.role_type] }} / {{ codeNames.cd_db_type[s.db_type] || s.db_type }}</td>
             <td>
               <span 
