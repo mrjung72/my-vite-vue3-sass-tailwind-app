@@ -106,6 +106,7 @@ function getFilterLabelString() {
   if (f.proc_id) parts.push(f.proc_id);
   if (f.usage_type) parts.push(f.usage_type);
   if (f.env_type) parts.push(f.env_type);
+  if (f.role_type) parts.push(f.role_type);
   return parts.length ? '_' + parts.join('_') : '';
 }
 
@@ -119,14 +120,12 @@ const exportToExcel = async () => {
     const worksheet = workbook.addWorksheet('서버목록')
 
     worksheet.columns = [
-      { header: 'IP', key: 'server_ip', width: 15 },
-      { header: '포트', key: 'port', width: 8 },
-      { header: '호스트명', key: 'hostname', width: 20 },
-      { header: '용도', key: 'usage_type', width: 10 },
-      { header: '환경', key: 'env_type', width: 10 },
-      { header: '법인', key: 'corp_id', width: 10 },
-      { header: '공정', key: 'proc_id', width: 12 },
-      { header: '역할', key: 'role_type', width: 12 },
+      { header: '체크일시', key: 'check_datetime', width: 15 },
+      { header: 'IP/포트', key: 'server_ip_port', width: 20 },
+      { header: '법인/공정', key: 'corp_proc', width: 25 },
+      { header: '환경/역할/용도', key: 'env_role_usage', width: 20 },
+      { header: '체크결과', key: 'check_result', width: 12 },
+      { header: '결과상세', key: 'result_detail', width: 25 },
     ]
 
     // 헤더 행 글꼴 스타일
@@ -138,14 +137,12 @@ const exportToExcel = async () => {
 
     filteredServers.value.forEach(s => {
       const row = worksheet.addRow({
-        server_ip: s.server_ip,
-        port: s.port,
-        hostname: s.hostname,
-        usage_type: s.usage_type,
-        env_type: s.env_type,
-        corp_id: s.corp_id,
-        proc_id: s.proc_id,
-        role_type: s.role_type,
+        check_datetime: `${s.yyyymmdd} ${s.hhmmss}`,
+        server_ip_port: `${s.server_ip}:${s.port}`,
+        corp_proc: `[${s.corp_id}] ${codeNames.value.cd_corp_ids[s.corp_id] || ''} / [${s.proc_id}] ${codeNames.value.cd_proc_ids[s.proc_id] || ''} (${s.proc_detail || ''})`,
+        env_role_usage: `${codeNames.value.cd_env_type[s.env_type] || s.env_type} / ${codeNames.value.cd_role_type[s.role_type] || s.role_type} / ${codeNames.value.cd_usage_type[s.usage_type] || s.usage_type}`,
+        check_result: s.result_code === '1' ? '✅ 성공' : s.result_code === '0' ? '❌ 실패' : `⚪ ${s.result_code || '알 수 없음'}`,
+        result_detail: s.error_code || s.error_msg ? `[${s.error_code || ''}] ${s.error_msg || ''}` : '에러정보 없음',
       })
       // 각 데이터 행 글꼴 스타일 적용 (선택사항)
       row.font = {
@@ -249,6 +246,7 @@ const filter = ref({
   corp_id: '',
   proc_id: '',
   role_type: '',
+  check_result: ''
 })
 
 const fetchServers = async () => {
@@ -364,7 +362,9 @@ const filteredServers = computed(() => {
       (!filter.value.env_type || s.env_type === filter.value.env_type) &&
       (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
       (!filter.value.proc_id || s.proc_id === filter.value.proc_id) &&
-      (!filter.value.role_type || s.role_type === filter.value.role_type)
+      (!filter.value.role_type || s.role_type === filter.value.role_type) &&
+      (!filter.value.check_result || 
+        (s.result_code && s.result_code.toString().toLowerCase().includes(filter.value.check_result)))
     )
 
     // 시분초 필터링 (클라이언트에서 처리)
@@ -392,6 +392,54 @@ const limitedPages = computed(() => {
 
   return pages
 })
+
+// 체크 결과 상태에 따른 배지 클래스 반환
+const getCheckResultBadgeClass = (result) => {
+  if (!result) return 'badge-ghost'
+  
+  const status = result.toString().toLowerCase()
+  switch (status) {
+    case 'success':
+    case 'ok':
+    case '0':
+    case 'true':
+      return 'badge-success'
+    case 'fail':
+    case 'error':
+    case 'timeout':
+    case 'false':
+      return 'badge-error'
+    case 'warning':
+    case 'warn':
+      return 'badge-warning'
+    case 'checking':
+    case 'pending':
+      return 'badge-info'
+    default:
+      return 'badge-ghost'
+  }
+}
+
+// 체크 결과 상태에 따른 텍스트 반환
+const getCheckResultText = (result) => {
+  if (!result) return '⚪ 알 수 없음'
+  
+  const status = result.toString().toLowerCase()
+  switch (status) {
+    case 'success':
+    case 'ok':
+    case '1':
+    case 'true':
+      return '✅ 성공'
+    case 'fail':
+    case 'error':
+    case '0':
+    case 'false':
+      return '❌ 실패'
+    default:
+      return `⚪ ${result}`
+  }
+}
 
 </script>
 
@@ -475,6 +523,13 @@ const limitedPages = computed(() => {
           {{ item.label }}
         </option>
       </select>
+
+      <select v-model="filter.check_result" class="select select-sm select-bordered w-full">
+        <option value="">체크결과 선택</option>
+        <option value="1">✅ 성공</option>
+        <option value="0">❌ 실패</option>
+      </select>
+
       <!-- IP/이름 통합 검색 -->
       <input
         v-model="filter.search"
@@ -511,6 +566,7 @@ const limitedPages = computed(() => {
           filter.corp_id = ''
           filter.proc_id = ''
           filter.role_type = ''
+          filter.check_result = ''
           filter.search = ''
           dateFilter.checkDate = ''
           dateFilter.checkTime = ''
@@ -541,24 +597,17 @@ const limitedPages = computed(() => {
       <table class="table table-compact w-full text-sm">
         <thead class="bg-base-200 text-base-content">
           <tr>
-            <th><input type="checkbox" @change="toggleAll" :checked="allSelected" :disabled="!auth.user?.isAdmin" /></th>
-            <th>Telnet Check ID</th>
-            <th>법인</th>
-            <th>공정</th>
-            <th>세부공정</th>
-            <th>IP</th>
-            <th>포트</th>
-            <!-- <th>호스트명</th>  -->
-            <th>용도</th>
-            <th>환경</th>
-            <th>역할</th>
-            <th>Check 결과</th>
-            <th>에러메세지</th>
+            <th>체크일시</th>
+            <th>법인/공정</th>
+            <th>IP/포트</th>
+            <th>환경 / 역할 / 용도</th>
+            <th>체크결과</th>
+            <th>결과상세</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="isLoading">
-            <td colspan="13" class="text-center text-gray-400 py-4">
+            <td colspan="6" class="text-center text-gray-400 py-4">
               <div class="flex items-center justify-center gap-2">
                 <span class="loading loading-spinner loading-sm"></span>
                 검색 중...
@@ -566,7 +615,7 @@ const limitedPages = computed(() => {
             </td>
           </tr>
           <tr v-else-if="error">
-            <td colspan="13" class="text-center text-red-500 py-4">
+            <td colspan="6" class="text-center text-red-500 py-4">
               <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -577,29 +626,33 @@ const limitedPages = computed(() => {
             </td>
           </tr>
           <tr v-else-if="paginatedServers.length === 0">
-            <td colspan="13" class="text-center text-gray-400 py-4">
+            <td colspan="6" class="text-center text-gray-400 py-4">
               검색 결과가 없습니다
               <div class="text-xs text-gray-500 mt-1">
                 (전체 데이터: {{ servers.length }}건)
               </div>
             </td>
           </tr>
-          <tr v-for="s in paginatedServers" :key="s.server_port_id">
+          <tr v-for="s in paginatedServers" :key="s.server_ip + '_' + s.port + '_' + s.yyyymmdd + '_' + s.hhmmss">
+            <td>{{ s.yyyymmdd }} {{ s.hhmmss }}</td>
+            <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }} / [{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }} ({{ s.proc_detail }})</td>
+            <td>{{ s.server_ip }}:{{ s.port }}</td>
+            <td>{{ codeNames.cd_env_type[s.env_type] }} / {{ codeNames.cd_role_type[s.role_type] }} / {{ codeNames.cd_usage_type[s.usage_type] }}</td>
             <td>
-              <input type="checkbox" v-model="selectedServers" :value="s" :disabled="!auth.user?.isAdmin" />
-            </td>            
-            <td>{{ s.yyyymmdd }}-{{ s.hhmmss }}</td>
-            <td>[{{ s.corp_id }}] {{ codeNames.cd_corp_ids[s.corp_id] }}</td>
-            <td>[{{ s.proc_id }}] {{ codeNames.cd_proc_ids[s.proc_id] }}</td>
-            <td>{{ s.proc_detail }}</td>
-            <td>{{ s.server_ip }}</td>
-            <td>{{ s.port }}</td>
-            <!-- <td>{{ s.hostname }}</td> -->
-            <td>{{ codeNames.cd_usage_type[s.usage_type] }}</td>
-            <td>{{ codeNames.cd_env_type[s.env_type] }}</td>
-            <td>{{ codeNames.cd_role_type[s.role_type] }}</td>
-            <td>{{ s.result_code }}</td>
-            <td>[{{ s.error_code }}] {{ s.error_msg }}</td>
+              <span 
+                :class="getCheckResultBadgeClass(s.result_code)"
+                class="badge badge-sm"
+              >
+                {{ getCheckResultText(s.result_code) }}
+              </span>
+            </td>
+            <td class="text-xs max-w-xs">
+              <div v-if="s.error_code || s.error_msg" class="text-red-600">
+                <span v-if="s.error_code" class="font-bold">[{{ s.error_code }}]</span>
+                <span v-if="s.error_msg" class="block">{{ s.error_msg }}</span>
+              </div>
+              <span v-else class="text-gray-400">에러정보 없음</span>
+            </td>
           </tr>
         </tbody>
       </table>
