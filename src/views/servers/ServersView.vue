@@ -115,11 +115,26 @@ function getFilterLabelString() {
   const f = filter.value;
   const parts = [];
   
-  if (f.corp_id) parts.push(`${codeNames.value.cd_corp_ids[f.corp_id] || f.corp_id}`);
-  if (f.proc_id) parts.push(`${codeNames.value.cd_proc_ids[f.proc_id] || f.proc_id}`);
-  if (f.usage_type) parts.push(`${codeNames.value.cd_usage_type[f.usage_type] || f.usage_type}`);
-  if (f.env_type) parts.push(`${codeNames.value.cd_env_type[f.env_type] || f.env_type}`);
-  if (f.role_type) parts.push(`${codeNames.value.cd_role_type[f.role_type] || f.role_type}`);
+  if (f.corp_id.length > 0) {
+    const corpNames = f.corp_id.map(id => codeNames.value.cd_corp_ids[id] || id);
+    parts.push(corpNames.join(','));
+  }
+  if (f.proc_id.length > 0) {
+    const procNames = f.proc_id.map(id => codeNames.value.cd_proc_ids[id] || id);
+    parts.push(procNames.join(','));
+  }
+  if (f.usage_type.length > 0) {
+    const usageNames = f.usage_type.map(type => codeNames.value.cd_usage_type[type] || type);
+    parts.push(usageNames.join(','));
+  }
+  if (f.env_type.length > 0) {
+    const envNames = f.env_type.map(type => codeNames.value.cd_env_type[type] || type);
+    parts.push(envNames.join(','));
+  }
+  if (f.role_type.length > 0) {
+    const roleNames = f.role_type.map(type => codeNames.value.cd_role_type[type] || type);
+    parts.push(roleNames.join(','));
+  }
   if (f.search) parts.push(`${f.search}`);
   
   return parts.length ? '_' + parts.join('_') : '';
@@ -305,12 +320,12 @@ const goToPage = page => (currentPage.value = page)
 
 const filter = ref({
   search: '',
-  usage_type: '',
-  env_type: '',
-  corp_id: '',
-  proc_id: '',
-  role_type: '',
-  status_cd: 'Y',
+  usage_type: [],
+  env_type: [],
+  corp_id: [],
+  proc_id: [],
+  role_type: [],
+  status_cd: ['Y'],
 })
 
 const fetchServers = async () => {
@@ -356,12 +371,12 @@ const filteredServers = computed(() => {
         s.server_ip?.includes(filter.value.search) ||
         s.proc_detail?.includes(filter.value.search) ||
         s.hostname?.toLowerCase().includes(filter.value.search.toLowerCase())) &&
-      (!filter.value.usage_type || s.usage_type === filter.value.usage_type) &&
-      (!filter.value.env_type || s.env_type === filter.value.env_type) &&
-      (!filter.value.corp_id || s.corp_id === filter.value.corp_id) &&
-      (!filter.value.proc_id || s.proc_id === filter.value.proc_id) &&
-      (!filter.value.role_type || s.role_type === filter.value.role_type) &&
-      (!filter.value.status_cd || s.status_cd === filter.value.status_cd)
+      (filter.value.usage_type.length === 0 || filter.value.usage_type.includes(s.usage_type)) &&
+      (filter.value.env_type.length === 0 || filter.value.env_type.includes(s.env_type)) &&
+      (filter.value.corp_id.length === 0 || filter.value.corp_id.includes(s.corp_id)) &&
+      (filter.value.proc_id.length === 0 || filter.value.proc_id.includes(s.proc_id)) &&
+      (filter.value.role_type.length === 0 || filter.value.role_type.includes(s.role_type)) &&
+      (filter.value.status_cd.length === 0 || filter.value.status_cd.includes(s.status_cd))
     )
   })
 })
@@ -384,6 +399,55 @@ const limitedPages = computed(() => {
   return pages
 })
 
+// 드롭다운 전체 선택/해제 함수들
+const toggleAllCorps = () => {
+  if (filter.value.corp_id.length === codeOptions.value.cd_corp_ids.length) {
+    filter.value.corp_id = []
+  } else {
+    filter.value.corp_id = codeOptions.value.cd_corp_ids.map(item => item.code)
+  }
+}
+
+const toggleAllProcs = () => {
+  if (filter.value.proc_id.length === codeOptions.value.cd_proc_ids.length) {
+    filter.value.proc_id = []
+  } else {
+    filter.value.proc_id = codeOptions.value.cd_proc_ids.map(item => item.code)
+  }
+}
+
+const toggleAllUsageTypes = () => {
+  if (filter.value.usage_type.length === codeOptions.value.cd_usage_type.length) {
+    filter.value.usage_type = []
+  } else {
+    filter.value.usage_type = codeOptions.value.cd_usage_type.map(item => item.code)
+  }
+}
+
+const toggleAllEnvTypes = () => {
+  if (filter.value.env_type.length === codeOptions.value.cd_env_type.length) {
+    filter.value.env_type = []
+  } else {
+    filter.value.env_type = codeOptions.value.cd_env_type.map(item => item.code)
+  }
+}
+
+const toggleAllRoleTypes = () => {
+  if (filter.value.role_type.length === codeOptions.value.cd_role_type.length) {
+    filter.value.role_type = []
+  } else {
+    filter.value.role_type = codeOptions.value.cd_role_type.map(item => item.code)
+  }
+}
+
+const toggleAllStatusCds = () => {
+  if (filter.value.status_cd.length === codeOptions.value.cd_stat_yn.length) {
+    filter.value.status_cd = []
+  } else {
+    filter.value.status_cd = codeOptions.value.cd_stat_yn.map(item => item.code)
+  }
+}
+
 </script>
 
 <template>
@@ -392,54 +456,214 @@ const limitedPages = computed(() => {
     <!-- 🔍 검색 필터 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
 
-      <select v-model="filter.corp_id" class="select select-sm select-bordered w-full">
-        <option value="">법인 선택</option>
-        <option v-for="item in codeOptions.cd_corp_ids" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
+      <!-- 법인 선택 드롭다운 -->
+      <div class="dropdown dropdown-bottom w-full">
+        <div tabindex="0" role="button" class="btn btn-sm btn-outline w-full justify-between">
+          <span>법인 선택 ({{ filter.corp_id.length }}개)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-10">
+          <li class="border-b border-base-200 mb-2 pb-2">
+            <button @click="toggleAllCorps" class="btn btn-xs btn-ghost w-full">
+              {{ filter.corp_id.length === codeOptions.cd_corp_ids.length ? '전체 해제' : '전체 선택' }}
+            </button>
+          </li>
+          <li v-for="item in codeOptions.cd_corp_ids" :key="item.code">
+            <label class="label cursor-pointer justify-start">
+              <input 
+                type="checkbox" 
+                :value="item.code" 
+                v-model="filter.corp_id" 
+                class="checkbox checkbox-sm checkbox-primary mr-2"
+              />
+              <span class="text-sm">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+        <div v-if="filter.corp_id.length > 0" class="flex flex-wrap gap-1 mt-1">
+          <span v-for="id in filter.corp_id" :key="id" class="badge badge-primary badge-sm">
+            {{ codeNames.cd_corp_ids[id] || id }}
+          </span>
+        </div>
+      </div>
 
-      <select v-model="filter.proc_id" class="select select-sm select-bordered w-full">
-        <option value="">공정 선택</option>
-        <option v-for="item in codeOptions.cd_proc_ids" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
+      <!-- 공정 선택 드롭다운 -->
+      <div class="dropdown dropdown-bottom w-full">
+        <div tabindex="0" role="button" class="btn btn-sm btn-outline w-full justify-between">
+          <span>공정 선택 ({{ filter.proc_id.length }}개)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-10">
+          <li class="border-b border-base-200 mb-2 pb-2">
+            <button @click="toggleAllProcs" class="btn btn-xs btn-ghost w-full">
+              {{ filter.proc_id.length === codeOptions.cd_proc_ids.length ? '전체 해제' : '전체 선택' }}
+            </button>
+          </li>
+          <li v-for="item in codeOptions.cd_proc_ids" :key="item.code">
+            <label class="label cursor-pointer justify-start">
+              <input 
+                type="checkbox" 
+                :value="item.code" 
+                v-model="filter.proc_id" 
+                class="checkbox checkbox-sm checkbox-secondary mr-2"
+              />
+              <span class="text-sm">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+        <div v-if="filter.proc_id.length > 0" class="flex flex-wrap gap-1 mt-1">
+          <span v-for="id in filter.proc_id" :key="id" class="badge badge-secondary badge-sm">
+            {{ codeNames.cd_proc_ids[id] || id }}
+          </span>
+        </div>
+      </div>
 
-      <select v-model="filter.usage_type" class="select select-sm select-bordered w-full">
-        <option value="">용도 선택</option>
-        <option v-for="item in codeOptions.cd_usage_type" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
+      <!-- 용도 선택 드롭다운 -->
+      <div class="dropdown dropdown-bottom w-full">
+        <div tabindex="0" role="button" class="btn btn-sm btn-outline w-full justify-between">
+          <span>용도 선택 ({{ filter.usage_type.length }}개)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-10">
+          <li class="border-b border-base-200 mb-2 pb-2">
+            <button @click="toggleAllUsageTypes" class="btn btn-xs btn-ghost w-full">
+              {{ filter.usage_type.length === codeOptions.cd_usage_type.length ? '전체 해제' : '전체 선택' }}
+            </button>
+          </li>
+          <li v-for="item in codeOptions.cd_usage_type" :key="item.code">
+            <label class="label cursor-pointer justify-start">
+              <input 
+                type="checkbox" 
+                :value="item.code" 
+                v-model="filter.usage_type" 
+                class="checkbox checkbox-sm checkbox-accent mr-2"
+              />
+              <span class="text-sm">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+        <div v-if="filter.usage_type.length > 0" class="flex flex-wrap gap-1 mt-1">
+          <span v-for="type in filter.usage_type" :key="type" class="badge badge-accent badge-sm">
+            {{ codeNames.cd_usage_type[type] || type }}
+          </span>
+        </div>
+      </div>
 
-      <select v-model="filter.env_type" class="select select-sm select-bordered w-full">
-        <option value="">환경 선택</option>
-        <option v-for="item in codeOptions.cd_env_type" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
+      <!-- 환경 선택 드롭다운 -->
+      <div class="dropdown dropdown-bottom w-full">
+        <div tabindex="0" role="button" class="btn btn-sm btn-outline w-full justify-between">
+          <span>환경 선택 ({{ filter.env_type.length }}개)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-10">
+          <li class="border-b border-base-200 mb-2 pb-2">
+            <button @click="toggleAllEnvTypes" class="btn btn-xs btn-ghost w-full">
+              {{ filter.env_type.length === codeOptions.cd_env_type.length ? '전체 해제' : '전체 선택' }}
+            </button>
+          </li>
+          <li v-for="item in codeOptions.cd_env_type" :key="item.code">
+            <label class="label cursor-pointer justify-start">
+              <input 
+                type="checkbox" 
+                :value="item.code" 
+                v-model="filter.env_type" 
+                class="checkbox checkbox-sm checkbox-info mr-2"
+              />
+              <span class="text-sm">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+        <div v-if="filter.env_type.length > 0" class="flex flex-wrap gap-1 mt-1">
+          <span v-for="type in filter.env_type" :key="type" class="badge badge-info badge-sm">
+            {{ codeNames.cd_env_type[type] || type }}
+          </span>
+        </div>
+      </div>
 
-      <select v-model="filter.role_type" class="select select-sm select-bordered w-full">
-        <option value="">역할 선택</option>
-        <option v-for="item in codeOptions.cd_role_type" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
+      <!-- 역할 선택 드롭다운 -->
+      <div class="dropdown dropdown-bottom w-full">
+        <div tabindex="0" role="button" class="btn btn-sm btn-outline w-full justify-between">
+          <span>역할 선택 ({{ filter.role_type.length }}개)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-10">
+          <li class="border-b border-base-200 mb-2 pb-2">
+            <button @click="toggleAllRoleTypes" class="btn btn-xs btn-ghost w-full">
+              {{ filter.role_type.length === codeOptions.cd_role_type.length ? '전체 해제' : '전체 선택' }}
+            </button>
+          </li>
+          <li v-for="item in codeOptions.cd_role_type" :key="item.code">
+            <label class="label cursor-pointer justify-start">
+              <input 
+                type="checkbox" 
+                :value="item.code" 
+                v-model="filter.role_type" 
+                class="checkbox checkbox-sm checkbox-warning mr-2"
+              />
+              <span class="text-sm">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+        <div v-if="filter.role_type.length > 0" class="flex flex-wrap gap-1 mt-1">
+          <span v-for="type in filter.role_type" :key="type" class="badge badge-warning badge-sm">
+            {{ codeNames.cd_role_type[type] || type }}
+          </span>
+        </div>
+      </div>
 
-      <select v-model="filter.status_cd" class="select select-sm select-bordered w-full">
-        <option v-for="item in codeOptions.cd_stat_yn" :key="item.code" :value="item.code">
-          {{ item.label }}
-        </option>
-      </select>
+      <!-- 상태 선택 드롭다운 -->
+      <div class="dropdown dropdown-bottom w-full">
+        <div tabindex="0" role="button" class="btn btn-sm btn-outline w-full justify-between">
+          <span>상태 선택 ({{ filter.status_cd.length }}개)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-10">
+          <li class="border-b border-base-200 mb-2 pb-2">
+            <button @click="toggleAllStatusCds" class="btn btn-xs btn-ghost w-full">
+              {{ filter.status_cd.length === codeOptions.cd_stat_yn.length ? '전체 해제' : '전체 선택' }}
+            </button>
+          </li>
+          <li v-for="item in codeOptions.cd_stat_yn" :key="item.code">
+            <label class="label cursor-pointer justify-start">
+              <input 
+                type="checkbox" 
+                :value="item.code" 
+                v-model="filter.status_cd" 
+                class="checkbox checkbox-sm checkbox-success mr-2"
+              />
+              <span class="text-sm">{{ item.label }}</span>
+            </label>
+          </li>
+        </ul>
+        <div v-if="filter.status_cd.length > 0" class="flex flex-wrap gap-1 mt-1">
+          <span v-for="cd in filter.status_cd" :key="cd" class="badge badge-success badge-sm">
+            {{ codeNames.cd_stat_yn[cd] || cd }}
+          </span>
+        </div>
+      </div>
 
-    <!-- IP/이름 통합 검색 -->
-      <input
-        v-model="filter.search"
-        type="text"
-        placeholder="IP 또는 호스트명 또는 세부공정 검색"
-        class="input input-sm input-bordered w-full md:w-60"
-      />
+      <!-- IP/이름 통합 검색 -->
+      <div>
+        <div class="text-xs text-gray-600 mb-1">통합 검색</div>
+        <input
+          v-model="filter.search"
+          type="text"
+          placeholder="IP 또는 호스트명 또는 세부공정 검색"
+          class="input input-sm input-bordered w-full"
+        />
+      </div>
     </div>
 
 
@@ -453,12 +677,12 @@ const limitedPages = computed(() => {
       <!-- 오른쪽: 버튼 그룹 -->
       <div class="flex gap-2">
         <button class="btn btn-sm btn-outline" @click="() => {
-          filter.usage_type = ''
-          filter.env_type = ''
-          filter.corp_id = ''
-          filter.proc_id = ''
-          filter.role_type = ''
-          filter.status_cd = 'Y'
+          filter.usage_type = []
+          filter.env_type = []
+          filter.corp_id = []
+          filter.proc_id = []
+          filter.role_type = []
+          filter.status_cd = ['Y']
           filter.search = ''
         }">
           필터 초기화
