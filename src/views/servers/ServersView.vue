@@ -14,12 +14,16 @@ const token = localStorage.getItem('token')
 
 const exportToCSV = () => {
   const header = [
-    'IP', '포트', '호스트명', '용도', '환경', '법인', '공정', '역할', '상태'
+    'SERVER_IP', 'PORT', 'SERVER_NAME', 'HOSTNAME', '용도', '환경', '법인', '공정', '역할', '상태'
   ]
 
   const rows = filteredServers.value.map(s => [
     s.server_ip,
     s.port,
+    codeNames.value.cd_usage_type[s.usage_type] + '_' +
+    codeNames.value.cd_env_type[s.env_type] + '_' +
+    codeNames.value.cd_corp_ids[s.corp_id] + '_' + 
+    codeNames.value.cd_proc_ids[s.proc_id] + '_' + s.role_type,
     s.hostname,
     codeNames.value.cd_usage_type[s.usage_type] || s.usage_type,
     codeNames.value.cd_env_type[s.env_type] || s.env_type,
@@ -34,9 +38,9 @@ const exportToCSV = () => {
       .map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
       .join('\n')
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=euc-kr;' })
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const filterStr = getFilterLabelString();
-  saveAs(blob, `서버목록${filterStr}_${new Date().toISOString().slice(0, 10)}.csv`)
+  saveAs(blob, `SERVERS${filterStr}_${new Date().toISOString().slice(0, 10)}.csv`)
 }
 
 const exportToJSON = () => {
@@ -59,7 +63,7 @@ const exportToJSON = () => {
   // JSON 파일 다운로드
   const jsonContent = JSON.stringify(jsonData, null, 2)
   const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
-  saveAs(blob, `서버목록${filterStr}_${timestamp}.json`)
+  saveAs(blob, `SERVERS${filterStr}_${timestamp}.json`)
 }
 
 const exportToXML = () => {
@@ -98,7 +102,7 @@ const exportToXML = () => {
   
   // XML 파일 다운로드
   const blob = new Blob([xml], { type: 'application/xml;charset=utf-8;' })
-  saveAs(blob, `서버목록${filterStr}_${timestamp}.xml`)
+  saveAs(blob, `SERVERS${filterStr}_${timestamp}.xml`)
 }
 
 // XML 특수문자 이스케이프 함수
@@ -147,12 +151,13 @@ const exportToExcel = async () => {
   try {
 
     const workbook = new ExcelJS.Workbook()
-    const worksheet = workbook.addWorksheet('서버목록')
+    const worksheet = workbook.addWorksheet('SERVERS')
 
     worksheet.columns = [
-      { header: 'IP', key: 'server_ip', width: 15 },
-      { header: '포트', key: 'port', width: 8 },
-      { header: '호스트명', key: 'hostname', width: 20 },
+      { header: 'SERVER_IP', key: 'server_ip', width: 15 },
+      { header: 'PORT', key: 'port', width: 8 },
+      { header: 'SERVER_NAME', key: 'server_name', width: 20 },
+      { header: 'HOSTNAME', key: 'hostname', width: 20 },
       { header: '용도', key: 'usage_type', width: 10 },
       { header: '환경', key: 'env_type', width: 10 },
       { header: '법인', key: 'corp_id', width: 10 },
@@ -169,9 +174,19 @@ const exportToExcel = async () => {
     }
 
     filteredServers.value.forEach(s => {
+
+      const usageName = codeNames.value.cd_usage_type[s.usage_type] || s.usage_type;
+      const envType = codeNames.value.cd_env_type[s.env_type] || s.env_type;
+      const corpId = codeNames.value.cd_corp_ids[s.corp_id] || s.corp_id ;
+      const procId = codeNames.value.cd_proc_ids[s.proc_id] || s.proc_id;
+      const roleType = codeNames.value.cd_role_type[s.role_type] || s.role_type;
+
+      const serverName = `${usageName}_${envType}_${corpId}_${procId}_${roleType}`;
+
       const row = worksheet.addRow({
         server_ip: s.server_ip,
         port: s.port,
+        server_name: serverName + '_' + s.proc_detail,
         hostname: s.hostname,
         usage_type: s.usage_type,
         env_type: s.env_type,
@@ -189,8 +204,8 @@ const exportToExcel = async () => {
 
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    const filterStr = getFilterLabelString();
-    saveAs(blob, `서버목록${filterStr}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    const filterStr = getFilterLabelString() || '_ALL';
+    saveAs(blob, `SERVERS${filterStr}_${new Date().toISOString().slice(0, 10)}.xlsx`)
     isExporting.value = false   
 
   } catch (error) {
