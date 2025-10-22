@@ -14,16 +14,22 @@ const token = localStorage.getItem('token')
 
 const exportToCSV = () => {
   const header = [
-    'DB명', 'IP', '포트', '법인', '공정', '환경', '역할', 'DB타입'
+    'DB_NAME', 'SERVER_IP', 'PORT', 'DB_TYPE', 'DB_TITLE', '법인', '공정', '환경', '역할', 'DB타입'
   ]
 
   const rows = filteredServers.value.map(s => [
     s.db_instance_name,
     s.server_ip,
     s.port,
+    'mssql',
+    codeNames.value.cd_corp_ids[s.corp_id] + '_' +
+    codeNames.value.cd_proc_ids[s.proc_id] + '_' +
+    codeNames.value.cd_env_type[s.env_type] + '_' +
+    codeNames.value.cd_role_type[s.role_type] + '_' ,
     codeNames.value.cd_corp_ids[s.corp_id] || s.corp_id,
     codeNames.value.cd_proc_ids[s.proc_id] || s.proc_id,
     codeNames.value.cd_env_type[s.env_type] || s.env_type,
+    codeNames.value.cd_db_type[s.db_type] || s.db_type,
     codeNames.value.cd_role_type[s.role_type] || s.role_type,
     s.db_type || '',
   ])
@@ -33,7 +39,7 @@ const exportToCSV = () => {
       .map(e => e.map(v => `${String(v).replace(/"/g, '""')}`).join(','))
       .join('\n')
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=euc-kr;' })
+  const blob = new Blob([csvContent], { type: 'application/csv;charset=utf-8;' })
   const filterStr = getFilterLabelString();
   saveAs(blob, `DB목록${filterStr}_${new Date().toISOString().slice(0, 10)}.csv`)
 }
@@ -62,15 +68,20 @@ const exportToDBInfo = () => {
 
     // DB 연결 정보 구성
     dbinfo.dbs[dbKey] = {
+      db_type: 'mssql',
       title: filterStr,
       server: server.server_ip || "localhost",
       port: parseInt(server.port) || 1433,
       database: server.db_instance_name || "DATABASE_NAME",
-      user: "username",
-      password: "password", 
+      isWritable: server.env_type==='PROD'?false:true,
+      user: "input_username",
+      password: "input_password", 
       options: { 
         encrypt: true, 
-        trustServerCertificate: true 
+        trustServerCertificate: true,
+        enableArithAbort: true,
+        requestTimeout: 30000,
+        connectionTimeout: 30000
       }
     }
 
@@ -195,17 +206,19 @@ const exportToExcel = async () => {
 
     const workbook = new ExcelJS.Workbook()
     const worksheet = workbook.addWorksheet('DB목록')
+    // 'DB_NAME', 'SERVER_IP', 'PORT', 'DB_TYPE', 'DB_TITLE', '법인', '공정', '환경', '역할', 'DB타입'
 
     worksheet.columns = [
-      { header: 'DB명', key: 'db_instance_name', width: 20 },
-      { header: 'IP', key: 'server_ip', width: 15 },
-      { header: '포트', key: 'port', width: 8 },
+      { header: 'DB_NAME', key: 'db_instance_name', width: 20 },
+      { header: 'SERVER_IP', key: 'server_ip', width: 15 },
+      { header: 'PORT', key: 'port', width: 8 },
+      { header: 'DB_TYPE', key: 'db_brand', width: 10 },
+      { header: 'DB_TITLE', key: 'db_title', width: 10 },
       { header: '법인', key: 'corp_id', width: 10 },
       { header: '공정', key: 'proc_id', width: 12 },
-      { header: '상세공정', key: 'proc_detail', width: 12 },
       { header: '환경', key: 'env_type', width: 10 },
       { header: '역할', key: 'role_type', width: 12 },
-      { header: 'DB타입', key: 'db_type', width: 10 },
+      { header: 'DB타입', key: 'db_type', width: 10 }
     ]
 
     // 헤더 행 글꼴 스타일
@@ -216,10 +229,19 @@ const exportToExcel = async () => {
     }
 
     filteredServers.value.forEach(s => {
+
+      const db_title = codeNames.value.cd_corp_ids[s.corp_id] + '_' +
+                      codeNames.value.cd_proc_ids[s.proc_id] + '_' +
+                      codeNames.value.cd_env_type[s.env_type] + '_' +
+                      codeNames.value.cd_db_type[s.db_type] + '_' +
+                      s.role_type;
+
       const row = worksheet.addRow({
         server_ip: s.server_ip,
         port: s.port,
         db_instance_name: s.db_instance_name,
+        db_brand:'mssql',
+        db_title:db_title,
         env_type: s.env_type,
         corp_id: s.corp_id,
         proc_id: s.proc_id,
