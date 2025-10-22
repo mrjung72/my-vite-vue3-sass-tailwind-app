@@ -49,9 +49,7 @@ const exportToDBInfo = () => {
   const filterStr = getFilterLabelString()
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', '_').replace(/:/g, '')
   
-  const dbinfo = {
-    dbs: {}
-  }
+  const dbinfo = {}
 
   // 각 DB에 대한 연결 정보 생성
   filteredServers.value.forEach((server, index) => {
@@ -67,7 +65,7 @@ const exportToDBInfo = () => {
     const filterStr = parts.length ? '_' + parts.join('_') : '';
 
     // DB 연결 정보 구성
-    dbinfo.dbs[dbKey] = {
+    dbinfo[dbKey] = {
       db_type: 'mssql',
       title: filterStr,
       server: server.server_ip || "localhost",
