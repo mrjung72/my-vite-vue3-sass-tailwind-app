@@ -193,8 +193,7 @@ const checkUserIdDuplicate = debounce(async () => {
     useridError.value =
       err.response?.data?.message ||
       err.response?.data?.error ||
-      err.response?.data ||
-      '이미 사용 중인 아이디입니다.'
+      err.response?.data ||err.message
     useridAvailable.value = false
   }
 }, 500)
@@ -210,7 +209,7 @@ const checkEmailDuplicate = debounce(async () => {
     })
     emailAvailable.value = true
   } catch (err) {
-    emailError.value = '이미 등록된 이메일입니다.'
+    emailError.value = err.response?.data?.message || err.message
     emailAvailable.value = false
   }
 }, 500)
