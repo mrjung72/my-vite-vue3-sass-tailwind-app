@@ -1,4 +1,8 @@
+import axios from 'axios';
 import { createApp } from 'vue';
+
+// Axios 기본 URL 설정
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 import router from "@/router/index.js";
 import App from './App.vue';
 import './assets/styles/main.scss';
