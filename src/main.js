@@ -3,7 +3,8 @@ import { createApp } from 'vue';
 
 // Axios 기본 URL 설정
 // Cloud Run 환경에서는 Nginx 리버스 프록시(/api)를 통해 Backend로 전달됩니다.
-axios.defaults.baseURL = '/api';
+// 개별 요청에서 이미 '/api'를 포함하고 있으므로 baseURL은 비워둡니다.
+axios.defaults.baseURL = '';
 import router from "@/router/index.js";
 import App from './App.vue';
 import './assets/styles/main.scss';
