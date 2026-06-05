@@ -8,7 +8,7 @@ server {
 
     resolver 8.8.8.8 valid=30s;
 
-    set $backend_url 'https://resourcemgtappback-667598904364.asia-northeast3.run.app';
+    set $backend_url ${BACKEND_URL};
 
     location /api/ {
         proxy_pass $backend_url;
